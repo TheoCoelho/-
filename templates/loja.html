@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Loja de Roupas</title>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <link rel="stylesheet" href="/static/styleloja.css">
+    <style>
+        .rounded-circle {
+            border-radius: 50%;
+            overflow: hidden;
+            border: 2px solid transparent;
+            transition: border-color 0.3s;
+        }
+
+        .rounded-circle:hover {
+            border-color: #007bff;
+        }
+    </style>
+</head>
+<body>
+    <header class="bg-dark text-white py-4">
+        <div class="container text-center">
+            <h1 class="m-0">Loja de Roupas</h1>
+        </div>
+    </header>
+
+    <section id="section-cards" class="bg-light py-4">
+        <div class="container">
+            <div class="row">
+                <div class="col-md-4">
+                    <div class="card text-center rounded-circle">
+                        <img src="icons/new_products_icon.png" class="card-img-top mx-auto" alt="Ícone de Novas Chegadas">
+                        <div class="card-body">
+                            <h3 class="card-title">Novas Chegadas</h3>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="card text-center rounded-circle">
+                        <img src="icons/top_products_icon.png" class="card-img-top mx-auto" alt="Ícone de Mais Vendidos">
+                        <div class="card-body">
+                            <h3 class="card-title">Mais Vendidos <i class="bi bi-lightning-fill"></i></h3>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="card text-center rounded-circle">
+                        <img src="icons/product_gallery_icon.png" class="card-img-top mx-auto" alt="Ícone de Galeria de Produtos">
+                        <div class="card-body">
+                            <h3 class="card-title">Galeria de Produtos <i class="bi bi-images"></i></h3>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section id="new-products" class="py-4">
+        <div class="container">
+            <h2>Novas Chegadas</h2>
+            <div class="row">
+                <!-- Novas chegadas serão adicionadas dinamicamente aqui -->
+            </div>
+        </div>
+    </section>
+
+    <section id="category-tabs" class="bg-light py-4">
+        <div class="container">
+            <h2 class="text-center">Categorias</h2>
+            <div class="row d-flex justify-content-center align-items-center">
+                <div class="col-md-4 text-center">
+                    <div class="rounded-circle category" style="width: 150px; height: 150px; overflow: hidden; border: 2px solid transparent;">
+                        <img src="/static/iconroupa2.png" class="img-fluid" alt="Ícone de Roupas Femininas">
+                    </div>
+                    <p>Roupas Femininas</p>
+                </div>
+                <div class="col-md-4 text-center">
+                    <div class="rounded-circle category" style="width: 150px; height: 150px; overflow: hidden; border: 2px solid transparent;">
+                        <img src="/static/iconroupa1.png" class="img-fluid" alt="Ícone de Roupas Masculinas">
+                    </div>
+                    <p>Roupas Masculinas</p>
+                </div>
+                <div class="col-md-4 text-center">
+                    <div class="rounded-circle category" style="width: 150px; height: 150px; overflow: hidden; border: 2px solid transparent;">
+                        <img src="/static/iconroupa3.png" class="img-fluid" alt="Ícone de Roupas Infantis">
+                    </div>
+                    <p>Tênis</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section id="top-products" class="py-4">
+        <div class="container">
+            <h2>Mais Vendidos <i class="bi bi-lightning-fill"></i></h2>
+            <div class="row">
+                <!-- Produtos mais vendidos serão adicionados dinamicamente aqui -->
+            </div>
+        </div>
+    </section>
+
+    <section id="product-gallery" class="bg-light py-4">
+        <div class="container">
+            <h2>Galeria de Produtos <i class="bi bi-images"></i></h2>
+            <div class="row">
+                <div class="col-md-3">
+                    <img src="product_images/dress.jpg" class="img-thumbnail rounded-circle" alt="Vestido">
+                </div>
+                <div class="col-md-3">
+                    <img src="product_images/shirt.jpg" class="img-thumbnail rounded-circle" alt="Camisa">
+                </div>
+                <div class="col-md-3">
+                    <img src="product_images/pants.jpg" class="img-thumbnail rounded-circle" alt="Calças">
+                </div>
+                <div class="col-md-3">
+                    <img src="product_images/shoes.jpg" class="img-thumbnail rounded-circle" alt="Sapatos">
+                </div>
+                <!-- Adicione mais imagens de produtos conforme necessário -->
+            </div>
+        </div>
+    </section>
+
+    <footer class="bg-dark text-white py-3">
+        <div class="container text-center">
+            <p>&copy; 2024 Loja de Roupas. Todos os direitos reservados.</p>
+        </div>
+    </footer>
+</body>
+</html>
