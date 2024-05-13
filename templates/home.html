@@ -1,0 +1,177 @@
+ <!DOCTYPE html>
+    <html lang="pt-br">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Home</title>
+        <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+        <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+        <!-- Importação do CSS do Bootstrap -->
+        <link href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+        <!-- Estilos personalizados -->
+        <style>
+            /* Definição da fonte padrão para o corpo do texto */
+            body {
+                font-family: 'Times New Roman', Times, serif;
+            }
+    
+            /* Estilização da barra de navegação */
+            .navbar {
+                background-color: #f8f9fa; /* Cor de fundo da barra de navegação */
+            }
+    
+            /* Estilização dos links no menu de navegação */
+            .navbar-nav .nav-item .nav-link {
+                color: #343a40; /* Cor do texto dos links */
+                font-weight: 300; /* Peso da fonte dos links */
+            }
+    
+            /* Estilização dos links no menu de navegação quando hover */
+            .navbar-nav .nav-item .nav-link:hover {
+                color: #007bff; /* Cor do texto dos links ao passar o mouse */
+            }
+    
+            /* Estilização dos links ativos no menu de navegação */
+
+    
+            /* Estilização da logo na barra de navegação */
+            .navbar-brand img {
+                max-width: 150px; /* Largura máxima da imagem da logo */
+                height: auto; /* Altura automática para manter a proporção */
+                margin-right: 20px; /* Margem à direita para arredondar a logo */
+            }
+    
+            /* Estilização do container do menu */
+            .menu-container {
+                display: flex; /* Usar flexbox para alinhar a logo e os itens do menu */
+                justify-content: space-between; /* Distribuir o espaço entre a logo e os itens do menu */
+                align-items: center; /* Alinhar verticalmente ao centro */
+            }
+    
+            /* Estilização dos itens do menu de navegação */
+            .navbar-nav {
+                margin-left: auto; /* Alinhar os itens do menu à direita */
+            }
+    
+            /* Estilização do espaço entre a logo e os itens do menu */
+            .logo-menu-space {
+                margin-right: 100px; /* Ajuste o espaço conforme necessário */
+            }
+    
+            /* Estilização da galeria de fotos */
+            .gallery {
+                display: grid;
+                grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+                gap: 20px;
+            }
+    
+            /* Estilização das imagens na galeria */
+            .gallery img {
+                width: 100%;
+                border-radius: 5px;
+            }
+    
+        </style>
+        {% include 'header.html' %}
+        {% block content %}
+        {% endblock %}
+    </head>
+    <body>
+    {% if username == "lc" %}
+    <a href="/admin" class="button">Página de administração</a>
+    {% endif %}      
+    <!-- Barra de navegação -->
+
+    
+    <!-- Conteúdo do sistema -->
+    <div class="container px-4 py-5" id="custom-cards">
+        <h2 class="pb-2 border-bottom">Estilo para você</h2>
+    
+        <!-- Grid de cartões -->
+        <div class="row row-cols-1 row-cols-lg-3 align-items-stretch g-4 py-5">
+            <!-- Cartão 1 -->
+            <div class="col">
+                <div class="card card-cover h-100 overflow-hidden text-bg-dark rounded-4 shadow-lg" style="background-image: url('/static/foto1.jpg');">
+                    <div class="d-flex flex-column h-100 p-5 pb-3 text-white text-shadow-1">
+                        <h3 class="pt-5 mt-5 mb-4 display-6 lh-1 fw-bold">Faça o seu estilo</h3>
+                        <!-- Lista de informações adicionais -->
+                        <ul class="d-flex list-unstyled mt-auto">
+                            <!-- Ícone de calendário -->
+                            <li class="d-flex align-items-center">
+                                <svg class="bi me-2" width="1em" height="1em"><use xlink:href="#calendar3"></use></svg>
+                                <!-- Conteúdo relacionado ao calendário -->
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+    
+            <!-- Cartão 2 -->
+            <div class="col">
+                <div class="card card-cover h-100 overflow-hidden text-bg-dark rounded-4 shadow-lg" style="background-image: url('/static/foto2.jpg');">
+                    <div class="d-flex flex-column h-100 p-5 pb-3 text-white text-shadow-1">
+                        <h3 class="pt-5 mt-5 mb-4 display-6 lh-1 fw-bold">Compartilhe seu estilo</h3>
+                        <!-- Lista de informações adicionais -->
+                        <ul class="d-flex list-unstyled mt-auto">
+                            <!-- Ícone de calendário -->
+                            <li class="d-flex align-items-center">
+                                <svg class="bi me-2" width="1em" height="1em"><use xlink:href="#calendar3"></use></svg>
+                                <!-- Conteúdo relacionado ao calendário -->
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+    
+            <!-- Cartão 3 -->
+            <div class="col">
+                <div class="card card-cover h-100 overflow-hidden text-bg-dark rounded-4 shadow-lg" style="background-image: url('/static/foto3.jpg');">
+                    <div class="d-flex flex-column h-100 p-5 pb-3 text-shadow-1">
+                        <h3 class="pt-5 mt-5 mb-4 display-6 lh-1 fw-bold">Descubra alguns estilos</h3>
+                        <!-- Lista de informações adicionais -->
+                        <ul class="d-flex list-unstyled mt-auto">
+                            <!-- Ícone de calendário -->
+                            <li class="d-flex align-items-center">
+                                <svg class="bi me-2" width="1em" height="1em"><use xlink:href="#calendar3"></use></svg>
+                                <!-- Conteúdo relacionado ao calendário -->
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    
+        <!-- Galeria de fotos -->
+        <h2 class="pb-2 border-bottom mt-5">Designs do mundo todo</h2>
+        <div class="gallery">
+            <!-- Imagem 1 -->
+            <a href="#"><img src="/static/galeria.jpg" alt="Design 1"></a>
+            <!-- Imagem 2 -->
+            <a href="#"><img src="/static/galeria.jpg" alt="Design 2"></a>
+            <!-- Imagem 3 -->
+            <a href="#"><img src="/static/galeria.jpg" alt="Design 3"></a>
+            <!-- Imagem 4 -->
+            <a href="#"><img src="/static/galeria.jpg" alt="Design 4"></a>
+            <!-- Imagem 5 -->
+            <a href="#"><img src="/static/galeria.jpg" alt="Design 5"></a>
+    
+            <!-- Adicione mais imagens conforme necessário -->
+        </div>
+    
+        <!-- Adicionando a nova seção no final -->
+        <div class="position-relative p-5 text-center text-muted border border-dashed rounded-5 col-lg-8 mx-auto">
+            <button type="button" class="position-absolute top-0 end-0 p-3 m-3 btn-close bg-secondary bg-opacity-10 rounded-pill" aria-label="Close"></button>
+            <svg class="bi mt-5 mb-3" width="48" height="48"><use xlink:href="#check2-circle"></use></svg>
+            <h1 class="text-body-emphasis">PRODUZA SUA PRÓPRIA ROUPA</h1>
+            <p class="col-lg-6 mx-auto mb-4">Faça o seu estilo, faça a sua roupa e monte seu outfit</p>
+            <button class="btn btn-primary px-5 mb-5" type="button">ESTILIZE-SE</button>
+        </div>
+    </div>
+    
+    <!-- Scripts do Bootstrap e JQuery -->
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.4/dist/umd/popper.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+    </body>
+    </html>
+    

@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Perfil do Usuário</title>
+    <link rel="stylesheet" href="/static/header.css">
+
+    <style>
+        
+        /* Estilo geral */
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: black;
+            position: relative; /* Para permitir o posicionamento absoluto do retângulo */
+        }
+
+        /* Retângulo central */
+        .right-rectangle {
+            position: absolute;
+            margin-top: 100px;
+            width: 67%; /* 70% da largura da tela */
+            height: 100vh; /* Altura total da janela de visualização */
+            background-color: #ffffff;
+            border-radius: 5px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+            z-index: -1; /* Colocando atrás das outras camadas */
+            right: 1%; /* Margem à esquerda */
+            
+
+        }
+        .inside-right-rectangle {
+            display: flex; /* Corrigido para "flex" */
+            position: relative;
+            margin: 0 auto;
+            justify-content: center; /* Alinha os itens ao centro horizontalmente */
+        }
+
+        .right-rectangle .inside-right-rectangle a {
+            color: rgb(236, 153, 37); /* Mudar a cor do texto para azul */
+            text-decoration: none; /* Remover sublinhado dos links */
+            margin-bottom: 10px; /* Adicionar margem inferior */
+            text-align: center;
+            font-size: 40px;
+            font-weight: 100;
+            margin-right: 170px;
+            margin-left: 160px;
+            
+        }
+
+
+        /* Retângulo lateral */
+        .left-rectangle {
+            position: absolute;
+            margin-top: 100px;
+            width: 30%; /* 30% da largura da tela */
+            height: 100vh; /* Altura total da janela de visualização */
+            background-color: #fff;
+            border-radius: 5px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+            z-index: -1; /* Colocando atrás das outras camadas */
+            left: 1%; /* Margem à esquerda */
+        }
+
+        /* Container do perfil */
+        .profile-container {
+            max-width: 600px;
+            margin-left: -22px; /* Centralizando o container */
+            padding: 20px;
+            border-radius: 10px;
+            position: relative; /* Para posicionar elementos dentro do container */
+            z-index: 1; /* Colocando na frente dos retângulos */
+        }
+
+        /* Cabeçalho */
+        .profile-header {
+            text-align: center;
+            padding-bottom: 20px;
+            border-bottom: 1px solid #ddd; /* Linha separadora */
+            margin-bottom: 20px;
+        }
+
+        /* Foto do perfil */
+        .profile-picture {
+            width: 150px;
+            height: 150px;
+            border-radius: 50%;
+            border: 3px solid #fff;
+            box-shadow: 0 0 5px rgba(0, 0, 0, 0.3);
+            margin-bottom: 20px;
+            overflow: hidden;
+            margin: 0 auto;
+        }
+
+        /* Nome do usuário */
+        .username {
+            font-size: 24px;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+
+        /* Informações do perfil */
+        .profile-info {
+            text-align: center;
+        }
+
+        /* Links de redes sociais */
+        .social-links {
+            margin-top: 20px;
+        }
+        .social-links a {
+            display: inline-block;
+            margin-right: 10px;
+            color: #333;
+            text-decoration: none;
+            font-size: 20px;
+        }
+
+
+        .right-rectangle .content-right-rectangle {
+            position: relative;
+            height: 90%;
+            width: 95%;
+            background-color: rgb(255, 0, 0);
+            margin-left:2.5%;
+            
+        }
+    </style>
+    {% include 'header.html' %}
+</head>
+<body>
+    <div class="right-rectangle">
+    
+        <div class="inside-right-rectangle">
+            <a href="" id="">Design</a>
+            <a href="" id="">Favoritos</a>
+            <a href="" id="">aaaaaaaaa</a>
+
+            
+        </div>
+        <div class="content-right-rectangle">
+
+        </div>  
+    </div>
+    <div class="left-rectangle">
+        <div class="profile-container">
+                <div class="profile-header">
+                    <div class="profile-picture">
+                        <!-- Inserir a foto do perfil aqui -->
+                        <img src="perfil.jpg" alt="Foto do perfil">
+                    </div>
+                    <div class="username">Nome do Usuário</div>
+                    <!-- Adicione mais informações conforme necessário -->
+                </div>
+                <div class="profile-info">
+                    <p>Email: exemplo@gmail.com</p>
+                    <p>Idade: 30 anos</p>
+                    <!-- Adicione mais informações conforme necessário -->
+
+                    <!-- Links de redes sociais -->
+                    <div class="social-links">
+                        <a href="#">Facebook</a>
+                        <a href="#">Twitter</a>
+                        <a href="#">Instagram</a>
+                    </div>
+            </div>
+
+    </div>
+
+    
+    </div>
+</body>
+</html>
