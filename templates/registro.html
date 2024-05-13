@@ -1,28 +1,148 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="pt-br">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Registro</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <script src="https://apis.google.com/js/platform.js" async defer></script>
+    <meta name="google-signin-client_id" content="SEU_CLIENT_ID_DO_GOOGLE">
+    <style>
+        body {
+            font-family: 'Helvetica Neue', Arial, sans-serif;
+            background-color: #f7f7f7;
+            color: #333;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+        }
+        .container {
+            background-color: #fff;
+            padding: 2rem;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            width: 100%;
+            max-width: 400px;
+            text-align: center;
+        }
+        .logo {
+            max-width: 100px;
+            margin-bottom: 1.5rem;
+        }
+        h2 {
+            margin-bottom: 1.5rem;
+            color: #000;
+            font-weight: 300;
+        }
+        .form-group {
+            margin-bottom: 1rem;
+            text-align: left;
+        }
+        label {
+            display: block;
+            margin-bottom: 0.5rem;
+            color: #000;
+            font-weight: 300;
+        }
+        input[type="text"],
+        input[type="email"],
+        input[type="date"],
+        input[type="password"] {
+            width: 100%;
+            padding: 0.75rem;
+            margin: 0;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            box-sizing: border-box;
+            font-size: 1rem;
+        }
+        button {
+            width: 100%;
+            padding: 0.75rem;
+            background-color: #000;
+            color: #fff;
+            font-size: 1rem;
+            font-weight: bold;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+        button:hover {
+            background-color: #333;
+        }
+        .g-signin2 {
+            margin-top: 1.5rem;
+            width: 100%;
+            display: flex;
+            justify-content: center;
+        }
+        .error {
+            color: red;
+            margin-bottom: 1rem;
+            text-align: center;
+        }
+    </style>
 </head>
 <body>
     <div class="container">
+        <img src="/static/STYLEFY.png" alt="Logo" class="logo">
         <form action="/registro" method="post">
             <h2>Registro</h2>
             {% if error %}
                 <p class="error">{{ error }}</p>
             {% endif %}
             <div class="form-group">
-                <label for="username">Username:</label>
+                <label for="username">Nome de usuário:</label>
                 <input type="text" id="username" name="username" required>
             </div>
             <div class="form-group">
-                <label for="password">Password:</label>
+                <label for="email">E-mail:</label>
+                <input type="email" id="email" name="email" required>
+            </div>
+            <div class="form-group">
+                <label for="fullname">Nome completo:</label>
+                <input type="text" id="fullname" name="fullname" required>
+            </div>
+            <div class="form-group">
+                <label for="dob">Data de Nascimento:</label>
+                <input type="date" id="dob" name="dob" required>
+            </div>
+            <div class="form-group">
+                <label for="password">Senha:</label>
                 <input type="password" id="password" name="password" required>
+            </div>
+            <div class="form-group">
+                <label for="confirm_password">Confirmar Senha:</label>
+                <input type="password" id="confirm_password" name="confirm_password" required>
             </div>
             <button type="submit">Registrar</button>
         </form>
+
+        <div class="g-signin2" data-onsuccess="onSignIn"></div>
     </div>
+
+    <script>
+        function onSignIn(googleUser) {
+            var profile = googleUser.getBasicProfile();
+            var id_token = googleUser.getAuthResponse().id_token;
+            var username = profile.getName();
+            var email = profile.getEmail();
+
+            // Aqui você pode enviar os dados para o servidor para realizar o registro
+            // Você pode usar uma requisição AJAX ou um formulário oculto para enviar os dados para o servidor
+            // Exemplo de envio com AJAX:
+            // $.ajax({
+            //     type: "POST",
+            //     url: "/registro_google",
+            //     data: { username: username, email: email, id_token: id_token },
+            //     success: function(response) {
+            //         // Tratar a resposta do servidor, como redirecionar para uma página de perfil
+            //     }
+            // });
+        }
+    </script>
 </body>
 </html>
