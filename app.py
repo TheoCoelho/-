@@ -1,8 +1,17 @@
 from flask import Flask, render_template, request, redirect, session, jsonify
 import sqlite3
+from datetime import datetime
+import os
+from PIL import Image
+from werkzeug.utils import secure_filename
 
 app = Flask(__name__, template_folder='templates')
 app.secret_key = "sua_chave_secreta"
+
+app.config['UPLOAD_FOLDER'] = 'static/uploads'
+
+UPLOAD_FOLDER = '/static/uploads'
+ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg', 'gif'}
 
 def conectar_bd():
     """Conecta ao banco de dados e retorna a conexão."""
@@ -19,12 +28,31 @@ def criar_tabela_usuarios():
                 password TEXT NOT NULL
             )
         """)
-
         cursor.execute("SELECT * FROM usuarios WHERE username = 'lc'")
         admin = cursor.fetchone()
         if not admin:
             cursor.execute("INSERT INTO usuarios (username, password) VALUES (?, ?)", ('lc', '1908'))
             conn.commit()
+            
+
+def criar_tabela_posts():
+    """Cria a tabela de posts se ela não existir."""
+    with conectar_bd() as conn:
+        cursor = conn.cursor()
+        cursor.execute("""
+            CREATE TABLE IF NOT EXISTS posts (
+                id INTEGER PRIMARY KEY,
+                username TEXT NOT NULL,
+                content TEXT NOT NULL,
+                image_url TEXT,
+                timestamp DATETIME DEFAULT CURRENT_TIMESTAMP
+            )
+        """)
+        conn.commit()
+
+        
+
+
 
 def cadastrar_usuario(username, password):
     """Insere um novo usuário no banco de dados."""
@@ -40,7 +68,32 @@ def verificar_usuario(username, password):
         cursor.execute("SELECT * FROM usuarios WHERE username = ? AND password = ?", (username, password))
         return cursor.fetchone()
 
-# Rotas do Flask
+def obter_posts():
+    """Obtém todos os posts do banco de dados."""
+    with conectar_bd() as conn:
+        cursor = conn.cursor()
+        cursor.execute("SELECT * FROM posts ORDER BY timestamp DESC")
+        return cursor.fetchall()
+
+def criar_post(username, content, image_url=None):
+    """Cria um novo post no banco de dados."""
+    with conectar_bd() as conn:
+        cursor = conn.cursor()
+        cursor.execute("INSERT INTO posts (username, content, image_url) VALUES (?, ?, ?)", (username, content, image_url))
+        conn.commit()
+
+    if image_url:
+        # Verifica se a imagem precisa ser redimensionada
+        img = Image.open(image_url[1:])
+        if img.size != (500, 500):
+            img = img.resize((500, 500))
+            img.save(image_url[1:])
+
+
+
+def allowed_file(filename):
+    """Verifica se a extensão do arquivo é permitida."""
+    return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
 
 @app.route("/")
 def index():
@@ -62,29 +115,31 @@ def login():
         else:
             return render_template("login.html", error="Usuário ou senha incorretos.")
     else:
-        # Se a requisição for GET, apenas renderiza a página de login
         return render_template("login.html")
-
 
 @app.route("/home", methods=["GET", "POST"])
 def home():
     """Página principal. Se o usuário estiver logado, exibe a página principal; caso contrário, redireciona para a página inicial."""
     if "username" in session:
         if request.method == "POST":
-            # Processar os dados do formulário de entrada como visitante
-            return "Você entrou como visitante."
+            content = request.form["content"]
+            image = request.files["image"] if "image" in request.files else None
+            image_url = None
+            if image and allowed_file(image.filename):
+                filename = secure_filename(image.filename)
+                image_path = os.path.join(app.config['UPLOAD_FOLDER'], filename)
+                image.save(image_path)
+                image_url = f"/{app.config['UPLOAD_FOLDER']}/{filename}"  # Atualiza a URL da imagem
+            criar_post(session["username"], content, image_url)
+            return redirect("/home")
         else:
-            # Renderizar a página principal normalmente
             usuario = session["username"]
-            return render_template("home.html", username=usuario)
+            posts = obter_posts()
+            return render_template("home.html", username=usuario, posts=posts)
     else:
         return redirect("/")
 
-@app.route("/visitante", methods=["POST"])
-def entrar_como_visitante():
-    """Rota para entrar como visitante."""
-    session["username"] = "visitante"
-    return redirect("/home")
+
 
 @app.route("/logout")
 def logout():
@@ -98,7 +153,6 @@ def registro():
     if request.method == "POST":
         username = request.form["username"]
         password = request.form["password"]
-        # Verifica se o usuário já existe no banco de dados
         with conectar_bd() as conn:
             cursor = conn.cursor()
             cursor.execute("SELECT * FROM usuarios WHERE username = ?", (username,))
@@ -113,7 +167,12 @@ def registro():
 @app.route("/perfil", methods=["GET", "POST"])
 def perfil():
     """Rota para a página de perfil."""
+<<<<<<< HEAD
     return render_template("perfil.html") 
+=======
+    return render_template("perfil.html")
+
+>>>>>>> 68f237b86c18a439c219d8276026ad7ddf25d94d
 @app.route("/design", methods=["GET", "POST"])
 def design():
     content = render_template("design.html")
@@ -137,6 +196,7 @@ def get_design_content():
         design_content = design_file.read()
     return jsonify({"content": design_content})
 
+<<<<<<< HEAD
 
 
 
@@ -156,7 +216,9 @@ def get_interactions_content():
         interactions_content = interactions_file.read()
     return jsonify({"content": interactions_content})
 """
+=======
+>>>>>>> 68f237b86c18a439c219d8276026ad7ddf25d94d
 if __name__ == "__main__":
     criar_tabela_usuarios()
+    criar_tabela_posts()
     app.run(debug=True)
-

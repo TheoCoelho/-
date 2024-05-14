@@ -1,177 +1,220 @@
- <!DOCTYPE html>
-    <html lang="pt-br">
-    <head>
-        <meta charset="UTF-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>Home</title>
-        <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
-        <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
-        <!-- Importação do CSS do Bootstrap -->
-        <link href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
-        <!-- Estilos personalizados -->
-        <style>
-            /* Definição da fonte padrão para o corpo do texto */
-            body {
-                font-family: 'Times New Roman', Times, serif;
-            }
-    
-            /* Estilização da barra de navegação */
-            .navbar {
-                background-color: #f8f9fa; /* Cor de fundo da barra de navegação */
-            }
-    
-            /* Estilização dos links no menu de navegação */
-            .navbar-nav .nav-item .nav-link {
-                color: #343a40; /* Cor do texto dos links */
-                font-weight: 300; /* Peso da fonte dos links */
-            }
-    
-            /* Estilização dos links no menu de navegação quando hover */
-            .navbar-nav .nav-item .nav-link:hover {
-                color: #007bff; /* Cor do texto dos links ao passar o mouse */
-            }
-    
-            /* Estilização dos links ativos no menu de navegação */
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Home</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <link href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Times New Roman', Times, serif;
+            padding: 20px;
+        }
 
-    
-            /* Estilização da logo na barra de navegação */
-            .navbar-brand img {
-                max-width: 150px; /* Largura máxima da imagem da logo */
-                height: auto; /* Altura automática para manter a proporção */
-                margin-right: 20px; /* Margem à direita para arredondar a logo */
-            }
-    
-            /* Estilização do container do menu */
-            .menu-container {
-                display: flex; /* Usar flexbox para alinhar a logo e os itens do menu */
-                justify-content: space-between; /* Distribuir o espaço entre a logo e os itens do menu */
-                align-items: center; /* Alinhar verticalmente ao centro */
-            }
-    
-            /* Estilização dos itens do menu de navegação */
-            .navbar-nav {
-                margin-left: auto; /* Alinhar os itens do menu à direita */
-            }
-    
-            /* Estilização do espaço entre a logo e os itens do menu */
-            .logo-menu-space {
-                margin-right: 100px; /* Ajuste o espaço conforme necessário */
-            }
-    
-            /* Estilização da galeria de fotos */
-            .gallery {
-                display: grid;
-                grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-                gap: 20px;
-            }
-    
-            /* Estilização das imagens na galeria */
-            .gallery img {
-                width: 100%;
-                border-radius: 5px;
-            }
-    
-        </style>
-        {% include 'header.html' %}
-        {% block content %}
-        {% endblock %}
-    </head>
-    <body>
-    {% if username == "lc" %}
-    <a href="/admin" class="button">Página de administração</a>
-    {% endif %}      
-    <!-- Barra de navegação -->
+        .gallery {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 20px;
+        }
 
-    
-    <!-- Conteúdo do sistema -->
+        .gallery img {
+            width: 100%;
+            border-radius: 5px;
+        }
+
+        .feed {
+            margin-top: 50px;
+        }
+
+        .feed-item {
+            border: 1px solid #ddd;
+            padding: 15px;
+            margin-bottom: 20px;
+            border-radius: 10px;
+            background-color: #f9f9f9;
+            text-align: left;
+            max-width: 500px;
+            margin-left: auto;
+            margin-right: auto;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        .feed-item h3 {
+            margin-bottom: 5px;
+            font-size: 1.5rem;
+        }
+
+        .feed-item p {
+            margin-bottom: 10px;
+        }
+
+        .feed-item img {
+            max-width: 100%;
+            height: auto;
+            border-radius: 10px;
+            margin-top: 10px;
+        }
+
+        .feed-item small {
+            display: block;
+            margin-top: 5px;
+            color: #999;
+        }
+
+        .sidebar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            height: 100%;
+            width: 250px;
+            background-color: #f8f9fa;
+            padding: 20px;
+            box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1);
+        }
+
+        .sidebar a {
+            display: block;
+            padding: 10px 0;
+            color: #343a40;
+            text-decoration: none;
+        }
+
+        .sidebar a:hover {
+            background-color: #007bff;
+            color: white;
+        }
+
+        /* Estilos para os posts */
+        .feed-item {
+            background-color: #fff;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+            margin-bottom: 20px;
+        }
+
+        .feed-item img {
+            width: 100%;
+            border-top-left-radius: 10px;
+            border-top-right-radius: 10px;
+        }
+
+        .feed-item .post-details {
+            padding: 20px;
+        }
+
+        .feed-item .post-details h3 {
+            margin-top: 0;
+            font-size: 1.5rem;
+            font-weight: bold; /* Adiciona negrito ao nome do usuário */
+            color: #333;
+        }
+
+        .feed-item .post-details small {
+            color: #999;
+            display: block;
+            margin-top: 5px; /* Adiciona espaço entre o nome do usuário e a data */
+        }
+
+        .feed-item .post-details p {
+            margin-bottom: 0;
+            margin-top: 10px; /* Adiciona espaço entre a data e a legenda */
+            font-size: 1.1rem; /* Ajusta o tamanho da legenda */
+            line-height: 1.4; /* Ajusta a altura da linha para facilitar a leitura */
+        }
+    </style>
+    {% include 'header.html' %}
+    {% block content %}
+    {% endblock %}
+</head>
+<body>
+{% if username == "lc" %}
+<a href="/admin" class="button">Página de administração</a>
+{% endif %}
+
+<!-- Conteúdo principal -->
+<div class="content">
     <div class="container px-4 py-5" id="custom-cards">
         <h2 class="pb-2 border-bottom">Estilo para você</h2>
-    
-        <!-- Grid de cartões -->
+
         <div class="row row-cols-1 row-cols-lg-3 align-items-stretch g-4 py-5">
-            <!-- Cartão 1 -->
             <div class="col">
                 <div class="card card-cover h-100 overflow-hidden text-bg-dark rounded-4 shadow-lg" style="background-image: url('/static/foto1.jpg');">
                     <div class="d-flex flex-column h-100 p-5 pb-3 text-white text-shadow-1">
                         <h3 class="pt-5 mt-5 mb-4 display-6 lh-1 fw-bold">Faça o seu estilo</h3>
-                        <!-- Lista de informações adicionais -->
                         <ul class="d-flex list-unstyled mt-auto">
-                            <!-- Ícone de calendário -->
                             <li class="d-flex align-items-center">
                                 <svg class="bi me-2" width="1em" height="1em"><use xlink:href="#calendar3"></use></svg>
-                                <!-- Conteúdo relacionado ao calendário -->
                             </li>
                         </ul>
                     </div>
                 </div>
             </div>
-    
-            <!-- Cartão 2 -->
             <div class="col">
                 <div class="card card-cover h-100 overflow-hidden text-bg-dark rounded-4 shadow-lg" style="background-image: url('/static/foto2.jpg');">
                     <div class="d-flex flex-column h-100 p-5 pb-3 text-white text-shadow-1">
                         <h3 class="pt-5 mt-5 mb-4 display-6 lh-1 fw-bold">Compartilhe seu estilo</h3>
-                        <!-- Lista de informações adicionais -->
-                        <ul class="d-flex list-unstyled mt-auto">
-                            <!-- Ícone de calendário -->
-                            <li class="d-flex align-items-center">
+                        <ul class="d-flex                            <li class="d-flex align-items-center">
                                 <svg class="bi me-2" width="1em" height="1em"><use xlink:href="#calendar3"></use></svg>
-                                <!-- Conteúdo relacionado ao calendário -->
                             </li>
                         </ul>
                     </div>
                 </div>
             </div>
-    
-            <!-- Cartão 3 -->
             <div class="col">
                 <div class="card card-cover h-100 overflow-hidden text-bg-dark rounded-4 shadow-lg" style="background-image: url('/static/foto3.jpg');">
                     <div class="d-flex flex-column h-100 p-5 pb-3 text-shadow-1">
                         <h3 class="pt-5 mt-5 mb-4 display-6 lh-1 fw-bold">Descubra alguns estilos</h3>
-                        <!-- Lista de informações adicionais -->
                         <ul class="d-flex list-unstyled mt-auto">
-                            <!-- Ícone de calendário -->
                             <li class="d-flex align-items-center">
                                 <svg class="bi me-2" width="1em" height="1em"><use xlink:href="#calendar3"></use></svg>
-                                <!-- Conteúdo relacionado ao calendário -->
                             </li>
                         </ul>
                     </div>
                 </div>
             </div>
         </div>
-    
-        <!-- Galeria de fotos -->
+
         <h2 class="pb-2 border-bottom mt-5">Designs do mundo todo</h2>
         <div class="gallery">
-            <!-- Imagem 1 -->
             <a href="#"><img src="/static/galeria.jpg" alt="Design 1"></a>
-            <!-- Imagem 2 -->
             <a href="#"><img src="/static/galeria.jpg" alt="Design 2"></a>
-            <!-- Imagem 3 -->
             <a href="#"><img src="/static/galeria.jpg" alt="Design 3"></a>
-            <!-- Imagem 4 -->
             <a href="#"><img src="/static/galeria.jpg" alt="Design 4"></a>
-            <!-- Imagem 5 -->
             <a href="#"><img src="/static/galeria.jpg" alt="Design 5"></a>
-    
-            <!-- Adicione mais imagens conforme necessário -->
         </div>
-    
-        <!-- Adicionando a nova seção no final -->
-        <div class="position-relative p-5 text-center text-muted border border-dashed rounded-5 col-lg-8 mx-auto">
-            <button type="button" class="position-absolute top-0 end-0 p-3 m-3 btn-close bg-secondary bg-opacity-10 rounded-pill" aria-label="Close"></button>
-            <svg class="bi mt-5 mb-3" width="48" height="48"><use xlink:href="#check2-circle"></use></svg>
-            <h1 class="text-body-emphasis">PRODUZA SUA PRÓPRIA ROUPA</h1>
-            <p class="col-lg-6 mx-auto mb-4">Faça o seu estilo, faça a sua roupa e monte seu outfit</p>
-            <button class="btn btn-primary px-5 mb-5" type="button">ESTILIZE-SE</button>
+
+         <!-- Formulário para criar novos posts -->
+        <form method="POST" enctype="multipart/form-data">
+            <div class="form-group">
+                <textarea class="form-control" name="content" placeholder="O que você está pensando?" required></textarea>
+            </div>
+            <div class="form-group">
+                <input type="file" class="form-control" name="image">
+            </div>
+            <button type="submit" class="btn btn-primary">Postar</button>
+        </form>
+
+        <div class="feed">
+            <h2 class="pb-2 border-bottom mt-5">Últimas Notícias</h2>
+            {% for post in posts %}
+            <div class="feed-item">
+                <div class="post-details">
+                    <h3>{{ post[1] }}</h3> <!-- Nome de usuário -->
+                    <small>{{ post[3] }}</small> <!-- Data e hora -->
+                    <p>{{ post[2] }}</p> <!-- Legenda -->
+                </div>
+                <img src="{{ post[4] }}" alt="Imagem do Post"> <!-- Imagem, se houver -->
+            </div>
+            {% endfor %}
         </div>
     </div>
-    
-    <!-- Scripts do Bootstrap e JQuery -->
-    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.4/dist/umd/popper.min.js"></script>
-    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
-    </body>
-    </html>
-    
+</div>
+
+<!-- Scripts do Bootstrap e JQuery -->
+<script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.4/dist/umd/popper.min.js"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+</body>
+</html>
