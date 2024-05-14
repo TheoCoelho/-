@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request, redirect, session
+from flask import Flask, render_template, request, redirect, session, jsonify
 import sqlite3
 
 app = Flask(__name__, template_folder='templates')
@@ -114,14 +114,48 @@ def registro():
 def perfil():
     """Rota para a página de perfil."""
     return render_template("perfil.html") 
-
 @app.route("/design", methods=["GET", "POST"])
 def design():
-    """Rota para a página de design."""
-    return render_template("design.html")
+    content = render_template("design.html")
+    return render_template("perfil.html", content=content)
+
+@app.route("/favoritos", methods=["GET", "POST"])
+def favoritos():
+    content = render_template("favoritos.html")
+    return render_template("perfil.html", content=content)
+
+@app.route("/interacoes", methods=["GET", "POST"])
+def interacoes():
+    content = render_template("interacoes.html")
+    return render_template("perfil.html", content=content)
+
+"""
+
+@app.route("/get_design_content", methods=["GET"])
+def get_design_content():
+    with open("templates/design.html", "r") as design_file:
+        design_content = design_file.read()
+    return jsonify({"content": design_content})
 
 
 
+
+
+@app.route("/get_favorites_content", methods=["GET"])
+def get_favorites_content():
+    with open("templates/favoritos.html", "r") as favorites_file:
+        favorites_content = favorites_file.read()
+    return jsonify({"content": favorites_content})
+
+
+
+
+@app.route("/get_interactions_content", methods=["GET"])
+def get_interactions_content():
+    with open("templates/interaçoes.html", "r") as interactions_file:
+        interactions_content = interactions_file.read()
+    return jsonify({"content": interactions_content})
+"""
 if __name__ == "__main__":
     criar_tabela_usuarios()
     app.run(debug=True)

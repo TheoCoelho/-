@@ -128,21 +128,51 @@
             
         }
     </style>
+    <!--
+    <script>
+        function loadDesignPage() {
+            fetch('/get_design_content')
+                .then(response => response.json())
+                .then(data => {
+                    document.querySelector('.content-right-rectangle').innerHTML = data.content;
+                })
+                .catch(error => console.error('Error:', error));
+        }
+
+        function loadFavoritesPage() {
+        fetch('/get_favorites_content')
+            .then(response => response.json())
+            .then(data => {
+                document.querySelector('.content-right-rectangle').innerHTML = data.content;
+            })
+            .catch(error => console.error('Error:', error));
+    }
+
+        function loadInteractionsPage() {
+            fetch('/get_interactions_content')
+                .then(response => response.json())
+                .then(data => {
+                    document.querySelector('.content-right-rectangle').innerHTML = data.content;
+                })
+                .catch(error => console.error('Error:', error));
+        }
+    </script>
+-->
     {% include 'header.html' %}
 </head>
 <body>
     <div class="right-rectangle">
-    
         <div class="inside-right-rectangle">
-            <a href="" id="">Design</a>
-            <a href="" id="">Favoritos</a>
-            <a href="" id="">aaaaaaaaa</a>
-
-            
+            <a href="{{ url_for('design') }}" class="load-content">Design</a>
+            <a href="{{ url_for('favoritos') }}" class="load-content">Favoritos</a>
+            <a href="{{ url_for('interacoes') }}" class="load-content">Interações</a>
         </div>
         <div class="content-right-rectangle">
-
+            {% if content %}
+                {{ content | safe }}
+            {% endif %}
         </div>  
+    </div>
     </div>
     <div class="left-rectangle">
         <div class="profile-container">
