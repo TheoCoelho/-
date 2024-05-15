@@ -10,6 +10,7 @@
         body {
             font-family: 'Times New Roman', Times, serif;
             padding: 20px;
+            background-color: #f0f2f5;
         }
 
         .gallery {
@@ -32,7 +33,7 @@
             padding: 15px;
             margin-bottom: 20px;
             border-radius: 10px;
-            background-color: #f9f9f9;
+            background-color: #fff;
             text-align: left;
             max-width: 500px;
             margin-left: auto;
@@ -85,19 +86,12 @@
             color: white;
         }
 
-        /* Estilos para os posts */
         .feed-item {
             background-color: #fff;
             border-radius: 10px;
             box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
             overflow: hidden;
             margin-bottom: 20px;
-        }
-
-        .feed-item img {
-            width: 100%;
-            border-top-left-radius: 10px;
-            border-top-right-radius: 10px;
         }
 
         .feed-item .post-details {
@@ -107,22 +101,70 @@
         .feed-item .post-details h3 {
             margin-top: 0;
             font-size: 1.5rem;
-            font-weight: bold; /* Adiciona negrito ao nome do usuário */
+            font-weight: bold;
             color: #333;
         }
 
         .feed-item .post-details small {
             color: #999;
             display: block;
-            margin-top: 5px; /* Adiciona espaço entre o nome do usuário e a data */
+            margin-top: 5px;
         }
 
         .feed-item .post-details p {
             margin-bottom: 0;
-            margin-top: 10px; /* Adiciona espaço entre a data e a legenda */
-            font-size: 1.1rem; /* Ajusta o tamanho da legenda */
-            line-height: 1.4; /* Ajusta a altura da linha para facilitar a leitura */
+            margin-top: 10px;
+            font-size: 1.1rem;
+            line-height: 1.4;
         }
+
+        .post-form {
+            max-width: 600px;
+            margin: 20px auto;
+            padding: 20px;
+            background-color: #fff;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        .post-form .form-group {
+            margin-bottom: 15px;
+        }
+
+        .post-form .form-control {
+            border-radius: 5px;
+        }
+
+        .post-form button {
+            background-color: #007bff;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        .post-form button:hover {
+            background-color: #0056b3;
+        }
+
+        .profile-img {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            margin-right: 15px;
+            float: left;
+        }
+
+        .post-header {
+            display: flex;
+            align-items: center;
+        }
+
+        .post-content {
+            overflow: hidden;
+        }
+
     </style>
 </head>
 <body>
@@ -135,7 +177,6 @@
     <div class="container">
         <h1>Bem-vindo, {{ username }}</h1>
 
-        <!-- Conteúdo principal -->
         <div class="content">
             <div class="container px-4 py-5" id="custom-cards">
                 <h2 class="pb-2 border-bottom">Estilo para você</h2>
@@ -179,48 +220,47 @@
                     </div>
                 </div>
 
-                <h2 class="pb-2 border-bottom mt-5">Designs do mundo todo</h2>
-                <div class="gallery">
-                    <a href="#"><img src="/static/galeria.jpg" alt="Design 1"></a>
-                    <a href="#"><img src="/static/galeria.jpg" alt="Design 2"></a>
-                    <a href="#"><img src="/static/galeria.jpg" alt="Design 3"></a>
-                    <a href="#"><img src="/static/galeria.jpg" alt="Design 4"></a>
-                    <a href="#"><img src="/static/galeria.jpg" alt="Design 5"></a>
-                </div>
+                <div class="container">
+    
+                    
 
-                <!-- Formulário para criar novos posts -->
-                {% if username %}
-                <form class="post-form" method="POST" enctype="multipart/form-data">
-                    <div class="form-group">
-                        <textarea class="form-control" name="content" placeholder="O que você está pensando?" required></textarea>
-                    </div>
-                    <div class="form-group">
-                        <input type="file" class="form-control" name="image">
-                    </div>
-                    <button type="submit" class="btn btn-primary">Postar</button>
-                </form>
-                {% endif %}
 
                 <div class="feed">
-                    <h2 class="pb-2 border-bottom mt-5">Últimas Notícias</h2>
+                    <h2 class="pb-2 border-bottom mt-5">De olho nas tendências</h2>
+
+                    {% if username %}
+                    <form class="post-form" method="POST" enctype="multipart/form-data">
+                        <div class="form-group">
+                            <textarea class="form-control" name="content" placeholder="O que você está pensando?" required></textarea>
+                        </div>
+                        <div class="form-group">
+                            <input type="file" class="form-control" name="image">
+                        </div>
+                        <button type="submit" class="btn btn-primary">Postar</button>
+                    </form>
+                    {% endif %}
+
                     {% for post in posts %}
                     <div class="feed-item">
-                        <div class="post-details">
-                            <h3>{{ post[1] }}</h3> <!-- Nome de usuário -->
-                            <small>{{ post[3] }}</small> <!-- Data e hora -->
-                            <p>{{ post[2] }}</p> <!-- Legenda -->
+                        <div class="post-header">
+                            <img src="{{ post[5] }}" alt="Foto de Perfil" class="profile-img">
+                            <div class="post-content">
+                                <h3>{{ post[1] }}</h3> <!-- Nome de usuário -->
+                                <small>{{ post[3] }}</small> <!-- Data e hora -->
+                            </div>
                         </div>
+                        <p>{{ post[2] }}</p> <!-- Legenda -->
                         {% if post[4] %}
                         <img src="{{ post[4] }}" alt="Imagem do Post"> <!-- Imagem, se houver -->
                         {% endif %}
                     </div>
                     {% endfor %}
+                    
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- Scripts do Bootstrap e JQuery -->
     <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.4/dist/umd/popper.min.js"></script>
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>

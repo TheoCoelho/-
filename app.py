@@ -17,6 +17,19 @@ def conectar_bd():
     """Conecta ao banco de dados e retorna a conexão."""
     return sqlite3.connect("usuarios.db")
 
+def adicionar_coluna_profile_pic():
+    """Adiciona a coluna profile_pic à tabela de usuários, se ainda não existir."""
+    with conectar_bd() as conn:
+        cursor = conn.cursor()
+        # Verifica se a coluna ainda não existe
+        cursor.execute("PRAGMA table_info(usuarios)")
+        columns = cursor.fetchall()
+        column_names = [col[1] for col in columns]
+        if 'profile_pic' not in column_names:
+            # Adiciona a coluna profile_pic à tabela
+            cursor.execute("ALTER TABLE usuarios ADD COLUMN profile_pic TEXT")
+            conn.commit()
+
 def criar_tabela_usuarios():
     """Cria a tabela de usuários se ela não existir e insere um usuário administrador padrão."""
     with conectar_bd() as conn:
@@ -25,7 +38,8 @@ def criar_tabela_usuarios():
             CREATE TABLE IF NOT EXISTS usuarios (
                 id INTEGER PRIMARY KEY,
                 username TEXT NOT NULL,
-                password TEXT NOT NULL
+                password TEXT NOT NULL,
+                profile_pic TEXT
             )
         """)
         cursor.execute("SELECT * FROM usuarios WHERE username = 'lc'")
@@ -33,6 +47,13 @@ def criar_tabela_usuarios():
         if not admin:
             cursor.execute("INSERT INTO usuarios (username, password) VALUES (?, ?)", ('lc', '1908'))
             conn.commit()
+
+# Adicionando a chamada da função adicionar_coluna_profile_pic para garantir que a coluna seja adicionada
+adicionar_coluna_profile_pic()
+
+            
+
+
 
 def criar_tabela_posts():
     """Cria a tabela de posts se ela não existir."""
@@ -64,11 +85,19 @@ def verificar_usuario(username, password):
         return cursor.fetchone()
 
 def obter_posts():
-    """Obtém todos os posts do banco de dados."""
+    """Obtém todos os posts do banco de dados, incluindo informações de foto de perfil do usuário."""
     with conectar_bd() as conn:
         cursor = conn.cursor()
-        cursor.execute("SELECT * FROM posts ORDER BY timestamp DESC")
+        cursor.execute("""
+            SELECT posts.*, usuarios.profile_pic 
+            FROM posts 
+            INNER JOIN usuarios ON posts.username = usuarios.username 
+            ORDER BY timestamp DESC
+        """)
         return cursor.fetchall()
+
+
+
 
 def criar_post(username, content, image_url=None):
     """Cria um novo post no banco de dados."""
@@ -150,15 +179,59 @@ def registro():
                 return redirect("/")
     return render_template("registro.html")
 
+from PIL import Image
+
 @app.route("/perfil", methods=["GET", "POST"])
 def perfil():
     """Rota para a página de perfil."""
-<<<<<<< HEAD
-    return render_template("perfil.html") 
-=======
-    return render_template("perfil.html")
+    if request.method == "POST":
+        if "username" in session:
+            username = session["username"]
+            profile_pic = request.files["profile_pic"] if "profile_pic" in request.files else None
+            if profile_pic and allowed_file(profile_pic.filename):
+                filename = secure_filename(profile_pic.filename)
+                profile_pic_path = os.path.join(app.config['UPLOAD_FOLDER'], filename)
+                profile_pic.save(profile_pic_path)
+                profile_pic_url = f"/{app.config['UPLOAD_FOLDER']}/{filename}"
+                
+                # Redimensiona a imagem para que o lado maior tenha 150 pixels
+                img = Image.open(profile_pic_path)
+                img.thumbnail((150, 150))
+                
+                # Calcula as coordenadas de recorte para fazer um recorte de 150x150 pixels centrado na imagem
+                width, height = img.size
+                left = (width - 150) / 2
+                top = (height - 150) / 2
+                right = (width + 150) / 2
+                bottom = (height + 150) / 2
+                
+                # Recorta a imagem
+                img = img.crop((left, top, right, bottom))
+                
+                # Salva a imagem recortada
+                img.save(profile_pic_path)
+                
+                with conectar_bd() as conn:
+                    cursor = conn.cursor()
+                    cursor.execute("UPDATE usuarios SET profile_pic = ? WHERE username = ?", (profile_pic_url, username))
+                    conn.commit()
+            return redirect("/perfil")
+        else:
+            return redirect("/login")
+    else:
+        if "username" in session:
+            username = session["username"]
+            with conectar_bd() as conn:
+                cursor = conn.cursor()
+                cursor.execute("SELECT profile_pic FROM usuarios WHERE username = ?", (username,))
+                profile_pic = cursor.fetchone()[0]
+            return render_template("perfil.html", profile_pic=profile_pic)
 
->>>>>>> 68f237b86c18a439c219d8276026ad7ddf25d94d
+     
+     
+
+
+
 @app.route("/design", methods=["GET", "POST"])
 def design():
     content = render_template("design.html")
@@ -174,6 +247,8 @@ def interacoes():
     content = render_template("interacoes.html")
     return render_template("perfil.html", content=content)
 
+
+
 """
 
 @app.route("/get_design_content", methods=["GET"])
@@ -182,7 +257,6 @@ def get_design_content():
         design_content = design_file.read()
     return jsonify({"content": design_content})
 
-<<<<<<< HEAD
 
 
 
@@ -201,9 +275,11 @@ def get_interactions_content():
     with open("templates/interaçoes.html", "r") as interactions_file:
         interactions_content = interactions_file.read()
     return jsonify({"content": interactions_content})
+
+    
 """
-=======
->>>>>>> 68f237b86c18a439c219d8276026ad7ddf25d94d
+
+
 if __name__ == "__main__":
     criar_tabela_usuarios()
     criar_tabela_posts()

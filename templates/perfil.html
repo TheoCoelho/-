@@ -179,8 +179,13 @@
                 <div class="profile-header">
                     <div class="profile-picture">
                         <!-- Inserir a foto do perfil aqui -->
-                        <img src="perfil.jpg" alt="Foto do perfil">
+                        <img src="{{ profile_pic }}" alt="Foto do perfil">
                     </div>
+                    <form action="/perfil" method="POST" enctype="multipart/form-data">
+                        <input type="file" name="profile_pic">
+                        <button type="submit">Enviar Foto de Perfil</button>
+                    </form>
+                    
                     <div class="username">Nome do Usuário</div>
                     <!-- Adicione mais informações conforme necessário -->
                 </div>
