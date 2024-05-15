@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <style>
+        .designs-container {
+            display: flex;
+            flex-wrap: wrap; /* Permitir que os quadrados quebrem para a próxima linha */
+            justify-content: space-between; /* Distribuir os quadrados equidistantemente */
+        }
+
+        .designs-content {
+            position: relative; /* Posição relativa para posicionar elementos filhos */
+            width: calc(33.33% - 40px); /* Largura de cada quadrado (33.33% da largura do contêiner - margem) */
+            margin-bottom: 20px; /* Espaço entre as linhas */
+            margin-left: 20px;
+            margin-right: 20px;
+            margin-top: 20px;
+        }
+
+        .square {
+            position: relative; /* Posição relativa para conter o texto dentro do quadrado */
+            width: 350px; /* Tamanho do quadrado */
+            height: 350px; /* Mantenha o mesmo valor para manter um quadrado */
+            border-radius: 20px; /* Bordas arredondadas */
+            background-color: #f0f0f0; /* Cor de fundo da div */
+            margin-bottom: 60px; /* Espaço abaixo do quadrado */
+            overflow: hidden; /* Ocultar texto que ultrapassa o quadrado */
+        }
+
+        .circle {
+            position: absolute; /* Posição absoluta para posicionar o círculo */
+            left: 0; /* Posicionar o círculo à esquerda do quadrado */
+            bottom: 0; /* Posicionar o círculo na parte inferior do quadrado */
+            width: 50px; /* Tamanho do círculo */
+            height: 50px; /* Mantenha o mesmo valor para manter um círculo */
+            border-radius: 50%; /* Isso cria um círculo */
+            background-color: #000000; /* Cor de fundo do círculo */
+            overflow: hidden; /* Isso garante que a imagem dentro do círculo seja cortada corretamente */
+            margin-right: 10px; /* Espaço à direita do círculo */
+        }
+
+        .circle img {
+            width: 100%; /* A imagem preencherá todo o círculo */
+            height: auto; /* A altura será ajustada automaticamente */
+            display: block; /* Remove quaisquer espaços em branco abaixo da imagem */
+        }
+
+        .description {
+            position: absolute; /* Posição absoluta para posicionar o texto */
+            left: 70px; /* Posicionar o texto à direita do círculo */
+            bottom: 0; /* Posicionar o texto na parte inferior do quadrado */
+            margin-right: 10px; /* Espaço à direita do texto */
+            margin-bottom: 10px; /* Espaço abaixo do texto */
+            font-size: 16px; /* Tamanho do texto */
+        }
+    </style>
+</head>
+<body>
+    <div class="designs-container">
+        <div class="designs-content">
+            <div class="square"></div>
+            <div class="circle">
+                <img src="" alt="Descrição da imagem">
+            </div>
+            <div class="description">
+                <p>Descrição da imagem</p>
+            </div>
+        </div>
+        <div class="designs-content">
+            <div class="square"></div>
+            <div class="circle">
+                <img src="" alt="Descrição da imagem">
+            </div>
+            <div class="description">
+                <p>Descrição da imagem</p>
+            </div>
+        </div>
+
+        <div class="designs-content">
+            <div class="square"></div>
+            <div class="circle">
+                <img src="" alt="Descrição da imagem">
+            </div>
+            <div class="description">
+                <p>Descrição da imagem</p>
+            </div>
+        </div>
+        <!-- Adicione mais quadrados conforme necessário -->
+    </div>
+</body>
+</html>
