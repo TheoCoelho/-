@@ -33,7 +33,6 @@ def criar_tabela_usuarios():
         if not admin:
             cursor.execute("INSERT INTO usuarios (username, password) VALUES (?, ?)", ('lc', '1908'))
             conn.commit()
-            
 
 def criar_tabela_posts():
     """Cria a tabela de posts se ela não existir."""
@@ -49,10 +48,6 @@ def criar_tabela_posts():
             )
         """)
         conn.commit()
-
-        
-
-
 
 def cadastrar_usuario(username, password):
     """Insere um novo usuário no banco de dados."""
@@ -89,18 +84,14 @@ def criar_post(username, content, image_url=None):
             img = img.resize((500, 500))
             img.save(image_url[1:])
 
-
-
 def allowed_file(filename):
     """Verifica se a extensão do arquivo é permitida."""
     return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
 
 @app.route("/")
 def index():
-    """Página inicial. Se o usuário estiver logado, redireciona para a página principal; caso contrário, exibe o formulário de login."""
-    if "username" in session:
-        return redirect("/home")
-    return render_template("login.html")
+    """Redireciona todos os visitantes para a página principal."""
+    return redirect("/home")
 
 @app.route("/login", methods=["GET", "POST"])
 def login():
@@ -120,26 +111,21 @@ def login():
 @app.route("/home", methods=["GET", "POST"])
 def home():
     """Página principal. Se o usuário estiver logado, exibe a página principal; caso contrário, redireciona para a página inicial."""
-    if "username" in session:
-        if request.method == "POST":
-            content = request.form["content"]
-            image = request.files["image"] if "image" in request.files else None
-            image_url = None
-            if image and allowed_file(image.filename):
-                filename = secure_filename(image.filename)
-                image_path = os.path.join(app.config['UPLOAD_FOLDER'], filename)
-                image.save(image_path)
-                image_url = f"/{app.config['UPLOAD_FOLDER']}/{filename}"  # Atualiza a URL da imagem
-            criar_post(session["username"], content, image_url)
-            return redirect("/home")
-        else:
-            usuario = session["username"]
-            posts = obter_posts()
-            return render_template("home.html", username=usuario, posts=posts)
+    if request.method == "POST":
+        content = request.form["content"]
+        image = request.files["image"] if "image" in request.files else None
+        image_url = None
+        if image and allowed_file(image.filename):
+            filename = secure_filename(image.filename)
+            image_path = os.path.join(app.config['UPLOAD_FOLDER'], filename)
+            image.save(image_path)
+            image_url = f"/{app.config['UPLOAD_FOLDER']}/{filename}"
+        criar_post(session["username"], content, image_url)
+        return redirect("/home")
     else:
-        return redirect("/")
-
-
+        usuario = session["username"] if "username" in session else None
+        posts = obter_posts()
+        return render_template("home.html", username=usuario, posts=posts)
 
 @app.route("/logout")
 def logout():

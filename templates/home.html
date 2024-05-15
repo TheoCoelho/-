@@ -124,97 +124,105 @@
             line-height: 1.4; /* Ajusta a altura da linha para facilitar a leitura */
         }
     </style>
-    {% include 'header.html' %}
-    {% block content %}
-    {% endblock %}
 </head>
 <body>
-{% if username == "lc" %}
-<a href="/admin" class="button">Página de administração</a>
-{% endif %}
+    {% include 'header.html' %}
+    
+    {% if username == "lc" %}
+    <a href="/admin" class="button">Página de administração</a>
+    {% endif %}
 
-<!-- Conteúdo principal -->
-<div class="content">
-    <div class="container px-4 py-5" id="custom-cards">
-        <h2 class="pb-2 border-bottom">Estilo para você</h2>
+    <div class="container">
+        <h1>Bem-vindo, {{ username }}</h1>
 
-        <div class="row row-cols-1 row-cols-lg-3 align-items-stretch g-4 py-5">
-            <div class="col">
-                <div class="card card-cover h-100 overflow-hidden text-bg-dark rounded-4 shadow-lg" style="background-image: url('/static/foto1.jpg');">
-                    <div class="d-flex flex-column h-100 p-5 pb-3 text-white text-shadow-1">
-                        <h3 class="pt-5 mt-5 mb-4 display-6 lh-1 fw-bold">Faça o seu estilo</h3>
-                        <ul class="d-flex list-unstyled mt-auto">
-                            <li class="d-flex align-items-center">
-                                <svg class="bi me-2" width="1em" height="1em"><use xlink:href="#calendar3"></use></svg>
-                            </li>
-                        </ul>
+        <!-- Conteúdo principal -->
+        <div class="content">
+            <div class="container px-4 py-5" id="custom-cards">
+                <h2 class="pb-2 border-bottom">Estilo para você</h2>
+
+                <div class="row row-cols-1 row-cols-lg-3 align-items-stretch g-4 py-5">
+                    <div class="col">
+                        <div class="card card-cover h-100 overflow-hidden text-bg-dark rounded-4 shadow-lg" style="background-image: url('/static/foto1.jpg');">
+                            <div class="d-flex flex-column h-100 p-5 pb-3 text-white text-shadow-1">
+                                <h3 class="pt-5 mt-5 mb-4 display-6 lh-1 fw-bold">Faça o seu estilo</h3>
+                                <ul class="d-flex list-unstyled mt-auto">
+                                    <li class="d-flex align-items-center">
+                                        <svg class="bi me-2" width="1em" height="1em"><use xlink:href="#calendar3"></use></svg>
+                                    </li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col">
+                        <div class="card card-cover h-100 overflow-hidden text-bg-dark rounded-4 shadow-lg" style="background-image: url('/static/foto2.jpg');">
+                            <div class="d-flex flex-column h-100 p-5 pb-3 text-white text-shadow-1">
+                                <h3 class="pt-5 mt-5 mb-4 display-6 lh-1 fw-bold">Compartilhe seu estilo</h3>
+                                <ul class="d-flex list-unstyled mt-auto">
+                                    <li class="d-flex align-items-center">
+                                        <svg class="bi me-2" width="1em" height="1em"><use xlink:href="#calendar3"></use></svg>
+                                    </li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col">
+                        <div class="card card-cover h-100 overflow-hidden text-bg-dark rounded-4 shadow-lg" style="background-image: url('/static/foto3.jpg');">
+                            <div class="d-flex flex-column h-100 p-5 pb-3 text-shadow-1">
+                                <h3 class="pt-5 mt-5 mb-4 display-6 lh-1 fw-bold">Descubra alguns estilos</h3>
+                                <ul class="d-flex list-unstyled mt-auto">
+                                    <li class="d-flex align-items-center">
+                                        <svg class="bi me-2" width="1em" height="1em"><use xlink:href="#calendar3"></use></svg>
+                                    </li>
+                                </ul>
+                            </div>
+                        </div>
                     </div>
                 </div>
-            </div>
-            <div class="col">
-                <div class="card card-cover h-100 overflow-hidden text-bg-dark rounded-4 shadow-lg" style="background-image: url('/static/foto2.jpg');">
-                    <div class="d-flex flex-column h-100 p-5 pb-3 text-white text-shadow-1">
-                        <h3 class="pt-5 mt-5 mb-4 display-6 lh-1 fw-bold">Compartilhe seu estilo</h3>
-                        <ul class="d-flex                            <li class="d-flex align-items-center">
-                                <svg class="bi me-2" width="1em" height="1em"><use xlink:href="#calendar3"></use></svg>
-                            </li>
-                        </ul>
+
+                <h2 class="pb-2 border-bottom mt-5">Designs do mundo todo</h2>
+                <div class="gallery">
+                    <a href="#"><img src="/static/galeria.jpg" alt="Design 1"></a>
+                    <a href="#"><img src="/static/galeria.jpg" alt="Design 2"></a>
+                    <a href="#"><img src="/static/galeria.jpg" alt="Design 3"></a>
+                    <a href="#"><img src="/static/galeria.jpg" alt="Design 4"></a>
+                    <a href="#"><img src="/static/galeria.jpg" alt="Design 5"></a>
+                </div>
+
+                <!-- Formulário para criar novos posts -->
+                {% if username %}
+                <form class="post-form" method="POST" enctype="multipart/form-data">
+                    <div class="form-group">
+                        <textarea class="form-control" name="content" placeholder="O que você está pensando?" required></textarea>
                     </div>
-                </div>
-            </div>
-            <div class="col">
-                <div class="card card-cover h-100 overflow-hidden text-bg-dark rounded-4 shadow-lg" style="background-image: url('/static/foto3.jpg');">
-                    <div class="d-flex flex-column h-100 p-5 pb-3 text-shadow-1">
-                        <h3 class="pt-5 mt-5 mb-4 display-6 lh-1 fw-bold">Descubra alguns estilos</h3>
-                        <ul class="d-flex list-unstyled mt-auto">
-                            <li class="d-flex align-items-center">
-                                <svg class="bi me-2" width="1em" height="1em"><use xlink:href="#calendar3"></use></svg>
-                            </li>
-                        </ul>
+                    <div class="form-group">
+                        <input type="file" class="form-control" name="image">
                     </div>
+                    <button type="submit" class="btn btn-primary">Postar</button>
+                </form>
+                {% endif %}
+
+                <div class="feed">
+                    <h2 class="pb-2 border-bottom mt-5">Últimas Notícias</h2>
+                    {% for post in posts %}
+                    <div class="feed-item">
+                        <div class="post-details">
+                            <h3>{{ post[1] }}</h3> <!-- Nome de usuário -->
+                            <small>{{ post[3] }}</small> <!-- Data e hora -->
+                            <p>{{ post[2] }}</p> <!-- Legenda -->
+                        </div>
+                        {% if post[4] %}
+                        <img src="{{ post[4] }}" alt="Imagem do Post"> <!-- Imagem, se houver -->
+                        {% endif %}
+                    </div>
+                    {% endfor %}
                 </div>
             </div>
-        </div>
-
-        <h2 class="pb-2 border-bottom mt-5">Designs do mundo todo</h2>
-        <div class="gallery">
-            <a href="#"><img src="/static/galeria.jpg" alt="Design 1"></a>
-            <a href="#"><img src="/static/galeria.jpg" alt="Design 2"></a>
-            <a href="#"><img src="/static/galeria.jpg" alt="Design 3"></a>
-            <a href="#"><img src="/static/galeria.jpg" alt="Design 4"></a>
-            <a href="#"><img src="/static/galeria.jpg" alt="Design 5"></a>
-        </div>
-
-         <!-- Formulário para criar novos posts -->
-        <form method="POST" enctype="multipart/form-data">
-            <div class="form-group">
-                <textarea class="form-control" name="content" placeholder="O que você está pensando?" required></textarea>
-            </div>
-            <div class="form-group">
-                <input type="file" class="form-control" name="image">
-            </div>
-            <button type="submit" class="btn btn-primary">Postar</button>
-        </form>
-
-        <div class="feed">
-            <h2 class="pb-2 border-bottom mt-5">Últimas Notícias</h2>
-            {% for post in posts %}
-            <div class="feed-item">
-                <div class="post-details">
-                    <h3>{{ post[1] }}</h3> <!-- Nome de usuário -->
-                    <small>{{ post[3] }}</small> <!-- Data e hora -->
-                    <p>{{ post[2] }}</p> <!-- Legenda -->
-                </div>
-                <img src="{{ post[4] }}" alt="Imagem do Post"> <!-- Imagem, se houver -->
-            </div>
-            {% endfor %}
         </div>
     </div>
-</div>
 
-<!-- Scripts do Bootstrap e JQuery -->
-<script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.4/dist/umd/popper.min.js"></script>
-<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+    <!-- Scripts do Bootstrap e JQuery -->
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.4/dist/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
 </body>
 </html>

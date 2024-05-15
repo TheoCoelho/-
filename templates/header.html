@@ -18,6 +18,7 @@
         }
 
         .navbar-nav.direita {
+            display: flex;
             justify-content: flex-end;
         }
 
@@ -41,9 +42,11 @@
             </div>
             <div class="collapse navbar-collapse" id="navbarNavDropdown">
                 <ul class="navbar-nav centralizado">
+                    {% if 'username' in session %}
                     <li class="nav-item">
                         <a class="nav-link" href="/perfil">Perfil</a>
                     </li>
+                    {% endif %}
                     <li class="nav-item">
                         <a class="nav-link active" aria-current="page" href="/">Home</a>
                     </li>
@@ -51,33 +54,20 @@
                         <a class="nav-link" href="/design">Designs</a>
                     </li>
                 </ul>
-            </div>
-            <div class="direita">
-                {% if session.get('username') == 'visitante' %}
-                <ul class="navbar-nav">
-                    <li class="nav-item">
-                        <a class="nav-link" href="/login">Login</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="/registro">Registro</a>
-                    </li>
-                </ul>
-                {% elif 'username' not in session %}
-                <ul class="navbar-nav">
-                    <li class="nav-item">
-                        <a class="nav-link" href="/login">Login</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="/registro">Registro</a>
-                    </li>
-                </ul>
-                {% else %}
-                <ul class="navbar-nav">
+                <ul class="navbar-nav direita">
+                    {% if 'username' in session %}
                     <li class="nav-item">
                         <a class="nav-link" href="/logout">Logout</a>
                     </li>
+                    {% else %}
+                    <li class="nav-item">
+                        <a class="nav-link" href="/login">Login</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/registro">Registro</a>
+                    </li>
+                    {% endif %}
                 </ul>
-                {% endif %}
             </div>
         </div>
     </nav>
