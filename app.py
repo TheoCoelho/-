@@ -11,7 +11,7 @@ app.secret_key = "sua_chave_secreta"
 app.config['UPLOAD_FOLDER'] = 'static/uploads'
 
 UPLOAD_FOLDER = '/static/uploads'
-ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg', 'gif'}
+ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg', 'gif','webp'}
 
 def conectar_bd():
     """Conecta ao banco de dados e retorna a conexão."""
@@ -172,7 +172,6 @@ def registro():
                 return redirect("/")
     return render_template("registro.html")
 
-from PIL import Image
 
 @app.route("/perfil", methods=["GET", "POST"])
 def perfil():
@@ -231,6 +230,64 @@ def favoritos():
 @app.route("/interacoes", methods=["GET", "POST"])
 def interacoes():
     return render_template("interacoes.html")
+
+
+
+@app.route("/settings", methods=["GET", "POST"])
+def settings():
+    if request.method == "POST":
+        if "username" in session:
+            username = session["username"]
+            
+            # Editar foto de perfil
+            profile_pic = request.files.get("profile_pic")  # Usar request.files.get para evitar KeyError
+            if profile_pic and allowed_file(profile_pic.filename):
+                # Processar a foto do perfil
+                filename = secure_filename(profile_pic.filename)
+                profile_pic_path = os.path.join(app.config['UPLOAD_FOLDER'], filename)
+                profile_pic.save(profile_pic_path)
+                profile_pic_url = f"/{app.config['UPLOAD_FOLDER']}/{filename}"
+                
+                # Redimensiona a imagem para que o lado maior tenha 150 pixels
+                img = Image.open(profile_pic_path)
+                img.thumbnail((150, 150))
+                
+                # Calcula as coordenadas de recorte para fazer um recorte de 150x150 pixels centrado na imagem
+                width, height = img.size
+                left = (width - 150) / 2
+                top = (height - 150) / 2
+                right = (width + 150) / 2
+                bottom = (height + 150) / 2
+                
+                # Recorta a imagem
+                img = img.crop((left, top, right, bottom))
+                
+                # Salva a imagem recortada
+                img.save(profile_pic_path)
+                
+                with conectar_bd() as conn:
+                    cursor = conn.cursor()
+                    cursor.execute("UPDATE usuarios SET profile_pic = ? WHERE username = ?", (profile_pic_url, username))
+                    conn.commit()
+                    
+                    # Redireciona de volta para a página de configurações após o envio bem-sucedido
+                    return redirect("/settings")
+            else:
+                # Se não houver envio de foto de perfil, continue renderizando a página de configurações
+                return render_template("settings.html", username=username)
+        else:
+            return redirect("/login")
+    else:
+        if "username" in session:
+            username = session["username"]
+            with conectar_bd() as conn:
+                cursor = conn.cursor()
+                cursor.execute("SELECT profile_pic FROM usuarios WHERE username = ?", (username,))
+                profile_pic = cursor.fetchone()[0]
+            return render_template("settings.html", profile_pic=profile_pic, username=username)
+        else:
+            return redirect("/login")
+
 
 if __name__ == "__main__":
     criar_tabela_usuarios()
