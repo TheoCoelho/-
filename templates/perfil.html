@@ -7,7 +7,6 @@
     <link rel="stylesheet" href="/static/header.css">
 
     <style>
-        
         /* Estilo geral */
         body {
             font-family: Arial, sans-serif;
@@ -28,8 +27,6 @@
             box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
             z-index: -1; /* Colocando atrás das outras camadas */
             right: 1%; /* Margem à esquerda */
-            
-
         }
         .inside-right-rectangle {
             display: flex; /* Corrigido para "flex" */
@@ -47,9 +44,7 @@
             font-weight: 100;
             margin-right: 170px;
             margin-left: 160px;
-            
         }
-
 
         /* Retângulo lateral */
         .left-rectangle {
@@ -118,93 +113,80 @@
             font-size: 20px;
         }
 
-
         .right-rectangle .content-right-rectangle {
             position: relative;
             height: 90%;
             width: 95%;
-            background-color: rgb(255, 0, 0);
+            background-color: rgb(255, 255, 255);
             margin-left:2.5%;
-            
         }
     </style>
-    <!--
+    <!-- Incluindo o cabeçalho -->
+    {% include 'header.html' %}
+</head>
+<body>
+    <!-- Container principal -->
+    <div class="right-rectangle">
+        <div class="inside-right-rectangle">
+            <!-- Links para carregar o conteúdo -->
+            <a href="#" class="load-content" onclick="loadContent('/design')">Design</a>
+            <a href="#" class="load-content" onclick="loadContent('/favoritos')">Favoritos</a>
+            <a href="#" class="load-content" onclick="loadContent('/interacoes')">Interações</a>
+        </div>
+        <!-- Conteúdo a ser carregado aqui -->
+        <div class="content-right-rectangle">
+            <!-- O conteúdo será carregado dinamicamente aqui -->
+        </div>  
+    </div>
+
+    <!-- Barra lateral esquerda -->
+    <div class="left-rectangle">
+        <!-- Informações do perfil -->
+        <div class="profile-container">
+            <!-- Cabeçalho do perfil -->
+            <div class="profile-header">
+                <!-- Foto do perfil -->
+                <div class="profile-picture">
+                    {% if profile_pic %}
+                        <img src="{{ profile_pic }}" alt="Foto do perfil">
+                    {% else %}
+                        <p>Foto não encontrada</p>
+                    {% endif %}
+                </div>
+                <!-- Formulário para enviar foto de perfil -->
+                <form action="/perfil" method="POST" enctype="multipart/form-data">
+                    <input type="file" name="profile_pic">
+                    <button type="submit">Enviar Foto de Perfil</button>
+                </form>
+                <!-- Nome do usuário -->
+                <div class="username">{{username}}</div>
+                <!-- Adicione mais informações conforme necessário -->
+            </div>
+            <!-- Informações adicionais do perfil -->
+            <div class="profile-info">
+                <p>Email: exemplo@gmail.com</p>
+                <p>Idade: 30 anos</p>
+                <!-- Adicione mais informações conforme necessário -->
+                <!-- Links de redes sociais -->
+                <div class="social-links">
+                    <a href="#">Facebook</a>
+                    <a href="#">Twitter</a>
+                    <a href="#">Instagram</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Script para carregar o conteúdo dinamicamente -->
     <script>
-        function loadDesignPage() {
-            fetch('/get_design_content')
-                .then(response => response.json())
+        function loadContent(url) {
+            fetch(url)
+                .then(response => response.text())
                 .then(data => {
-                    document.querySelector('.content-right-rectangle').innerHTML = data.content;
-                })
-                .catch(error => console.error('Error:', error));
-        }
-
-        function loadFavoritesPage() {
-        fetch('/get_favorites_content')
-            .then(response => response.json())
-            .then(data => {
-                document.querySelector('.content-right-rectangle').innerHTML = data.content;
-            })
-            .catch(error => console.error('Error:', error));
-    }
-
-        function loadInteractionsPage() {
-            fetch('/get_interactions_content')
-                .then(response => response.json())
-                .then(data => {
-                    document.querySelector('.content-right-rectangle').innerHTML = data.content;
+                    document.querySelector('.content-right-rectangle').innerHTML = data;
                 })
                 .catch(error => console.error('Error:', error));
         }
     </script>
--->
-    {% include 'header.html' %}
-</head>
-<body>
-    <div class="right-rectangle">
-        <div class="inside-right-rectangle">
-            <a href="{{ url_for('design') }}" class="load-content">Design</a>
-            <a href="{{ url_for('favoritos') }}" class="load-content">Favoritos</a>
-            <a href="{{ url_for('interacoes') }}" class="load-content">Interações</a>
-        </div>
-        <div class="content-right-rectangle">
-            {% if content %}
-                {{ content | safe }}
-            {% endif %}
-        </div>  
-    </div>
-    </div>
-    <div class="left-rectangle">
-        <div class="profile-container">
-                <div class="profile-header">
-                    <div class="profile-picture">
-                        <!-- Inserir a foto do perfil aqui -->
-                        <img src="{{ profile_pic }}" alt="Foto do perfil">
-                    </div>
-                    <form action="/perfil" method="POST" enctype="multipart/form-data">
-                        <input type="file" name="profile_pic">
-                        <button type="submit">Enviar Foto de Perfil</button>
-                    </form>
-                    
-                    <div class="username">Nome do Usuário</div>
-                    <!-- Adicione mais informações conforme necessário -->
-                </div>
-                <div class="profile-info">
-                    <p>Email: exemplo@gmail.com</p>
-                    <p>Idade: 30 anos</p>
-                    <!-- Adicione mais informações conforme necessário -->
-
-                    <!-- Links de redes sociais -->
-                    <div class="social-links">
-                        <a href="#">Facebook</a>
-                        <a href="#">Twitter</a>
-                        <a href="#">Instagram</a>
-                    </div>
-            </div>
-
-    </div>
-
-    
-    </div>
 </body>
 </html>

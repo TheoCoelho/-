@@ -225,7 +225,7 @@ def perfil():
                 cursor = conn.cursor()
                 cursor.execute("SELECT profile_pic FROM usuarios WHERE username = ?", (username,))
                 profile_pic = cursor.fetchone()[0]
-            return render_template("perfil.html", profile_pic=profile_pic)
+            return render_template("perfil.html", profile_pic=profile_pic, username=username)
 
      
      
@@ -234,18 +234,15 @@ def perfil():
 
 @app.route("/design", methods=["GET", "POST"])
 def design():
-    content = render_template("design.html")
-    return render_template("perfil.html", content=content)
+    return render_template("design.html")
 
 @app.route("/favoritos", methods=["GET", "POST"])
 def favoritos():
-    content = render_template("favoritos.html")
-    return render_template("perfil.html", content=content)
+    return render_template("favoritos.html")
 
 @app.route("/interacoes", methods=["GET", "POST"])
 def interacoes():
-    content = render_template("interacoes.html")
-    return render_template("perfil.html", content=content)
+    return render_template("interacoes.html")
 
 
 
