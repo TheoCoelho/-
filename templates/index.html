@@ -231,7 +231,7 @@
                         </a>
                     </div>
                     <div class="col">
-                        <a href="/pagina2" style="text-decoration: none; color: inherit;">
+                        <a href="/redesocial" style="text-decoration: none; color: inherit;">
                             <div class="card card-cover h-100 overflow-hidden text-bg-dark rounded-4 shadow-lg" style="background-image: url('/static/foto2.jpg');">
                                 <div class="d-flex flex-column h-100 p-5 pb-3 text-white text-shadow-1">
                                     <h3 class="pt-5 mt-5 mb-4 display-6 lh-1 fw-bold">Compartilhe seu estilo</h3>
@@ -294,45 +294,12 @@
             </div>
 
 
-                <div class="feed">
-                    <h2 class="pb-2 border-bottom mt-5">De olho nas tendências</h2>
-
-                    {% if username %}
-                    <form class="post-form" method="POST" enctype="multipart/form-data">
-                        <div class="form-group">
-                            <textarea class="form-control" name="content" placeholder="O que você está pensando?" required></textarea>
-                        </div>
-                        <div class="form-group">
-                            <input type="file" class="form-control" name="image">
-                        </div>
-                        <button type="submit" class="btn btn-primary">Postar</button>
-                    </form>
-                    {% endif %}
-
-                    {% for post in posts %}
-                    <div class="feed-item">
-                        <div class="post-header">
-                            <img src="{{ post[5] }}" alt="Foto de Perfil" class="profile-img">
-                            <div class="post-content">
-                                <h3>{{ post[1] }}</h3> <!-- Nome de usuário -->
-                                <small>{{ post[3] }}</small> <!-- Data e hora -->
-                            </div>
-                        </div>
-                        <p>{{ post[2] }}</p> <!-- Legenda -->
-                        {% if post[4] %}
-                        <img src="{{ post[4] }}" alt="Imagem do Post"> <!-- Imagem, se houver -->
-                        {% endif %}
-                    </div>
-                    {% endfor %}
-                    
-                </div>
-            </div>
-        </div>
-    </div>
+               
 
     <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.4/dist/umd/popper.min.js"></script>
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+   
 </body>
 </html>
 

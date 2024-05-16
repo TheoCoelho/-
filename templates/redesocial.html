@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Rede Social</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            padding: 20px;
+            background-color: #f0f2f5;
+        }
+        .feed {
+            margin-top: 50px;
+        }
+        .feed-item {
+            border: 1px solid #ddd;
+            padding: 15px;
+            margin-bottom: 20px;
+            border-radius: 10px;
+            background-color: #fff;
+            max-width: 600px;
+            margin-left: auto;
+            margin-right: auto;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        .feed-item img {
+            max-width: 100%;
+            height: auto;
+            border-radius: 10px;
+            margin-top: 10px;
+        }
+        .profile-img {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            margin-right: 15px;
+        }
+        .post-header {
+            display: flex;
+            align-items: center;
+        }
+        .post-content {
+            flex: 1;
+        }
+        .post-details {
+            padding: 15px;
+        }
+        .post-details h3 {
+            margin-top: 0;
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: #333;
+        }
+        .post-details small {
+            color: #999;
+            display: block;
+            margin-top: 5px;
+        }
+        .post-details p {
+            margin-bottom: 0;
+            margin-top: 10px;
+            font-size: 1.1rem;
+            line-height: 1.4;
+        }
+        .post-form {
+            max-width: 600px;
+            margin: 20px auto;
+            padding: 20px;
+            background-color: #fff;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        .post-form .form-group {
+            margin-bottom: 15px;
+        }
+        .post-form .form-control {
+            border-radius: 5px;
+        }
+        .post-form button {
+            background-color: #007bff;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        .post-form button:hover {
+            background-color: #0056b3;
+        }
+        .like-comment-section {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 10px;
+        }
+        .like-comment-section .likes,
+        .like-comment-section .comments,
+        .like-comment-section .shares {
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+    {% include 'header.html' %}
+    <hr>
+    <div class="feed">
+        <h2>De olho nas tendências</h2>
+        {% if username %}
+        <form class="post-form" method="POST" enctype="multipart/form-data">
+            <div class="form-group">
+                <textarea class="form-control" name="content" placeholder="O que você está pensando?" required></textarea>
+            </div>
+            <div class="form-group">
+                <input type="file" class="form-control" name="image">
+            </div>
+            <button type="submit" class="btn btn-primary">Postar</button>
+        </form>
+        {% endif %}
+        {% for post in posts %}
+        <div class="feed-item">
+            <div class="post-header">
+                <img src="{{ post[5] }}" alt="Foto de Perfil" class="profile-img">
+                <div class="post-content">
+                    <h3>{{ post[1] }}</h3> <!-- Nome de usuário -->
+                    <small>{{ post[3] }}</small> <!-- Data e hora -->
+                </div>
+            </div>
+            <p>{{ post[2] }}</p> <!-- Legenda -->
+            {% if post[4] %}
+            <img src="{{ post[4] }}" alt="Imagem do Post"> <!-- Imagem, se houver -->
+            {% endif %}
+            <div class="like-comment-section">
+                <span class="likes" data-post-id="{{ post[0] }}">Curtidas: {{ post[6] }}</span>
+                <span class="comments" data-post-id="{{ post[0] }}">Comentários: {{ post[7] }}</span>
+                <span class="shares" data-post-id="{{ post[0] }}">Compartilhar</span>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
+    <script>
+        $(document).ready(function() {
+            $('.likes').click(function() {
+                var post_id = $(this).data('post-id');
+                $.post('/like', {post_id: post_id}, function(response) {
+                    if (response.success) {
+                        location.reload();
+                    }
+                });
+            });
+
+            $('.comments').click(function() {
+                var post_id = $(this).data('post-id');
+                var comentario = prompt("Escreva seu comentário:");
+                if (comentario) {
+                    $.post('/comment', {post_id: post_id, comentario: comentario}, function(response) {
+                        if (response.success) {
+                            location.reload();
+                        }
+                    });
+                }
+            });
+
+            $('.shares').click(function() {
+                var post_id = $(this).data('post-id');
+                $.post('/share', {post_id: post_id}, function(response) {
+                    if (response.success) {
+                        alert("Post compartilhado com sucesso!");
+                    }
+                });
+            });
+        });
+    </script>
+</body>
+</html>
+

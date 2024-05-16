@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request, redirect, session, jsonify
+from flask import Flask, render_template, request, redirect, session, jsonify, url_for
 import sqlite3
 from datetime import datetime
 import os
@@ -9,8 +9,6 @@ app = Flask(__name__, template_folder='templates')
 app.secret_key = "sua_chave_secreta"
 
 app.config['UPLOAD_FOLDER'] = 'static/uploads'
-
-UPLOAD_FOLDER = '/static/uploads'
 ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg', 'gif'}
 
 def conectar_bd():
@@ -21,12 +19,10 @@ def adicionar_coluna_profile_pic():
     """Adiciona a coluna profile_pic à tabela de usuários, se ainda não existir."""
     with conectar_bd() as conn:
         cursor = conn.cursor()
-        # Verifica se a coluna ainda não existe
         cursor.execute("PRAGMA table_info(usuarios)")
         columns = cursor.fetchall()
         column_names = [col[1] for col in columns]
         if 'profile_pic' not in column_names:
-            # Adiciona a coluna profile_pic à tabela
             cursor.execute("ALTER TABLE usuarios ADD COLUMN profile_pic TEXT")
             conn.commit()
 
@@ -48,9 +44,6 @@ def criar_tabela_usuarios():
             cursor.execute("INSERT INTO usuarios (username, password) VALUES (?, ?)", ('lc', '1908'))
             conn.commit()
 
-# Adicionando a chamada da função adicionar_coluna_profile_pic para garantir que a coluna seja adicionada
-adicionar_coluna_profile_pic()
-
 def criar_tabela_posts():
     """Cria a tabela de posts se ela não existir."""
     with conectar_bd() as conn:
@@ -62,6 +55,51 @@ def criar_tabela_posts():
                 content TEXT NOT NULL,
                 image_url TEXT,
                 timestamp DATETIME DEFAULT CURRENT_TIMESTAMP
+            )
+        """)
+        conn.commit()
+
+def criar_tabela_likes():
+    """Cria a tabela de curtidas se ela não existir."""
+    with conectar_bd() as conn:
+        cursor = conn.cursor()
+        cursor.execute("""
+            CREATE TABLE IF NOT EXISTS likes (
+                id INTEGER PRIMARY KEY,
+                post_id INTEGER NOT NULL,
+                username TEXT NOT NULL,
+                FOREIGN KEY (post_id) REFERENCES posts(id)
+            )
+        """)
+        conn.commit()
+
+def criar_tabela_comentarios():
+    """Cria a tabela de comentários se ela não existir."""
+    with conectar_bd() as conn:
+        cursor = conn.cursor()
+        cursor.execute("""
+            CREATE TABLE IF NOT EXISTS comentarios (
+                id INTEGER PRIMARY KEY,
+                post_id INTEGER NOT NULL,
+                username TEXT NOT NULL,
+                comentario TEXT NOT NULL,
+                timestamp DATETIME DEFAULT CURRENT_TIMESTAMP,
+                FOREIGN KEY (post_id) REFERENCES posts(id)
+            )
+        """)
+        conn.commit()
+
+def criar_tabela_compartilhamentos():
+    """Cria a tabela de compartilhamentos se ela não existir."""
+    with conectar_bd() as conn:
+        cursor = conn.cursor()
+        cursor.execute("""
+            CREATE TABLE IF NOT EXISTS compartilhamentos (
+                id INTEGER PRIMARY KEY,
+                post_id INTEGER NOT NULL,
+                username TEXT NOT NULL,
+                timestamp DATETIME DEFAULT CURRENT_TIMESTAMP,
+                FOREIGN KEY (post_id) REFERENCES posts(id)
             )
         """)
         conn.commit()
@@ -81,16 +119,35 @@ def verificar_usuario(username, password):
         return cursor.fetchone()
 
 def obter_posts():
-    """Obtém todos os posts do banco de dados, incluindo informações de foto de perfil do usuário."""
+    """Obtém todos os posts do banco de dados, incluindo informações de foto de perfil do usuário e contagens de curtidas, comentários e compartilhamentos."""
     with conectar_bd() as conn:
         cursor = conn.cursor()
         cursor.execute("""
-            SELECT posts.*, usuarios.profile_pic 
-            FROM posts 
-            INNER JOIN usuarios ON posts.username = usuarios.username 
-            ORDER BY timestamp DESC
+            SELECT 
+                posts.id, posts.username, posts.content, posts.timestamp, posts.image_url, usuarios.profile_pic,
+                (SELECT COUNT(*) FROM likes WHERE likes.post_id = posts.id) AS num_likes,
+                (SELECT COUNT(*) FROM comentarios WHERE comentarios.post_id = posts.id) AS num_comentarios,
+                (SELECT COUNT(*) FROM compartilhamentos WHERE compartilhamentos.post_id = posts.id) AS num_compartilhamentos
+            FROM posts
+            INNER JOIN usuarios ON posts.username = usuarios.username
+            ORDER BY posts.timestamp DESC
         """)
-        return cursor.fetchall()
+        posts = cursor.fetchall()
+        posts_with_comments = []
+        # Obtém os comentários de cada post
+        for post in posts:
+            cursor.execute("""
+                SELECT comentarios.username, comentarios.comentario, comentarios.timestamp 
+                FROM comentarios 
+                WHERE comentarios.post_id = ? 
+                ORDER BY comentarios.timestamp ASC
+            """, (post[0],))
+            post_comentarios = cursor.fetchall()
+            post_with_comments = list(post)
+            post_with_comments.append(post_comentarios)
+            posts_with_comments.append(post_with_comments)
+        return posts_with_comments
+
 
 def criar_post(username, content, image_url=None):
     """Cria um novo post no banco de dados."""
@@ -110,10 +167,98 @@ def allowed_file(filename):
     """Verifica se a extensão do arquivo é permitida."""
     return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
 
+def curtir_post(post_id, username):
+    """Adiciona uma curtida a um post, se o usuário ainda não tiver curtido."""
+    with conectar_bd() as conn:
+        cursor = conn.cursor()
+        cursor.execute("SELECT * FROM likes WHERE post_id = ? AND username = ?", (post_id, username))
+        like = cursor.fetchone()
+        if not like:
+            cursor.execute("INSERT INTO likes (post_id, username) VALUES (?, ?)", (post_id, username))
+            conn.commit()
+
+def obter_usuarios_que_curtiram(post_id):
+    """Obtém a lista de usuários que curtiram um post."""
+    with conectar_bd() as conn:
+        cursor = conn.cursor()
+        cursor.execute("SELECT username FROM likes WHERE post_id = ?", (post_id,))
+        return [row[0] for row in cursor.fetchall()]
+
+def comentar_post(post_id, username, comentario):
+    """Adiciona um comentário a um post."""
+    with conectar_bd() as conn:
+        cursor = conn.cursor()
+        cursor.execute("INSERT INTO comentarios (post_id, username, comentario) VALUES (?, ?, ?)", (post_id, username, comentario))
+        conn.commit()
+
+def compartilhar_post(post_id, username):
+    """Adiciona um compartilhamento a um post."""
+    with conectar_bd() as conn:
+        cursor = conn.cursor()
+        cursor.execute("INSERT INTO compartilhamentos (post_id, username) VALUES (?, ?)", (post_id, username))
+        conn.commit()
+
 @app.route("/")
 def home():
     """Redireciona todos os visitantes para a página principal."""
     return redirect("/index")
+
+@app.route('/redesocial', methods=["GET", "POST"])
+def redesocial():
+    """Página da rede social. Se o usuário estiver logado, exibe a página com os posts; caso contrário, redireciona para a página de login."""
+    if request.method == "POST":
+        content = request.form["content"]
+        image = request.files["image"] if "image" in request.files else None
+        image_url = None
+        if image and allowed_file(image.filename):
+            filename = secure_filename(image.filename)
+            image_path = os.path.join(app.config['UPLOAD_FOLDER'], filename)
+            image.save(image_path)
+            image_url = f"/{app.config['UPLOAD_FOLDER']}/{filename}"
+        criar_post(session["username"], content, image_url)
+        return redirect("/redesocial")
+    else:
+        usuario = session["username"] if "username" in session else None
+        posts = obter_posts()
+        return render_template("redesocial.html", username=usuario, posts=posts)
+
+@app.route("/like", methods=["POST"])
+def like_post():
+    """Rota para curtir um post."""
+    if "username" in session:
+        post_id = request.form["post_id"]
+        username = session["username"]
+        curtir_post(post_id, username)
+        return jsonify(success=True)
+    return jsonify(success=False)
+
+@app.route("/comentario", methods=["POST"])
+def comentar():
+    """Rota para comentar em um post."""
+    if "username" in session:
+        post_id = request.form["post_id"]
+        comentario = request.form["comentario"]
+        username = session["username"]
+        comentar_post(post_id, username, comentario)
+        return jsonify(success=True)
+    return jsonify(success=False)
+
+@app.route("/compartilhar", methods=["POST"])
+def compartilhar():
+    """Rota para compartilhar um post."""
+    if "username" in session:
+        post_id = request.form["post_id"]
+        username = session["username"]
+        compartilhar_post(post_id, username)
+        post_url = url_for('redesocial', _external=True) + f"#post-{post_id}"
+        return jsonify(success=True, url=post_url)
+    return jsonify(success=False)
+
+@app.route("/usuarios_que_curtiram/<int:post_id>")
+def usuarios_que_curtiram(post_id):
+    """Rota para obter os usuários que curtiram um post."""
+    usuarios = obter_usuarios_que_curtiram(post_id)
+    return jsonify(usuarios=usuarios)
 
 @app.route("/login", methods=["GET", "POST"])
 def login():
@@ -171,8 +316,6 @@ def registro():
                 cadastrar_usuario(username, password)
                 return redirect("/")
     return render_template("registro.html")
-
-from PIL import Image
 
 @app.route("/perfil", methods=["GET", "POST"])
 def perfil():
@@ -233,6 +376,11 @@ def interacoes():
     return render_template("interacoes.html")
 
 if __name__ == "__main__":
-    criar_tabela_usuarios()
-    criar_tabela_posts()
+    with app.app_context():
+        criar_tabela_usuarios()
+        adicionar_coluna_profile_pic()
+        criar_tabela_posts()
+        criar_tabela_likes()
+        criar_tabela_comentarios()
+        criar_tabela_compartilhamentos()
     app.run(debug=True)
