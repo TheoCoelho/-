@@ -11,7 +11,7 @@ app.secret_key = "sua_chave_secreta"
 app.config['UPLOAD_FOLDER'] = 'static/uploads'
 
 UPLOAD_FOLDER = '/static/uploads'
-ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg', 'gif'}
+ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg', 'gif', 'webp'}
 
 def conectar_bd():
     """Conecta ao banco de dados e retorna a conexão."""
