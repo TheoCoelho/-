@@ -165,64 +165,133 @@
             overflow: hidden;
         }
 
+        .block {
+            display: flex;
+            align-items: center;
+            justify-content: space-around;
+            margin-bottom: 50px;
+        }
+
+        .block img {
+            width: 200px; /* Ajuste conforme necessário */
+            height: auto;
+            border-radius: 10px;
+        }
+
+        .block-text {
+            flex: 1;
+            padding: 0 20px;
+        }
+
+        .block-title {
+            font-size: 1.5rem;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+
+        .block-description {
+            font-size: 1rem;
+            color: #666;
+            line-height: 1.5;
+        }
+
+        .block-image {
+            width: 200px; /* Defina o tamanho desejado */
+            height: auto; /* Para manter a proporção */
+        }
     </style>
 </head>
 <body>
-    {% include 'header.html' %}
+  
     
     {% if username == "lc" %}
     <a href="/admin" class="button">Página de administração</a>
     {% endif %}
 
+    
+
     <div class="container">
-        <h1>Bem-vindo, {{ username }}</h1>
+        {% include 'header.html' %}
+<hr>
 
         <div class="content">
-            <div class="container px-4 py-5" id="custom-cards">
-                <h2 class="pb-2 border-bottom">Estilo para você</h2>
-
                 <div class="row row-cols-1 row-cols-lg-3 align-items-stretch g-4 py-5">
                     <div class="col">
-                        <div class="card card-cover h-100 overflow-hidden text-bg-dark rounded-4 shadow-lg" style="background-image: url('/static/foto1.jpg');">
-                            <div class="d-flex flex-column h-100 p-5 pb-3 text-white text-shadow-1">
-                                <h3 class="pt-5 mt-5 mb-4 display-6 lh-1 fw-bold">Faça o seu estilo</h3>
-                                <ul class="d-flex list-unstyled mt-auto">
-                                    <li class="d-flex align-items-center">
-                                        <svg class="bi me-2" width="1em" height="1em"><use xlink:href="#calendar3"></use></svg>
-                                    </li>
-                                </ul>
+                        <a href="/pagina1" style="text-decoration: none; color: inherit;">
+                            <div class="card card-cover h-100 overflow-hidden text-bg-dark rounded-4 shadow-lg" style="background-image: url('/static/foto1.jpg');">
+                                <div class="d-flex flex-column h-100 p-5 pb-3 text-white text-shadow-1">
+                                    <h3 class="pt-5 mt-5 mb-4 display-6 lh-1 fw-bold">Faça o seu estilo</h3>
+                                    <ul class="d-flex list-unstyled mt-auto">
+                                        <li class="d-flex align-items-center">
+                                            <svg class="bi me-2" width="1em" height="1em"><use xlink:href="#calendar3"></use></svg>
+                                        </li>
+                                    </ul>
+                                </div>
                             </div>
-                        </div>
+                        </a>
                     </div>
                     <div class="col">
-                        <div class="card card-cover h-100 overflow-hidden text-bg-dark rounded-4 shadow-lg" style="background-image: url('/static/foto2.jpg');">
-                            <div class="d-flex flex-column h-100 p-5 pb-3 text-white text-shadow-1">
-                                <h3 class="pt-5 mt-5 mb-4 display-6 lh-1 fw-bold">Compartilhe seu estilo</h3>
-                                <ul class="d-flex list-unstyled mt-auto">
-                                    <li class="d-flex align-items-center">
-                                        <svg class="bi me-2" width="1em" height="1em"><use xlink:href="#calendar3"></use></svg>
-                                    </li>
-                                </ul>
+                        <a href="/pagina2" style="text-decoration: none; color: inherit;">
+                            <div class="card card-cover h-100 overflow-hidden text-bg-dark rounded-4 shadow-lg" style="background-image: url('/static/foto2.jpg');">
+                                <div class="d-flex flex-column h-100 p-5 pb-3 text-white text-shadow-1">
+                                    <h3 class="pt-5 mt-5 mb-4 display-6 lh-1 fw-bold">Compartilhe seu estilo</h3>
+                                    <ul class="d-flex list-unstyled mt-auto">
+                                        <li class="d-flex align-items-center">
+                                            <svg class="bi me-2" width="1em" height="1em"><use xlink:href="#calendar3"></use></svg>
+                                        </li>
+                                    </ul>
+                                </div>
                             </div>
-                        </div>
+                        </a>
                     </div>
                     <div class="col">
-                        <div class="card card-cover h-100 overflow-hidden text-bg-dark rounded-4 shadow-lg" style="background-image: url('/static/foto3.jpg');">
-                            <div class="d-flex flex-column h-100 p-5 pb-3 text-shadow-1">
-                                <h3 class="pt-5 mt-5 mb-4 display-6 lh-1 fw-bold">Descubra alguns estilos</h3>
-                                <ul class="d-flex list-unstyled mt-auto">
-                                    <li class="d-flex align-items-center">
-                                        <svg class="bi me-2" width="1em" height="1em"><use xlink:href="#calendar3"></use></svg>
-                                    </li>
-                                </ul>
+                        <a href="/pagina1" style="text-decoration: none; color: inherit;">
+                            <div class="card card-cover h-100 overflow-hidden text-bg-dark rounded-4 shadow-lg" style="background-image: url('/static/foto3.jpg');">
+                                <div class="d-flex flex-column h-100 p-5 pb-3 text-shadow-1">
+                                    <h3 class="pt-5 mt-5 mb-4 display-6 lh-1 fw-bold">Descubra alguns estilos</h3>
+                                    <ul class="d-flex list-unstyled mt-auto">
+                                        <li class="d-flex align-items-center">
+                                            <svg class="bi me-2" width="1em" height="1em"><use xlink:href="#calendar3"></use></svg>
+                                        </li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </a>
+                    </div>
+                </div>
+
+
+                <div class="container">
+                    <div class="d-flex justify-content-between">
+                        <!-- Primeiro Bloco -->
+                        <div class="block">
+                            <img src="/static/roupa.png" alt="Descrição da Imagem" class="block-image">
+                            <div class="block-text">
+                                <h3 class="block-title">Estilo Personalizado</h3>
+                                <p class="block-description">Crie suas próprias roupas que refletem quem você é.</p>
+                            </div>
+                        </div>
+                
+                        <!-- Segundo Bloco -->
+                        <div class="block">
+                            <img src="/static/tendencia.png" alt="Descrição da Imagem" class="block-image">
+                            <div class="block-text">
+                                <h3 class="block-title">Faça a tendência</h3>
+                                <p class="block-description">Descubra e compartilhe as últimas tendências de moda.</p>
+                            </div>
+                        </div>
+                
+                        <!-- Terceiro Bloco -->
+                        <div class="block">
+                            <img src="/static/loja.png" alt="Descrição da Imagem" class="block-image">
+                            <div class="block-text">
+                                <h3 class="block-title">Loja Personalizável</h3>
+                                <p class="block-description">Venda suas peças exclusivas diretamente aos seus seguidores e comunidade</p>
                             </div>
                         </div>
                     </div>
                 </div>
-
-                <div class="container">
-    
-                    
+            </div>
 
 
                 <div class="feed">
@@ -266,3 +335,4 @@
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
 </body>
 </html>
+
