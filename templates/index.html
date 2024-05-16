@@ -1,0 +1,338 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Home</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <link href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Times New Roman', Times, serif;
+            padding: 20px;
+            background-color: #f0f2f5;
+        }
+
+        .gallery {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 20px;
+        }
+
+        .gallery img {
+            width: 100%;
+            border-radius: 5px;
+        }
+
+        .feed {
+            margin-top: 50px;
+        }
+
+        .feed-item {
+            border: 1px solid #ddd;
+            padding: 15px;
+            margin-bottom: 20px;
+            border-radius: 10px;
+            background-color: #fff;
+            text-align: left;
+            max-width: 500px;
+            margin-left: auto;
+            margin-right: auto;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        .feed-item h3 {
+            margin-bottom: 5px;
+            font-size: 1.5rem;
+        }
+
+        .feed-item p {
+            margin-bottom: 10px;
+        }
+
+        .feed-item img {
+            max-width: 100%;
+            height: auto;
+            border-radius: 10px;
+            margin-top: 10px;
+        }
+
+        .feed-item small {
+            display: block;
+            margin-top: 5px;
+            color: #999;
+        }
+
+        .sidebar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            height: 100%;
+            width: 250px;
+            background-color: #f8f9fa;
+            padding: 20px;
+            box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1);
+        }
+
+        .sidebar a {
+            display: block;
+            padding: 10px 0;
+            color: #343a40;
+            text-decoration: none;
+        }
+
+        .sidebar a:hover {
+            background-color: #007bff;
+            color: white;
+        }
+
+        .feed-item {
+            background-color: #fff;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+            margin-bottom: 20px;
+        }
+
+        .feed-item .post-details {
+            padding: 20px;
+        }
+
+        .feed-item .post-details h3 {
+            margin-top: 0;
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: #333;
+        }
+
+        .feed-item .post-details small {
+            color: #999;
+            display: block;
+            margin-top: 5px;
+        }
+
+        .feed-item .post-details p {
+            margin-bottom: 0;
+            margin-top: 10px;
+            font-size: 1.1rem;
+            line-height: 1.4;
+        }
+
+        .post-form {
+            max-width: 600px;
+            margin: 20px auto;
+            padding: 20px;
+            background-color: #fff;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        .post-form .form-group {
+            margin-bottom: 15px;
+        }
+
+        .post-form .form-control {
+            border-radius: 5px;
+        }
+
+        .post-form button {
+            background-color: #007bff;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        .post-form button:hover {
+            background-color: #0056b3;
+        }
+
+        .profile-img {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            margin-right: 15px;
+            float: left;
+        }
+
+        .post-header {
+            display: flex;
+            align-items: center;
+        }
+
+        .post-content {
+            overflow: hidden;
+        }
+
+        .block {
+            display: flex;
+            align-items: center;
+            justify-content: space-around;
+            margin-bottom: 50px;
+        }
+
+        .block img {
+            width: 200px; /* Ajuste conforme necessário */
+            height: auto;
+            border-radius: 10px;
+        }
+
+        .block-text {
+            flex: 1;
+            padding: 0 20px;
+        }
+
+        .block-title {
+            font-size: 1.5rem;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+
+        .block-description {
+            font-size: 1rem;
+            color: #666;
+            line-height: 1.5;
+        }
+
+        .block-image {
+            width: 200px; /* Defina o tamanho desejado */
+            height: auto; /* Para manter a proporção */
+        }
+    </style>
+</head>
+<body>
+  
+    
+    {% if username == "lc" %}
+    <a href="/admin" class="button">Página de administração</a>
+    {% endif %}
+
+    
+
+    <div class="container">
+        {% include 'header.html' %}
+<hr>
+
+        <div class="content">
+                <div class="row row-cols-1 row-cols-lg-3 align-items-stretch g-4 py-5">
+                    <div class="col">
+                        <a href="/pagina1" style="text-decoration: none; color: inherit;">
+                            <div class="card card-cover h-100 overflow-hidden text-bg-dark rounded-4 shadow-lg" style="background-image: url('/static/foto1.jpg');">
+                                <div class="d-flex flex-column h-100 p-5 pb-3 text-white text-shadow-1">
+                                    <h3 class="pt-5 mt-5 mb-4 display-6 lh-1 fw-bold">Faça o seu estilo</h3>
+                                    <ul class="d-flex list-unstyled mt-auto">
+                                        <li class="d-flex align-items-center">
+                                            <svg class="bi me-2" width="1em" height="1em"><use xlink:href="#calendar3"></use></svg>
+                                        </li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </a>
+                    </div>
+                    <div class="col">
+                        <a href="/pagina2" style="text-decoration: none; color: inherit;">
+                            <div class="card card-cover h-100 overflow-hidden text-bg-dark rounded-4 shadow-lg" style="background-image: url('/static/foto2.jpg');">
+                                <div class="d-flex flex-column h-100 p-5 pb-3 text-white text-shadow-1">
+                                    <h3 class="pt-5 mt-5 mb-4 display-6 lh-1 fw-bold">Compartilhe seu estilo</h3>
+                                    <ul class="d-flex list-unstyled mt-auto">
+                                        <li class="d-flex align-items-center">
+                                            <svg class="bi me-2" width="1em" height="1em"><use xlink:href="#calendar3"></use></svg>
+                                        </li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </a>
+                    </div>
+                    <div class="col">
+                        <a href="/pagina1" style="text-decoration: none; color: inherit;">
+                            <div class="card card-cover h-100 overflow-hidden text-bg-dark rounded-4 shadow-lg" style="background-image: url('/static/foto3.jpg');">
+                                <div class="d-flex flex-column h-100 p-5 pb-3 text-shadow-1">
+                                    <h3 class="pt-5 mt-5 mb-4 display-6 lh-1 fw-bold">Descubra alguns estilos</h3>
+                                    <ul class="d-flex list-unstyled mt-auto">
+                                        <li class="d-flex align-items-center">
+                                            <svg class="bi me-2" width="1em" height="1em"><use xlink:href="#calendar3"></use></svg>
+                                        </li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </a>
+                    </div>
+                </div>
+
+
+                <div class="container">
+                    <div class="d-flex justify-content-between">
+                        <!-- Primeiro Bloco -->
+                        <div class="block">
+                            <img src="/static/roupa.png" alt="Descrição da Imagem" class="block-image">
+                            <div class="block-text">
+                                <h3 class="block-title">Estilo Personalizado</h3>
+                                <p class="block-description">Crie suas próprias roupas que refletem quem você é.</p>
+                            </div>
+                        </div>
+                
+                        <!-- Segundo Bloco -->
+                        <div class="block">
+                            <img src="/static/tendencia.png" alt="Descrição da Imagem" class="block-image">
+                            <div class="block-text">
+                                <h3 class="block-title">Faça a tendência</h3>
+                                <p class="block-description">Descubra e compartilhe as últimas tendências de moda.</p>
+                            </div>
+                        </div>
+                
+                        <!-- Terceiro Bloco -->
+                        <div class="block">
+                            <img src="/static/loja.png" alt="Descrição da Imagem" class="block-image">
+                            <div class="block-text">
+                                <h3 class="block-title">Loja Personalizável</h3>
+                                <p class="block-description">Venda suas peças exclusivas diretamente aos seus seguidores e comunidade</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+
+                <div class="feed">
+                    <h2 class="pb-2 border-bottom mt-5">De olho nas tendências</h2>
+
+                    {% if username %}
+                    <form class="post-form" method="POST" enctype="multipart/form-data">
+                        <div class="form-group">
+                            <textarea class="form-control" name="content" placeholder="O que você está pensando?" required></textarea>
+                        </div>
+                        <div class="form-group">
+                            <input type="file" class="form-control" name="image">
+                        </div>
+                        <button type="submit" class="btn btn-primary">Postar</button>
+                    </form>
+                    {% endif %}
+
+                    {% for post in posts %}
+                    <div class="feed-item">
+                        <div class="post-header">
+                            <img src="{{ post[5] }}" alt="Foto de Perfil" class="profile-img">
+                            <div class="post-content">
+                                <h3>{{ post[1] }}</h3> <!-- Nome de usuário -->
+                                <small>{{ post[3] }}</small> <!-- Data e hora -->
+                            </div>
+                        </div>
+                        <p>{{ post[2] }}</p> <!-- Legenda -->
+                        {% if post[4] %}
+                        <img src="{{ post[4] }}" alt="Imagem do Post"> <!-- Imagem, se houver -->
+                        {% endif %}
+                    </div>
+                    {% endfor %}
+                    
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.4/dist/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+</body>
+</html>
+

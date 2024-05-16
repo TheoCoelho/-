@@ -51,10 +51,6 @@ def criar_tabela_usuarios():
 # Adicionando a chamada da função adicionar_coluna_profile_pic para garantir que a coluna seja adicionada
 adicionar_coluna_profile_pic()
 
-            
-
-
-
 def criar_tabela_posts():
     """Cria a tabela de posts se ela não existir."""
     with conectar_bd() as conn:
@@ -74,7 +70,7 @@ def cadastrar_usuario(username, password):
     """Insere um novo usuário no banco de dados."""
     with conectar_bd() as conn:
         cursor = conn.cursor()
-        cursor.execute("INSERT INTO usuarios (username, password) VALUES (?, ?)", (username, password))
+        cursor.execute("INSERT INTO usuarios (username, password) VALUES (?, ?, ?)", (username, password))
         conn.commit()
 
 def verificar_usuario(username, password):
@@ -96,9 +92,6 @@ def obter_posts():
         """)
         return cursor.fetchall()
 
-
-
-
 def criar_post(username, content, image_url=None):
     """Cria um novo post no banco de dados."""
     with conectar_bd() as conn:
@@ -118,9 +111,9 @@ def allowed_file(filename):
     return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
 
 @app.route("/")
-def index():
+def home():
     """Redireciona todos os visitantes para a página principal."""
-    return redirect("/home")
+    return redirect("/index")
 
 @app.route("/login", methods=["GET", "POST"])
 def login():
@@ -131,14 +124,14 @@ def login():
         user = verificar_usuario(username, password)
         if user:
             session["username"] = username
-            return redirect("/home")
+            return redirect("/index")
         else:
             return render_template("login.html", error="Usuário ou senha incorretos.")
     else:
         return render_template("login.html")
 
-@app.route("/home", methods=["GET", "POST"])
-def home():
+@app.route("/index", methods=["GET", "POST"])
+def main_page():
     """Página principal. Se o usuário estiver logado, exibe a página principal; caso contrário, redireciona para a página inicial."""
     if request.method == "POST":
         content = request.form["content"]
@@ -150,11 +143,11 @@ def home():
             image.save(image_path)
             image_url = f"/{app.config['UPLOAD_FOLDER']}/{filename}"
         criar_post(session["username"], content, image_url)
-        return redirect("/home")
+        return redirect("/index")
     else:
         usuario = session["username"] if "username" in session else None
         posts = obter_posts()
-        return render_template("home.html", username=usuario, posts=posts)
+        return render_template("index.html", username=usuario, posts=posts)
 
 @app.route("/logout")
 def logout():
@@ -227,11 +220,6 @@ def perfil():
                 profile_pic = cursor.fetchone()[0]
             return render_template("perfil.html", profile_pic=profile_pic)
 
-     
-     
-
-
-
 @app.route("/design", methods=["GET", "POST"])
 def design():
     content = render_template("design.html")
@@ -246,39 +234,6 @@ def favoritos():
 def interacoes():
     content = render_template("interacoes.html")
     return render_template("perfil.html", content=content)
-
-
-
-"""
-
-@app.route("/get_design_content", methods=["GET"])
-def get_design_content():
-    with open("templates/design.html", "r") as design_file:
-        design_content = design_file.read()
-    return jsonify({"content": design_content})
-
-
-
-
-
-@app.route("/get_favorites_content", methods=["GET"])
-def get_favorites_content():
-    with open("templates/favoritos.html", "r") as favorites_file:
-        favorites_content = favorites_file.read()
-    return jsonify({"content": favorites_content})
-
-
-
-
-@app.route("/get_interactions_content", methods=["GET"])
-def get_interactions_content():
-    with open("templates/interaçoes.html", "r") as interactions_file:
-        interactions_content = interactions_file.read()
-    return jsonify({"content": interactions_content})
-
-    
-"""
-
 
 if __name__ == "__main__":
     criar_tabela_usuarios()
