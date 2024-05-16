@@ -121,8 +121,10 @@
             <button type="submit">Registrar</button>
         </form>
 
-        <div class="g-signin2" data-onsuccess="onSignIn"></div>
+        <!-- Botão de login do Google -->
+        <div class="g-signin2" data-onsuccess="onSignIn" data-clientid="SEU_CLIENT_ID_DO_GOOGLE"></div>
     </div>
+
 
     <script>
         function onSignIn(googleUser) {
