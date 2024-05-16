@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Settings</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles/settings.css') }}">
+    <style>
+    body {
+        font-family: Arial, sans-serif;
+        background-color: #f9f9f9;
+    }
+
+    .container {
+        max-width: 600px;
+        margin: 50px auto;
+        padding: 20px;
+        background-color: #fff;
+        border-radius: 8px;
+        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    }
+
+    h1, h2 {
+        text-align: center;
+    }
+
+    form {
+        margin-bottom: 20px;
+    }
+
+    label {
+        display: block;
+        margin-bottom: 5px;
+    }
+
+    input[type="file"],
+    input[type="text"],
+    input[type="email"],
+    input[type="password"] {
+        width: 100%;
+        padding: 10px;
+        margin-bottom: 15px;
+        border: 1px solid #ccc;
+        border-radius: 4px;
+        box-sizing: border-box;
+    }
+
+    button {
+        display: block;
+        width: 100%;
+        padding: 10px;
+        background-color: #007bff;
+        color: #fff;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+        transition: background-color 0.3s;
+    }
+
+    button:hover {
+        background-color: #0056b3;
+    }
+
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Settings</h1>
+        
+        {% if username %}
+        <h2>Welcome, {{ username }}</h2>
+        
+        <!-- Formulário para editar a foto de perfil -->
+        <form action="/settings" method="post" enctype="multipart/form-data">
+            <label for="profile_pic">Change Profile Picture:</label>
+            <input type="file" name="profile_pic" accept="image/*">
+            <button type="submit">Save</button>
+        </form>
+
+        <!-- Formulário para editar o nome de usuário -->
+        <!-- Formulário para editar o nome de usuário -->
+        <form action="/settings" method="post">
+            <label for="new_username">Change Username:</label>
+            <input type="text" name="new_username" placeholder="New Username">
+            <button type="submit">Save</button>
+        </form>
+
+        <!-- Formulário para editar o e-mail -->
+        <form action="/settings" method="post">
+            <label for="new_email">Change Email:</label>
+            <input type="email" name="new_email" placeholder="New Email">
+            <button type="submit">Save</button>
+        </form>
+
+        <!-- Formulário para editar a senha -->
+        <form action="/settings" method="post">
+            <label for="new_password">Change Password:</label>
+            <input type="password" name="new_password" placeholder="New Password">
+            <button type="submit">Save</button>
+        </form>
+        {% else %}
+        <p>You are not logged in. Please <a href="/login">login</a>.</p>
+        {% endif %}
+    </div>
+</body>
+</html>
