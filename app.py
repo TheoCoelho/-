@@ -91,6 +91,7 @@ def criar_tabela_comentarios():
         """)
         conn.commit()
 
+
 def criar_tabela_compartilhamentos():
     """Cria a tabela de compartilhamentos se ela não existir."""
     with conectar_bd() as conn:
@@ -186,12 +187,22 @@ def obter_usuarios_que_curtiram(post_id):
         cursor.execute("SELECT username FROM likes WHERE post_id = ?", (post_id,))
         return [row[0] for row in cursor.fetchall()]
 
+@app.route("/usuarios_que_curtiram/<int:post_id>")
+def usuarios_que_curtiram(post_id):
+    """Rota para obter os usuários que curtiram um post."""
+    usuarios = obter_usuarios_que_curtiram(post_id)
+    return jsonify(usuarios=usuarios)
+
+
+
+
 def comentar_post(post_id, username, comentario):
     """Adiciona um comentário a um post."""
     with conectar_bd() as conn:
         cursor = conn.cursor()
         cursor.execute("INSERT INTO comentarios (post_id, username, comentario) VALUES (?, ?, ?)", (post_id, username, comentario))
         conn.commit()
+
 
 def compartilhar_post(post_id, username):
     """Adiciona um compartilhamento a um post."""
@@ -226,13 +237,52 @@ def redesocial():
 
 @app.route("/like", methods=["POST"])
 def like_post():
-    """Rota para curtir um post."""
+    """Endpoint para curtir ou descurtir um post."""
     if "username" in session:
         post_id = request.form["post_id"]
         username = session["username"]
-        curtir_post(post_id, username)
+        liked = curtir_post(post_id, username)
+        return jsonify(success=True, liked=liked)
+    return jsonify(success=False)
+
+def curtir_post(post_id, username):
+    """Curtir ou descurtir um post."""
+    with conectar_bd() as conn:
+        cursor = conn.cursor()
+        cursor.execute("SELECT * FROM likes WHERE post_id = ? AND username = ?", (post_id, username))
+        existing_like = cursor.fetchone()
+
+        if existing_like:
+            # Se o usuário já curtiu o post, descurtir
+            cursor.execute("DELETE FROM likes WHERE post_id = ? AND username = ?", (post_id, username))
+            liked = False
+        else:
+            # Se o usuário ainda não curtiu o post, curtir
+            cursor.execute("INSERT INTO likes (post_id, username) VALUES (?, ?)", (post_id, username))
+            liked = True
+        
+        conn.commit()
+        
+        return liked
+
+
+@app.route("/unlike", methods=["POST"])
+def unlike_post():
+    """Rota para descurtir um post."""
+    if "username" in session:
+        post_id = request.form["post_id"]
+        username = session["username"]
+        descurtir_post(post_id, username)
         return jsonify(success=True)
     return jsonify(success=False)
+
+def descurtir_post(post_id, username):
+    """Remove uma curtida de um post, se o usuário tiver curtido."""
+    with conectar_bd() as conn:
+        cursor = conn.cursor()
+        cursor.execute("DELETE FROM likes WHERE post_id = ? AND username = ?", (post_id, username))
+        conn.commit()
+
 
 @app.route("/comentario", methods=["POST"])
 def comentar():
@@ -245,8 +295,32 @@ def comentar():
         return jsonify(success=True)
     return jsonify(success=False)
 
-@app.route("/compartilhar", methods=["POST"])
-def compartilhar():
+@app.route("/comment", methods=["POST"])
+def comment():
+    """Rota para adicionar um comentário em um post."""
+    if "username" in session:
+        post_id = request.form["post_id"]
+        comentario = request.form["comentario"]
+        username = session["username"]
+        comentar_post(post_id, username, comentario)
+        return jsonify(success=True)
+    return jsonify(success=False)
+
+@app.route("/comments/<int:post_id>")
+def get_comments(post_id):
+    """Rota para obter os comentários de um post."""
+    with conectar_bd() as conn:
+        cursor = conn.cursor()
+        cursor.execute("SELECT username, comentario FROM comentarios WHERE post_id = ?", (post_id,))
+        comments = [{"username": row[0], "comentario": row[1]} for row in cursor.fetchall()]
+    return jsonify(comments=comments)
+
+
+
+
+
+@app.route("/share", methods=["POST"])
+def share():
     """Rota para compartilhar um post."""
     if "username" in session:
         post_id = request.form["post_id"]
@@ -256,11 +330,15 @@ def compartilhar():
         return jsonify(success=True, url=post_url)
     return jsonify(success=False)
 
-@app.route("/usuarios_que_curtiram/<int:post_id>")
-def usuarios_que_curtiram(post_id):
-    """Rota para obter os usuários que curtiram um post."""
-    usuarios = obter_usuarios_que_curtiram(post_id)
-    return jsonify(usuarios=usuarios)
+
+def obter_usuarios_que_curtiram(post_id):
+    """Obtém a lista de usuários que curtiram um post."""
+    with conectar_bd() as conn:
+        cursor = conn.cursor()
+        cursor.execute("SELECT username FROM likes WHERE post_id = ?", (post_id,))
+        return [row[0] for row in cursor.fetchall()]
+
+
 
 @app.route("/login", methods=["GET", "POST"])
 def login():
