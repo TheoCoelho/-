@@ -12,7 +12,7 @@
             font-family: Arial, sans-serif;
             margin: 0;
             padding: 0;
-            background-color: black;
+            background-color: #eaeaea !important; /* Alterado para cinza claro */
             position: relative; /* Para permitir o posicionamento absoluto do retângulo */
         }
 
@@ -20,7 +20,7 @@
         .right-rectangle {
             position: absolute;
             margin-top: 100px;
-            width: 67%; /* 70% da largura da tela */
+            width: 67%; /* 67% da largura da tela */
             height: 100vh; /* Altura total da janela de visualização */
             background-color: #ffffff;
             border-radius: 5px;
@@ -118,7 +118,7 @@
             height: 90%;
             width: 95%;
             background-color: rgb(255, 255, 255);
-            margin-left:2.5%;
+            margin-left: 2.5%;
         }
     </style>
     <!-- Incluindo o cabeçalho -->
@@ -153,11 +153,7 @@
                         <p>Foto não encontrada</p>
                     {% endif %}
                 </div>
-                <!-- Formulário para enviar foto de perfil -->
-                <form action="/perfil" method="POST" enctype="multipart/form-data">
-                    <input type="file" name="profile_pic">
-                    <button type="submit">Enviar Foto de Perfil</button>
-                </form>
+                
                 <!-- Nome do usuário -->
                 <div class="username">{{username}}</div>
                 <!-- Adicione mais informações conforme necessário -->
