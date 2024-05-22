@@ -14,6 +14,19 @@ def adicionar_coluna_profile_pic():
         if 'profile_pic' not in column_names:
             cursor.execute("ALTER TABLE usuarios ADD COLUMN profile_pic TEXT")
             conn.commit()
+        if 'email' not in column_names:
+            cursor.execute("ALTER TABLE usuarios ADD COLUMN email TEXT")
+            conn.commit()
+        if 'nome' not in column_names:
+            cursor.execute("ALTER TABLE usuarios ADD COLUMN nome TEXT")
+            conn.commit()
+        if 'sobrenome' not in column_names:
+            cursor.execute("ALTER TABLE usuarios ADD COLUMN sobrenome TEXT")
+            conn.commit()
+        if 'data_nascimento' not in column_names:
+            cursor.execute("ALTER TABLE usuarios ADD COLUMN data_nascimento DATE")
+            conn.commit()
+
 
 def criar_tabela_usuarios():
     """Cria a tabela de usuários se ela não existir e insere um usuário administrador padrão."""
@@ -24,13 +37,17 @@ def criar_tabela_usuarios():
                 id INTEGER PRIMARY KEY,
                 username TEXT NOT NULL,
                 password TEXT NOT NULL,
+                email TEXT NOT NULL,
+                nome TEXT NOT NULL,
+                sobrenome TEXT NOT NULL,
+                data_nascimento DATE NOT NULL,
                 profile_pic TEXT
             )
         """)
         cursor.execute("SELECT * FROM usuarios WHERE username = 'lc'")
         admin = cursor.fetchone()
         if not admin:
-            cursor.execute("INSERT INTO usuarios (username, password) VALUES (?, ?)", ('lc', '1908'))
+            cursor.execute("INSERT INTO usuarios (username, password, email, nome, sobrenome, data_nascimento) VALUES (?, ?, ?, ?, ?, ?)", ('lc', '1908', 'admin@example.com', 'Admin', 'Admin', '1908-01-01'))
             conn.commit()
 
 def criar_tabela_posts():

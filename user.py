@@ -1,11 +1,12 @@
 from db import conectar_bd
 
-def cadastrar_usuario(username, password):
+def cadastrar_usuario(username, password, email, nome, sobrenome, data_nascimento):
     """Insere um novo usuário no banco de dados."""
     with conectar_bd() as conn:
         cursor = conn.cursor()
-        cursor.execute("INSERT INTO usuarios (username, password) VALUES (?, ?)", (username, password))
+        cursor.execute("INSERT INTO usuarios (username, password, email, nome, sobrenome, data_nascimento) VALUES (?, ?, ?, ?, ?, ?)", (username, password, email, nome, sobrenome, data_nascimento))
         conn.commit()
+
 
 def verificar_usuario(username, password):
     """Verifica se um usuário existe no banco de dados com o nome de usuário e senha fornecidos."""
@@ -38,9 +39,15 @@ def registro(request, verificar_usuario, cadastrar_usuario, redirect, render_tem
     if request.method == "POST":
         username = request.form["username"]
         password = request.form["password"]
+        email = request.form["email"]
+        firstname = request.form["firstname"]
+        lastname = request.form["lastname"]
+        data_nascimento = request.form["dob"]
         if verificar_usuario(username, password):
             return render_template("registro.html", error="Usuário já existe. Tente outro.")
         else:
-            cadastrar_usuario(username, password)
+            cadastrar_usuario(username, password, email, firstname, lastname, data_nascimento)
             return redirect("/")
     return render_template("registro.html")
+
+

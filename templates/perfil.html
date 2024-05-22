@@ -3,195 +3,184 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Perfil</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
-    <link href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+    <title>Perfil do Usuário</title>
+    <link rel="stylesheet" href="/static/header.css">
+
     <style>
+        /* Estilo geral */
         body {
-            font-family: 'Times New Roman', Times, serif;
-            background-color: #f0f2f5;
-            padding: 20px;
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: black;
+            position: relative; /* Para permitir o posicionamento absoluto do retângulo */
         }
 
-        .container {
-            max-width: 1400px;
-            margin: 0 auto;
-        }
-
-        .main-container {
-            background-color: #ffffff;
-            border-radius: 10px;
-            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-            padding: 20px;
-            display: flex;
-            flex-direction: column;
-            gap: 20px;
-        }
-        
-        .header {
-            width: 100%;
-        }
-
-        .content-container {
-            display: flex;
-            gap: 20px;
-        }
-
-        .left-rectangle {
-            width: 30%;
-            background-color: #ffffff;
-            border-radius: 5px;
-            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-            padding: 20px;
-        }
-
-        .left-rectangle .profile-container {
-            text-align: center;
-        }
-
-        .left-rectangle .profile-picture img {
-            width: 150px;
-            height: 150px;
-            border-radius: 50%;
-            object-fit: cover;
-            margin-bottom: 15px;
-        }
-
-        .left-rectangle .profile-container .username {
-            font-size: 1.5rem;
-            font-weight: bold;
-            color: #333;
-            margin-bottom: 10px;
-        }
-
-        .left-rectangle .profile-container .profile-info {
-            font-size: 1rem;
-            color: #666;
-            line-height: 1.5;
-        }
-
-        .left-rectangle .profile-container .social-links {
-            margin-top: 15px;
-        }
-
-        .left-rectangle .profile-container .social-links a {
-            color: #007bff;
-            text-decoration: none;
-            margin-right: 10px;
-        }
-
-        .left-rectangle .profile-container .social-links a:hover {
-            text-decoration: underline;
-        }
-
-        /* Mantendo a estilização original dos botões */
+        /* Retângulo central */
         .right-rectangle {
-            width: 67%;
-            height: 840px;
+            position: absolute;
+            margin-top: 100px;
+            width: 67%; /* 70% da largura da tela */
+            height: 100vh; /* Altura total da janela de visualização */
             background-color: #ffffff;
             border-radius: 5px;
             box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-            position: relative;
-            display: flex;
-            flex-direction: column;
-            min-height: 200px; /* ajuste de altura mínima */
+            z-index: -1; /* Colocando atrás das outras camadas */
+            right: 1%; /* Margem à esquerda */
         }
-
-        .right-rectangle .inside-right-rectangle {
-            display: flex;
-            justify-content: center;
-            padding: 20px 0;
+        .inside-right-rectangle {
+            display: flex; /* Corrigido para "flex" */
+            position: relative;
+            margin: 0 auto;
+            justify-content: center; /* Alinha os itens ao centro horizontalmente */
         }
 
         .right-rectangle .inside-right-rectangle a {
-            color: rgb(236, 153, 37);
-            text-decoration: none;
-            margin: 0 20px;
+            color: rgb(236, 153, 37); /* Mudar a cor do texto para azul */
+            text-decoration: none; /* Remover sublinhado dos links */
+            margin-bottom: 10px; /* Adicionar margem inferior */
             text-align: center;
             font-size: 40px;
             font-weight: 100;
+            margin-right: 170px;
+            margin-left: 160px;
         }
 
-        .right-rectangle .inside-right-rectangle a:hover {
-            color: rgb(255, 193, 7);
+        /* Retângulo lateral */
+        .left-rectangle {
+            position: absolute;
+            margin-top: 100px;
+            width: 30%; /* 30% da largura da tela */
+            height: 100vh; /* Altura total da janela de visualização */
+            background-color: #fff;
+            border-radius: 5px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+            z-index: -1; /* Colocando atrás das outras camadas */
+            left: 1%; /* Margem à esquerda */
         }
 
-        .content-right-rectangle {
+        /* Container do perfil */
+        .profile-container {
+            max-width: 600px;
+            margin-left: -22px; /* Centralizando o container */
+            padding: 20px;
+            border-radius: 10px;
+            position: relative; /* Para posicionar elementos dentro do container */
+            z-index: 1; /* Colocando na frente dos retângulos */
+        }
+
+        /* Cabeçalho */
+        .profile-header {
+            text-align: center;
+            padding-bottom: 20px;
+            border-bottom: 1px solid #ddd; /* Linha separadora */
+            margin-bottom: 20px;
+        }
+
+        /* Foto do perfil */
+        .profile-picture {
+            width: 150px;
+            height: 150px;
+            border-radius: 50%;
+            border: 3px solid #fff;
+            box-shadow: 0 0 5px rgba(0, 0, 0, 0.3);
+            margin-bottom: 20px;
+            overflow: hidden;
+            margin: 0 auto;
+        }
+
+        /* Nome do usuário */
+        .username {
+            font-size: 24px;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+
+        /* Informações do perfil */
+        .profile-info {
+            text-align: center;
+        }
+
+        /* Links de redes sociais */
+        .social-links {
+            margin-top: 20px;
+        }
+        .social-links a {
+            display: inline-block;
+            margin-right: 10px;
+            color: #333;
+            text-decoration: none;
+            font-size: 20px;
+        }
+
+        .right-rectangle .content-right-rectangle {
             position: relative;
-            flex: 1;
+            height: 90%;
             width: 95%;
             background-color: rgb(255, 255, 255);
-            margin: 0 auto;
-            padding: 10px;
+            margin-left:2.5%;
         }
-
-        /* Estilos dos elementos existentes mantidos */
-
     </style>
+    <!-- Incluindo o cabeçalho -->
+    {% include 'header.html' %}
 </head>
 <body>
-  
-    {% if username == "lc" %}
-    <a href="/admin" class="button">Página de administração</a>
-    {% endif %}
+    <!-- Container principal -->
+    <div class="right-rectangle">
+        <div class="inside-right-rectangle">
+            <!-- Links para carregar o conteúdo -->
+            <a href="#" class="load-content" onclick="loadContent('/design')">Design</a>
+            <a href="#" class="load-content" onclick="loadContent('/favoritos')">Favoritos</a>
+            <a href="#" class="load-content" onclick="loadContent('/interacoes')">Interações</a>
+        </div>
+        <!-- Conteúdo a ser carregado aqui -->
+        <div class="content-right-rectangle">
+            <!-- O conteúdo será carregado dinamicamente aqui -->
+        </div>  
+    </div>
 
-    <!-- Container geral -->
-    <div class="container">
-        <div class="main-container">
-            <div class="header">
-                {% include 'header.html' %}
-            </div>
-            <hr>
-            <div class="content-container">
-                <div class="left-rectangle">
-                    <div class="profile-container">
-                        <!-- Cabeçalho do perfil -->
-                        <div class="profile-header">
-                            <!-- Foto do perfil -->
-                            <div class="profile-picture">
-                                {% if profile_pic %}
-                                    <img src="{{ profile_pic }}" alt="Foto do perfil">
-                                {% else %}
-                                    <p>Foto não encontrada</p>
-                                {% endif %}
-                            </div>
-                            
-                            <!-- Nome do usuário -->
-                            <div class="username">{{username}}</div>
-                            <!-- Adicione mais informações conforme necessário -->
-                        </div>
-                        <!-- Informações adicionais do perfil -->
-                        <div class="profile-info">
-                            <p>Email: exemplo@gmail.com</p>
-                            <p>Idade: 30 anos</p>
-                            <!-- Adicione mais informações conforme necessário -->
-                            <!-- Links de redes sociais -->
-                            <div class="social-links">
-                                <a href="#">Facebook</a>
-                                <a href="#">Twitter</a>
-                                <a href="#">Instagram</a>
-                            </div>
-                        </div>
-                    </div>                
+    <!-- Barra lateral esquerda -->
+    <div class="left-rectangle">
+        <!-- Informações do perfil -->
+        <div class="profile-container">
+            <!-- Cabeçalho do perfil -->
+            <div class="profile-header">
+                <!-- Foto do perfil -->
+                <div class="profile-picture">
+                    {% if profile_pic %}
+                        <img src="{{ profile_pic }}" alt="Foto do perfil">
+                    {% else %}
+                        <p>Foto não encontrada</p>
+                    {% endif %}
                 </div>
-                <div class="right-rectangle">
-                    <div class="inside-right-rectangle">
-                        <!-- Links para carregar o conteúdo -->
-                        <a href="#" class="load-content" onclick="loadContent('/design')">Design</a>
-                        <a href="#" class="load-content" onclick="loadContent('/favoritos')">Favoritos</a>
-                        <a href="#" class="load-content" onclick="loadContent('/interacoes')">Interações</a>
-                    </div>
-                    <!-- Conteúdo a ser carregado aqui -->
-                    <div class="content-right-rectangle">
-                        <!-- O conteúdo será carregado dinamicamente aqui -->
-                    </div>  
+                <!-- Nome do usuário -->
+                <div class="username">{{username}}</div>
+                <!-- Adicione mais informações conforme necessário -->
+            </div>
+            <!-- Informações adicionais do perfil -->
+            <div class="profile-info">
+
+                <!-- Adicione mais informações conforme necessário -->
+                <!-- Links de redes sociais -->
+                <div class="social-links">
+                    <a href="#">Facebook</a>
+                    <a href="#">Twitter</a>
+                    <a href="#">Instagram</a>
                 </div>
             </div>
         </div>
     </div>
-    
-    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.4/dist/umd/popper.min.js"></script>
-    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+
+    <!-- Script para carregar o conteúdo dinamicamente -->
+    <script>
+        function loadContent(url) {
+            fetch(url)
+                .then(response => response.text())
+                .then(data => {
+                    document.querySelector('.content-right-rectangle').innerHTML = data;
+                })
+                .catch(error => console.error('Error:', error));
+        }
+    </script>
 </body>
 </html>
