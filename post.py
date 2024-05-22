@@ -125,3 +125,46 @@ def get_likes_from_db():
     likes = cursor.fetchall()
     connection.close()
     return [like[0] for like in likes]
+
+def criar_post(username, content, image_url=None):
+    """Cria um novo post no banco de dados."""
+    with conectar_bd() as conn:
+        cursor = conn.cursor()
+        cursor.execute("INSERT INTO posts (username, content, image_url) VALUES (?, ?, ?)", (username, content, image_url))
+        conn.commit()
+
+    if image_url:
+        # Verifica se a imagem precisa ser redimensionada
+        img = Image.open(image_url[1:])
+        if img.size != (500, 500):
+            img = img.resize((500, 500))
+            img.save(image_url[1:])
+
+def obter_usuarios_que_curtiram(post_id):
+    """Obtém a lista de usuários que curtiram um post."""
+    with conectar_bd() as conn:
+        cursor = conn.cursor()
+        cursor.execute("SELECT username FROM likes WHERE post_id = ?", (post_id,))
+        return [row[0] for row in cursor.fetchall()]
+
+def comentar_post(post_id, username, comentario):
+    """Adiciona um comentário a um post."""
+    with conectar_bd() as conn:
+        cursor = conn.cursor()
+        cursor.execute("INSERT INTO comentarios (post_id, username, comentario) VALUES (?, ?, ?)", (post_id, username, comentario))
+        conn.commit()
+
+def compartilhar_post(post_id, username):
+    """Adiciona um compartilhamento a um post."""
+    with conectar_bd() as conn:
+        cursor = conn.cursor()
+        cursor.execute("INSERT INTO compartilhamentos (post_id, username) VALUES (?, ?)", (post_id, username))
+        conn.commit()
+
+def get_likes_from_db():
+    connection = sqlite3.connect('database.db')
+    cursor = connection.cursor()
+    cursor.execute('SELECT username FROM likes')
+    likes = cursor.fetchall()
+    connection.close()
+    return [like[0] for like in likes]

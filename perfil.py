@@ -10,10 +10,11 @@ def exibir_perfil(app):
         username = session["username"]
         with conectar_bd() as conn:
             cursor = conn.cursor()
-            cursor.execute("SELECT profile_pic FROM usuarios WHERE username = ?", (username,))
-            profile_pic = cursor.fetchone()[0]
-        return render_template("perfil.html", profile_pic=profile_pic, username=username)
-    return redirect("/")
+            cursor.execute("SELECT profile_pic, nome, sobrenome FROM usuarios WHERE username = ?", (username,))
+            user_data = cursor.fetchone()
+            profile_pic, nome, sobrenome = user_data[0], user_data[1], user_data[2]
+        return render_template("perfil.html", profile_pic=profile_pic, username=username, nome=nome, sobrenome=sobrenome)
+    return redirect("/login")
 
 def atualizar_perfil(app):
     if "username" in session:

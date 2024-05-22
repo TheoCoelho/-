@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Perfil do Usuário</title>
     <link rel="stylesheet" href="/static/header.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
 
     <style>
         /* Estilo geral */
@@ -28,6 +29,7 @@
             z-index: -1; /* Colocando atrás das outras camadas */
             right: 1%; /* Margem à esquerda */
         }
+
         .inside-right-rectangle {
             display: flex; /* Corrigido para "flex" */
             position: relative;
@@ -104,13 +106,20 @@
         /* Links de redes sociais */
         .social-links {
             margin-top: 20px;
+            display: flex;
+            justify-content: space-evenly;
         }
+
         .social-links a {
             display: inline-block;
-            margin-right: 10px;
             color: #333;
             text-decoration: none;
-            font-size: 20px;
+            font-size: 32px; /* Aumenta o tamanho dos ícones */
+            transition: color 0.3s;
+        }
+
+        .social-links a:hover {
+            color: #007bff;
         }
 
         .right-rectangle .content-right-rectangle {
@@ -118,7 +127,7 @@
             height: 90%;
             width: 95%;
             background-color: rgb(255, 255, 255);
-            margin-left:2.5%;
+            margin-left: 2.5%;
         }
     </style>
     <!-- Incluindo o cabeçalho -->
@@ -154,18 +163,24 @@
                     {% endif %}
                 </div>
                 <!-- Nome do usuário -->
-                <div class="username">{{username}}</div>
+                <div class="username">{{ username }}</div>
+                <div class="user-fullname">{{ nome }} {{ sobrenome }}</div>
                 <!-- Adicione mais informações conforme necessário -->
             </div>
             <!-- Informações adicionais do perfil -->
             <div class="profile-info">
-
                 <!-- Adicione mais informações conforme necessário -->
                 <!-- Links de redes sociais -->
                 <div class="social-links">
-                    <a href="#">Facebook</a>
-                    <a href="#">Twitter</a>
-                    <a href="#">Instagram</a>
+                    <a href="https://www.instagram.com/seu_usuario" target="_blank">
+                        <i class="fab fa-instagram"></i>
+                    </a>
+                    <a href="https://twitter.com/seu_usuario" target="_blank">
+                        <i class="fab fa-twitter"></i>
+                    </a>
+                    <a href="https://www.facebook.com/seu_usuario" target="_blank">
+                        <i class="fab fa-facebook"></i>
+                    </a>
                 </div>
             </div>
         </div>

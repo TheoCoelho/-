@@ -101,24 +101,30 @@
 
         .like-comment-section {
             display: flex;
-            justify-content: space-between;
+            justify-content: space-around;
             align-items: center;
             margin-top: 10px;
         }
 
-        .like-comment-section .likes,
-        .like-comment-section .comments,
-        .like-comment-section .shares,
-        .like-comment-section .view-comments {
+        .like-comment-section .icon-button {
             cursor: pointer;
+            font-size: 1.5rem;
             color: #000;
-            font-weight: bold;
+        }
+
+        .like-comment-section .icon-button:hover {
+            color: #333;
+        }
+
+        .icon-button span {
+            display: block;
+            text-align: center;
+            font-size: 0.9rem;
         }
 
         .comment-section,
         .like-section {
             display: none;
-            /* Inicialmente oculto */
             margin-top: 10px;
         }
 
@@ -127,14 +133,12 @@
             margin-bottom: 10px;
         }
 
-        .comment-button,
-        .like-button {
+        .comment-button {
             background-color: #000;
             color: #fff;
         }
 
-        .comment-button:hover,
-        .like-button:hover {
+        .comment-button:hover {
             background-color: #333;
         }
     </style>
@@ -162,34 +166,35 @@
             <div class="post-header">
                 <img src="{{ post[5] }}" alt="Foto de Perfil" class="profile-img">
                 <div class="post-content">
-                    <h3>{{ post[1] }}</h3> <!-- Nome de usuário -->
-                    <small>{{ post[3] }}</small> <!-- Data e hora -->
+                    <h3>{{ post[1] }}</h3>
+                    <small>{{ post[3] }}</small>
                 </div>
             </div>
             <div class="post-details">
-                <p>{{ post[2] }}</p> <!-- Legenda -->
+                <p>{{ post[2] }}</p>
                 {% if post[4] %}
-                <img src="{{ post[4] }}" alt="Imagem do Post" class="post-image"> <!-- Imagem, se houver -->
+                <img src="{{ post[4] }}" alt="Imagem do Post" class="post-image">
                 {% endif %}
             </div>
             <div class="like-comment-section">
-                <button class="like-button btn{% if post[8] %} liked{% endif %}" data-post-id="{{ post[0] }}">
+                <div class="icon-button like-button" data-post-id="{{ post[0] }}">
                     {% if post[8] %}
-                    <i class="bi bi-heart-fill"></i> <!-- Ícone de coração preenchido -->
+                    <i class="bi bi-heart-fill"></i>
                     {% else %}
-                    <i class="bi bi-heart"></i> <!-- Ícone de coração vazio -->
+                    <i class="bi bi-heart"></i>
                     {% endif %}
-                    {% if post[8] %}Descurtir{% else %}Curtir{% endif %}
-                </button>
-
-
-
-                <span class="likes" data-post-id="{{ post[0] }}">Curtidas: {{ post[6] }}</span>
-                <span class="view-likes" data-post-id="{{ post[0] }}">Ver Curtidas</span>
-                <span class="comments" data-post-id="{{ post[0] }}">Comentários: {{ post[7] }}</span>
-                <span class="shares" data-post-id="{{ post[0] }}">Compartilhar</span>
-                <span class="view-comments" data-post-id="{{ post[0] }}">Ver Comentários</span>
-                <!-- Botão para visualizar os comentários -->
+                    <span>{{ post[6] }}</span>
+                </div>
+                <div class="icon-button view-comments" data-post-id="{{ post[0] }}">
+                    <i class="bi bi-chat"></i>
+                    <span>{{ post[7] }}</span>
+                </div>
+                <div class="icon-button share-button" data-post-id="{{ post[0] }}">
+                    <i class="bi bi-share"></i>
+                </div>
+                <div class="icon-button favorite-button" data-post-id="{{ post[0] }}">
+                    <i class="bi bi-star"></i>
+                </div>
             </div>
             <div class="like-section" style="display: none;">
                 <p>Usuários que curtiram:</p>
@@ -201,13 +206,11 @@
                             </tr>
                         </thead>
                         <tbody>
-                            <!-- Os usuários que curtiram serão inseridos aqui dinamicamente -->
                         </tbody>
                     </table>
                 </div>
             </div>
             <div class="comment-section" style="display: none;">
-                <!-- Comentários carregados dinamicamente serão inseridos aqui -->
                 <textarea class="comment-input form-control" rows="2" placeholder="Escreva um comentário"></textarea>
                 <button class="comment-button btn" data-post-id="{{ post[0] }}">Comentar</button>
             </div>
@@ -225,20 +228,17 @@
                 $.post('/like', { post_id: post_id }, function (response) {
                     if (response.success) {
                         if (response.liked) {
-                            likeButton.addClass('liked');
                             likeButton.find('i').removeClass('bi-heart').addClass('bi-heart-fill');
-                            var likesCount = parseInt(likeButton.siblings('.likes').text().split(':')[1].trim()) + 1;
-                            likeButton.siblings('.likes').text('Curtidas: ' + likesCount);
+                            var likesCount = parseInt(likeButton.find('span').text()) + 1;
+                            likeButton.find('span').text(likesCount);
                         } else {
-                            likeButton.removeClass('liked');
                             likeButton.find('i').removeClass('bi-heart-fill').addClass('bi-heart');
-                            var likesCount = parseInt(likeButton.siblings('.likes').text().split(':')[1].trim()) - 1;
-                            likeButton.siblings('.likes').text('Curtidas: ' + likesCount);
+                            var likesCount = parseInt(likeButton.find('span').text()) - 1;
+                            likeButton.find('span').text(likesCount);
                         }
                     }
                 });
             });
-
 
             // Ver curtidas
             $('.view-likes').click(function () {
@@ -249,17 +249,14 @@
                 } else {
                     // Carregar curtidas via AJAX
                     $.get('/likes/' + post_id, function (response) {
-                        console.log('Resposta do servidor:', response); // Log da resposta do servidor
-                        likesTable.find('tbody').empty(); // Limpar tabela de curtidas
+                        likesTable.find('tbody').empty();
                         response.likes.forEach(function (like) {
-                            console.log('Curtida:', like); // Log de cada curtida recebida
                             likesTable.find('tbody').append('<tr><td>' + like.username + '</td></tr>');
                         });
                         likesTable.slideDown();
                     });
                 }
             });
-
 
             // Ver comentários
             $('.view-comments').click(function () {
@@ -270,7 +267,7 @@
                 } else {
                     // Carregar comentários via AJAX
                     $.get('/comments/' + post_id, function (response) {
-                        commentSection.find('.comment-input').val(''); // Limpar input de comentário
+                        commentSection.find('p').not('.comment-input').remove();
                         var commentsHtml = '';
                         response.comments.forEach(function (comment) {
                             commentsHtml += '<p>' + comment.username + ': ' + comment.comentario + '</p>';
@@ -292,6 +289,28 @@
                         }
                     });
                 }
+            });
+
+            // Compartilhar
+            $('.share-button').click(function () {
+                var post_id = $(this).data('post-id');
+                // Adicione a funcionalidade de compartilhar aqui
+                alert('Compartilhar post ' + post_id);
+            });
+
+            // Favoritar / Desfavoritar
+            $('.favorite-button').click(function () {
+                var post_id = $(this).data('post-id');
+                var favoriteButton = $(this);
+                $.post('/favorite', { post_id: post_id }, function (response) {
+                    if (response.success) {
+                        if (response.favorited) {
+                            favoriteButton.find('i').removeClass('bi-star').addClass('bi-star-fill');
+                        } else {
+                            favoriteButton.find('i').removeClass('bi-star-fill').addClass('bi-star');
+                        }
+                    }
+                });
             });
         });
     </script>

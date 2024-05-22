@@ -1,13 +1,12 @@
-from flask import Flask, render_template, request, redirect, session, url_for,jsonify
+from flask import Flask, render_template, request, redirect, session, url_for, jsonify
 import os
 from werkzeug.utils import secure_filename
 from db import conectar_bd, criar_tabela_usuarios, adicionar_coluna_profile_pic, criar_tabela_posts, criar_tabela_likes, criar_tabela_comentarios, criar_tabela_compartilhamentos
-from post import obter_posts, criar_post, curtir_post, descurtir_post,obter_usuarios_que_curtiram,comentar_post,compartilhar_post,get_likes_from_db
+from post import obter_posts, criar_post, curtir_post, descurtir_post, obter_usuarios_que_curtiram, comentar_post, compartilhar_post, get_likes_from_db
 from perfil import exibir_perfil, atualizar_perfil, design_page, favoritos_page, interacoes_page
 from user import cadastrar_usuario, verificar_usuario, login, logout, registro
 from settings import settings_page
 from utils import allowed_file
-
 
 app = Flask(__name__, template_folder='templates')
 app.secret_key = "sua_chave_secreta"
@@ -21,9 +20,7 @@ def home():
 
 @app.route("/index", methods=["GET", "POST"])
 def main_page():
-        return render_template("index.html")
-
-
+    return render_template("index.html")
 
 @app.route("/login", methods=["GET", "POST"])
 def login_route():
@@ -36,7 +33,6 @@ def logout_route():
 @app.route("/registro", methods=["GET", "POST"])
 def registro_route():
     return registro(request, verificar_usuario, cadastrar_usuario, redirect, render_template)
-
 
 @app.route("/perfil", methods=["GET", "POST"])
 def perfil():
@@ -76,28 +72,6 @@ def interacoes():
 def settings():
     return settings_page(session, redirect, request, conectar_bd, app)
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 @app.route("/usuarios_que_curtiram/<int:post_id>")
 def usuarios_que_curtiram(post_id):
     """Rota para obter os usuários que curtiram um post."""
@@ -122,7 +96,7 @@ def redesocial():
         usuario = session["username"] if "username" in session else None
         posts = obter_posts()
         return render_template("redesocial.html", username=usuario, posts=posts)
-    
+
 @app.route("/like", methods=["POST"])
 def like_post():
     """Endpoint para curtir ou descurtir um post."""
@@ -142,7 +116,6 @@ def unlike_post():
         descurtir_post(post_id, username)
         return jsonify(success=True)
     return jsonify(success=False)
-
 
 @app.route("/comentario", methods=["POST"])
 def comentar():
