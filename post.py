@@ -169,6 +169,13 @@ def comentar_post(post_id, username, comentario):
         cursor = conn.cursor()
         cursor.execute("INSERT INTO comentarios (post_id, username, comentario) VALUES (?, ?, ?)", (post_id, username, comentario))
         conn.commit()
+        
+        # Registrar a interação na tabela interacoes
+        cursor.execute("""
+            INSERT INTO interacoes (usuario_id, post_id, tipo, comentario) 
+            VALUES ((SELECT id FROM usuarios WHERE username = ?), ?, 'comentario', ?)
+        """, (username, post_id, comentario))
+        conn.commit()
 
 def compartilhar_post(post_id, username):
     """Adiciona um compartilhamento a um post."""
