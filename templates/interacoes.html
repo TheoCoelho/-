@@ -1,11 +1,79 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="pt-BR">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
+    <title>Minhas Interações</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css"
+        integrity="sha512-wWosJY6kIn1lsqxvKyoSrm9SpqjkMVgGgUtuKobQYx+vwxxpQ2JapEs8osMblnigvdmeyVfL4PDwca7LNC8oMw=="
+        crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css" rel="stylesheet">
+    <style>
+        .profile-img {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+        }
+        .post-container {
+            margin-bottom: 20px;
+        }
+        .post-details img {
+            max-width: 100%;
+            height: auto;
+        }
+    </style>
 </head>
 <body>
-    <h1>interações</h1>
+    <hr>
+    <div class="container">
+        <h2>Minhas Interações</h2>
+        <div class="row">
+            {% for interacao in interacoes %}
+            <div class="col-md-4 post-container">
+                <div class="card">
+                    <div class="card-header d-flex align-items-center">
+                        <img src="{{ interacao[5] }}" alt="Foto de Perfil" class="profile-img">
+                        <div class="ml-2">
+                            <h5 class="mb-0">{{ interacao[1] }}</h5>
+                            <small>{{ interacao[3] }}</small>
+                        </div>
+                    </div>
+                    <div class="card-body">
+                        <p>{{ interacao[2] }}</p>
+                        {% if interacao[4] %}
+                        <img src="{{ interacao[4] }}" alt="Imagem do Post" class="img-fluid">
+                        {% endif %}
+                    </div>
+                    <div class="card-footer d-flex justify-content-between">
+                        <div class="icon-button like-button" data-post-id="{{ interacao[0] }}">
+                            {% if interacao[6] == 'curtida' %}
+                            <i class="bi bi-heart-fill"></i>
+                            {% else %}
+                            <i class="bi bi-heart"></i>
+                            {% endif %}
+                            <span>{{ interacao[6] }}</span>
+                        </div>
+                        <div class="icon-button view-comments" data-post-id="{{ interacao[0] }}">
+                            <i class="bi bi-chat"></i>
+                            <span>{{ interacao[7] }}</span>
+                        </div>
+                        <div class="icon-button share-button" data-post-id="{{ interacao[0] }}">
+                            <i class="bi bi-share"></i>
+                        </div>
+                        <div class="icon-button favorite-button" data-post-id="{{ interacao[0] }}">
+                            <i class="bi bi-star"></i>
+                        </div>
+                    </div>
+                    {% if interacao[6] == 'comentario' %}
+                    <div class="card-footer comment-section">
+                        <p>{{ interacao[8] }}</p>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
 </body>
 </html>

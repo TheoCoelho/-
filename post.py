@@ -45,24 +45,25 @@ def obter_posts():
         return posts_with_comments
 
 def curtir_post(post_id, username):
-    """Curtir ou descurtir um post."""
     with conectar_bd() as conn:
         cursor = conn.cursor()
-        cursor.execute("SELECT * FROM likes WHERE post_id = ? AND username = ?", (post_id, username))
+        cursor.execute("SELECT id FROM usuarios WHERE username = ?", (username,))
+        user_id = cursor.fetchone()[0]
+        
+        cursor.execute("SELECT * FROM interacoes WHERE usuario_id = ? AND post_id = ? AND tipo = 'curtida'", (user_id, post_id))
         existing_like = cursor.fetchone()
 
         if existing_like:
-            # Se o usuário já curtiu o post, descurtir
-            cursor.execute("DELETE FROM likes WHERE post_id = ? AND username = ?", (post_id, username))
+            cursor.execute("DELETE FROM interacoes WHERE id = ?", (existing_like[0],))
             liked = False
         else:
-            # Se o usuário ainda não curtiu o post, curtir
-            cursor.execute("INSERT INTO likes (post_id, username) VALUES (?, ?)", (post_id, username))
+            cursor.execute("INSERT INTO interacoes (usuario_id, post_id, tipo) VALUES (?, ?, 'curtida')", (user_id, post_id))
             liked = True
-        
+
         conn.commit()
-        
-        return liked
+    return liked
+
+
 
 def descurtir_post(post_id, username):
     """Remove uma curtida de um post, se o usuário tiver curtido."""
@@ -105,11 +106,26 @@ def obter_usuarios_que_curtiram(post_id):
 
 
 def comentar_post(post_id, username, comentario):
-    """Adiciona um comentário a um post."""
+    """Adiciona um comentário a um post e registra a interação."""
     with conectar_bd() as conn:
         cursor = conn.cursor()
-        cursor.execute("INSERT INTO comentarios (post_id, username, comentario) VALUES (?, ?, ?)", (post_id, username, comentario))
+        cursor.execute("""
+            INSERT INTO comentarios (post_id, username, comentario) 
+            VALUES (?, ?, ?)
+        """, (post_id, username, comentario))
+        
+        # Registrar a interação
+        cursor.execute("SELECT id FROM usuarios WHERE username = ?", (username,))
+        usuario_id = cursor.fetchone()[0]
+
+        cursor.execute("""
+            INSERT INTO interacoes (usuario_id, post_id, tipo, comentario) 
+            VALUES (?, ?, 'comentario', ?)
+        """, (usuario_id, post_id, comentario))
+        
         conn.commit()
+
+
 
 def compartilhar_post(post_id, username):
     """Adiciona um compartilhamento a um post."""

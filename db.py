@@ -109,3 +109,22 @@ def criar_tabela_compartilhamentos():
             )
         """)
         conn.commit()
+
+def criar_tabela_interacoes():
+    """Cria a tabela de interações se ela não existir."""
+    with conectar_bd() as conn:
+        cursor = conn.cursor()
+        cursor.execute("""
+            CREATE TABLE IF NOT EXISTS interacoes (
+                id INTEGER PRIMARY KEY,
+                usuario_id INTEGER NOT NULL,
+                post_id INTEGER NOT NULL,
+                tipo TEXT NOT NULL,
+                comentario TEXT,
+                data DATETIME DEFAULT CURRENT_TIMESTAMP,
+                FOREIGN KEY (usuario_id) REFERENCES usuarios(id),
+                FOREIGN KEY (post_id) REFERENCES posts(id)
+            )
+        """)
+        conn.commit()
+

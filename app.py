@@ -1,7 +1,7 @@
 from flask import Flask, render_template, request, redirect, session, url_for, jsonify
 import os
 from werkzeug.utils import secure_filename
-from db import conectar_bd, criar_tabela_usuarios, adicionar_coluna_profile_pic, criar_tabela_posts, criar_tabela_likes, criar_tabela_comentarios, criar_tabela_compartilhamentos
+from db import conectar_bd, criar_tabela_usuarios, adicionar_coluna_profile_pic, criar_tabela_posts, criar_tabela_likes, criar_tabela_comentarios, criar_tabela_compartilhamentos, criar_tabela_interacoes
 from post import obter_posts, criar_post, curtir_post, descurtir_post, obter_usuarios_que_curtiram, comentar_post, compartilhar_post, get_likes_from_db
 from perfil import exibir_perfil, atualizar_perfil, design_page, favoritos_page, interacoes_page
 from user import cadastrar_usuario, verificar_usuario, login, logout, registro
@@ -172,4 +172,5 @@ if __name__ == "__main__":
         criar_tabela_likes()
         criar_tabela_comentarios()
         criar_tabela_compartilhamentos()
+        criar_tabela_interacoes()  # Adicione esta linha
     app.run(debug=True)

@@ -50,5 +50,29 @@ def design_page():
 def favoritos_page():
     return render_template("favoritos.html")
 
+
 def interacoes_page():
-    return render_template("interacoes.html")
+    if 'username' not in session:
+        return redirect('/login')
+
+    username = session['username']
+
+    with conectar_bd() as conn:
+        cursor = conn.cursor()
+        cursor.execute("SELECT id FROM usuarios WHERE username = ?", (username,))
+        user_id = cursor.fetchone()[0]
+
+        cursor.execute("""
+            SELECT posts.id, posts.username, posts.content, posts.timestamp, posts.image_url, 
+                   usuarios.profile_pic, 
+                   interacoes.tipo, interacoes.data, interacoes.comentario 
+            FROM interacoes
+            JOIN posts ON interacoes.post_id = posts.id
+            JOIN usuarios ON posts.username = usuarios.username
+            WHERE interacoes.usuario_id = ?
+            ORDER BY interacoes.data DESC
+        """, (user_id,))
+
+        interacoes = cursor.fetchall()
+
+    return render_template('interacoes.html', interacoes=interacoes)
