@@ -1,4 +1,4 @@
-from flask import request, redirect, render_template
+from flask import request, redirect, render_template, session
 from db import conectar_bd
 from werkzeug.utils import secure_filename
 import os
@@ -33,6 +33,9 @@ def settings_page(session, redirect, request, conectar_bd, app):
                     cursor = conn.cursor()
                     cursor.execute("UPDATE usuarios SET profile_pic = ? WHERE username = ?", (profile_pic_url, username))
                     conn.commit()
+                
+                # Atualiza a sessão com a nova URL da foto de perfil
+                session["profile_pic"] = profile_pic_url
             
             return redirect("/settings")
         else:

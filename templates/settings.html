@@ -61,6 +61,14 @@
         background-color: #0056b3;
     }
 
+    .profile-pic {
+        display: block;
+        margin: 0 auto 20px auto;
+        width: 150px;
+        height: 150px;
+        border-radius: 50%;
+        object-fit: cover;
+    }
     </style>
 </head>
 <body>
@@ -70,6 +78,9 @@
         
         {% if username %}
         <h2>Welcome, {{ username }}</h2>
+
+        <!-- Exibir a foto de perfil -->
+        <img src="{{ profile_pic }}" alt="Profile Picture" class="profile-pic">
         
         <!-- Formulário para editar a foto de perfil -->
         <form action="/settings" method="post" enctype="multipart/form-data">

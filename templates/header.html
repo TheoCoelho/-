@@ -35,10 +35,10 @@
             height: 40px;
             border-radius: 50%;
             margin-right: 10px;
+            cursor: pointer;
         }
         .dropdown-menu-end {
-            right: 0;
-            left: auto;
+            background-color: white !important; /* Alteração do background para branco */
         }
     </style>
 </head>
@@ -46,48 +46,51 @@
     <nav class="navbar navbar-expand-lg bg-white">
         <div class="container-fluid">
             <div>
-                <a class="navbar-brand" href="/index">
-                    <img src="/static/STYLEFY.png" alt="Logo" class="img-fluid logo-navbar">
+                <a class="navbar-brand" href="/redesocial">
+                    <button type="button" class="btn btn-link p-0">
+                        <img src="/static/STYLEFY.png" alt="Logo" class="img-fluid logo-navbar">
+                    </button>
                 </a>
-                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNavDropdown" aria-controls="navbarNavDropdown" aria-expanded="false" aria-label="Toggle navigation">
-                    <span class="navbar-toggler-icon"></span>
-                </button>
             </div>
             <div class="collapse navbar-collapse" id="navbarNavDropdown">
                 <ul class="navbar-nav centralizado">
-                    {% if 'username' in session %}
-                    <li class="nav-item">
-                        <a class="nav-link" href="/perfil">Perfil</a>
-                    </li>
-                    {% endif %}
                     <li class="nav-item">
                         <a class="nav-link active" aria-current="page" href="/index">Home</a>
                     </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="/design">Designs</a>
-                    </li>
                 </ul>
                 <ul class="navbar-nav direita">
-                    {% if 'username' in session %}
+                    {% if username %}
                     <li class="nav-item dropdown profile-dropdown">
-                        <img src="{{ profile_pic }}" alt="profile-img" class="profile-img"> <!-- Usando a variável profile_pic -->
-                        <span>{{ username }}</span>
-                        <button class="btn btn-secondary dropdown-toggle ms-2" type="button" data-bs-toggle="dropdown" aria-expanded="false">
-                            <span class="navbar-toggler-icon"></span>
+                        <button type="button" class="btn btn-link p-0">
+                            <img src="{{ profile_pic }}" alt="profile-img" class="profile-img" onclick="window.location.href='/perfil'">
                         </button>
-                        <ul class="dropdown-menu dropdown-menu-end">
-                            <li><a class="dropdown-item" href="/settings">Configurações</a></li>
-                            <li><a class="dropdown-item" href="/logout">Logout</a></li>
-                        </ul>
+                        <span>{{ username }}</span>
+
+                        <div class="btn-group">
+                            <button type="button" class="btn dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-three-dots-vertical" viewBox="0 0 16 16">
+                                    <path d="M9.5 13a1.5 1.5 0 1 1-3 0 1.5 1.5 0 0 1 3 0m0-5a1.5 1.5 0 1 1-3 0 1.5 1.5 0 0 1 3 0m0-5a1.5 1.5 0 1 1-3 0 1.5 1.5 0 0 1 3 0"/>
+                                  </svg>
+                            </button>
+                            <ul class="dropdown-menu">
+                              <li><a class="dropdown-item" href="/settings">Configurações</a></li>
+                              <li><hr class="dropdown-divider"></li>
+                              <li><a class="dropdown-item" href="/logout">Logout</a></li>
+                            </ul>
+                          </div>
+                        
                     </li>
                     {% else %}
                     <li class="nav-item">
                         <a class="nav-link" href="/login">Login</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="/registro">Registro</a></li>
+                        <a class="nav-link" href="/registro">Registro</a>
+                    </li>
                     {% endif %}
                 </ul>
+                <!-- Example single danger button -->
+
             </div>
         </div>
     </nav>

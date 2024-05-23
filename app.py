@@ -1,7 +1,7 @@
-from flask import Flask, render_template, request, redirect, session, url_for, jsonify
+from flask import Flask, render_template, request, redirect, session, url_for, jsonify, g
 import os
 from werkzeug.utils import secure_filename
-from db import conectar_bd, criar_tabela_usuarios, adicionar_coluna_profile_pic, criar_tabela_posts, criar_tabela_likes, criar_tabela_comentarios, criar_tabela_compartilhamentos, criar_tabela_interacoes
+from db import conectar_bd, criar_tabela_usuarios, adicionar_coluna_profile_pic, criar_tabela_posts, criar_tabela_likes, criar_tabela_comentarios, criar_tabela_compartilhamentos, criar_tabela_interacoes, buscar_url_imagem_perfil
 from post import obter_posts, criar_post, curtir_post, descurtir_post, obter_usuarios_que_curtiram, comentar_post, compartilhar_post, get_likes_from_db
 from perfil import exibir_perfil, atualizar_perfil, design_page, favoritos_page, interacoes_page
 from user import cadastrar_usuario, verificar_usuario, login, logout, registro
@@ -14,13 +14,20 @@ app.config['UPLOAD_FOLDER'] = 'static/uploads'
 
 ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg', 'gif', 'webp'}
 
-@app.route("/")
+@app.route('/')
 def home():
-    return redirect("/index")
+    username = session.get('username')
+    profile_pic = session.get('profile_pic', '/path/to/default/profile_pic.jpg')
+    return render_template('index.html', username=username, profile_pic=profile_pic)
+
 
 @app.route("/index", methods=["GET", "POST"])
 def main_page():
-    return render_template("index.html")
+    usuario = session["username"] if "username" in session else None
+    profile_pic = None
+    if usuario:
+        profile_pic = buscar_url_imagem_perfil(usuario)
+    return render_template("index.html", username=usuario, profile_pic=profile_pic)
 
 @app.route("/login", methods=["GET", "POST"])
 def login_route():
@@ -36,7 +43,6 @@ def registro_route():
 
 @app.route("/perfil", methods=["GET", "POST"])
 def perfil():
-    """Rota para a página de perfil."""
     if request.method == "POST":
         return atualizar_perfil(app)
     else:
@@ -44,14 +50,12 @@ def perfil():
 
 @app.route("/curtir/<int:post_id>", methods=["POST"])
 def curtir(post_id):
-    """Rota para curtir um post."""
     if "username" in session:
         curtir_post(post_id, session["username"])
     return redirect("/")
 
 @app.route("/descurtir/<int:post_id>", methods=["POST"])
 def descurtir(post_id):
-    """Rota para descurtir um post."""
     if "username" in session:
         descurtir_post(post_id, session["username"])
     return redirect("/")
@@ -74,13 +78,11 @@ def settings():
 
 @app.route("/usuarios_que_curtiram/<int:post_id>")
 def usuarios_que_curtiram(post_id):
-    """Rota para obter os usuários que curtiram um post."""
     usuarios = obter_usuarios_que_curtiram(post_id)
     return jsonify(usuarios=usuarios)
 
 @app.route('/redesocial', methods=["GET", "POST"])
 def redesocial():
-    """Página da rede social. Se o usuário estiver logado, exibe a página com os posts; caso contrário, redireciona para a página de login."""
     if request.method == "POST":
         content = request.form["content"]
         image = request.files["image"] if "image" in request.files else None
@@ -95,11 +97,13 @@ def redesocial():
     else:
         usuario = session["username"] if "username" in session else None
         posts = obter_posts()
-        return render_template("redesocial.html", username=usuario, posts=posts)
+        profile_pic = None
+        if usuario:
+            profile_pic = buscar_url_imagem_perfil(usuario)
+        return render_template("redesocial.html", username=usuario, posts=posts, profile_pic=profile_pic)
 
 @app.route("/like", methods=["POST"])
 def like_post():
-    """Endpoint para curtir ou descurtir um post."""
     if "username" in session:
         post_id = request.form["post_id"]
         username = session["username"]
@@ -109,7 +113,6 @@ def like_post():
 
 @app.route("/unlike", methods=["POST"])
 def unlike_post():
-    """Rota para descurtir um post."""
     if "username" in session:
         post_id = request.form["post_id"]
         username = session["username"]
@@ -119,7 +122,6 @@ def unlike_post():
 
 @app.route("/comentario", methods=["POST"])
 def comentar():
-    """Rota para comentar em um post."""
     if "username" in session:
         post_id = request.form["post_id"]
         comentario = request.form["comentario"]
@@ -130,7 +132,6 @@ def comentar():
 
 @app.route("/comment", methods=["POST"])
 def comment():
-    """Rota para adicionar um comentário em um post."""
     if "username" in session:
         post_id = request.form["post_id"]
         comentario = request.form["comentario"]
@@ -141,7 +142,6 @@ def comment():
 
 @app.route("/comments/<int:post_id>")
 def get_comments(post_id):
-    """Rota para obter os comentários de um post."""
     with conectar_bd() as conn:
         cursor = conn.cursor()
         cursor.execute("SELECT username, comentario FROM comentarios WHERE post_id = ?", (post_id,))
@@ -150,7 +150,6 @@ def get_comments(post_id):
 
 @app.route("/share", methods=["POST"])
 def share():
-    """Rota para compartilhar um post."""
     if "username" in session:
         post_id = request.form["post_id"]
         username = session["username"]
@@ -163,6 +162,13 @@ def share():
 def get_likes():
     likes = get_likes_from_db()
     return jsonify({'likes': likes})
+@app.before_request
+def load_profile_pic():
+    g.profile_pic = session.get('profile_pic', '/path/to/default/profile_pic.jpg')
+
+@app.context_processor
+def inject_profile_pic():
+    return {'profile_pic': g.profile_pic}
 
 if __name__ == "__main__":
     with app.app_context():
@@ -172,5 +178,5 @@ if __name__ == "__main__":
         criar_tabela_likes()
         criar_tabela_comentarios()
         criar_tabela_compartilhamentos()
-        criar_tabela_interacoes()  # Adicione esta linha
+        criar_tabela_interacoes() 
     app.run(debug=True)

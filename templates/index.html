@@ -218,7 +218,6 @@
     </style>
 </head>
 <body>
-  
     {% if username == "lc" %}
     <a href="/admin" class="button">Página de administração</a>
     {% endif %}
@@ -226,6 +225,15 @@
     <div class="main-container">
         <div class="header">
             {% include 'header.html' %}
+            <!-- Exibir a foto de perfil e o nome do usuário, se estiver logado -->
+            {% if username %}
+                <div class="d-flex align-items-center">
+
+                </div>
+            {% else %}
+                <a href="{{ url_for('login_route') }}" class="btn btn-primary">Login</a>
+                <a href="{{ url_for('registro_route') }}" class="btn btn-secondary">Registro</a>
+            {% endif %}
         </div>
         <hr>
         <div class="content">
