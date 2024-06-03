@@ -27,7 +27,6 @@ def adicionar_coluna_profile_pic():
             cursor.execute("ALTER TABLE usuarios ADD COLUMN data_nascimento DATE")
             conn.commit()
 
-
 def criar_tabela_usuarios():
     """Cria a tabela de usuários se ela não existir e insere um usuário administrador padrão."""
     with conectar_bd() as conn:
@@ -127,7 +126,6 @@ def criar_tabela_interacoes():
             )
         """)
         conn.commit()
-
 def buscar_url_imagem_perfil(username):
     """Busca a URL da imagem de perfil do usuário no banco de dados."""
     with conectar_bd() as conn:

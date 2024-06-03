@@ -52,13 +52,13 @@ def perfil():
 def curtir(post_id):
     if "username" in session:
         curtir_post(post_id, session["username"])
-    return redirect("/")
+    return jsonify(success=True)
 
 @app.route("/descurtir/<int:post_id>", methods=["POST"])
 def descurtir(post_id):
     if "username" in session:
         descurtir_post(post_id, session["username"])
-    return redirect("/")
+    return jsonify(success=True)
 
 @app.route("/design")
 def design():
@@ -102,13 +102,15 @@ def redesocial():
             profile_pic = buscar_url_imagem_perfil(usuario)
         return render_template("redesocial.html", username=usuario, posts=posts, profile_pic=profile_pic)
 
+
 @app.route("/like", methods=["POST"])
 def like_post():
     if "username" in session:
         post_id = request.form["post_id"]
         username = session["username"]
         liked = curtir_post(post_id, username)
-        return jsonify(success=True, liked=liked)
+        likes = get_likes_from_db(post_id)
+        return jsonify(success=True, liked=liked, likes=likes)
     return jsonify(success=False)
 
 @app.route("/unlike", methods=["POST"])
@@ -117,7 +119,8 @@ def unlike_post():
         post_id = request.form["post_id"]
         username = session["username"]
         descurtir_post(post_id, username)
-        return jsonify(success=True)
+        likes = get_likes_from_db(post_id)
+        return jsonify(success=True, likes=likes)
     return jsonify(success=False)
 
 @app.route("/comentario", methods=["POST"])
@@ -140,6 +143,7 @@ def comment():
         return jsonify(success=True)
     return jsonify(success=False)
 
+
 @app.route("/comments/<int:post_id>")
 def get_comments(post_id):
     with conectar_bd() as conn:
@@ -160,8 +164,10 @@ def share():
 
 @app.route('/get_likes')
 def get_likes():
-    likes = get_likes_from_db()
+    post_id = request.args.get('post_id')
+    likes = get_likes_from_db(post_id)
     return jsonify({'likes': likes})
+
 @app.before_request
 def load_profile_pic():
     g.profile_pic = session.get('profile_pic', '/path/to/default/profile_pic.jpg')
@@ -179,4 +185,5 @@ if __name__ == "__main__":
         criar_tabela_comentarios()
         criar_tabela_compartilhamentos()
         criar_tabela_interacoes() 
+
     app.run(debug=True)
