@@ -8,7 +8,7 @@ from user import cadastrar_usuario, verificar_usuario, login, logout, registro
 from settings import settings_page
 from utils import allowed_file
 
-app = Flask(__name__, template_folder='templates')
+app = Flask(__name__, template_folder='templates', static_folder='static')
 app.secret_key = "sua_chave_secreta"
 app.config['UPLOAD_FOLDER'] = 'static/uploads'
 
@@ -17,9 +17,12 @@ ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg', 'gif', 'webp'}
 @app.route('/')
 def home():
     username = session.get('username')
-    profile_pic = session.get('profile_pic', '/path/to/default/profile_pic.jpg')
+    profile_pic = session.get('profile_pic', '/static/uploads/default/profile_pic.jpg')
     return render_template('index.html', username=username, profile_pic=profile_pic)
 
+@app.route('/criar')
+def criar():
+    return render_template('criar.html')
 
 @app.route("/index", methods=["GET", "POST"])
 def main_page():
@@ -102,7 +105,6 @@ def redesocial():
             profile_pic = buscar_url_imagem_perfil(usuario)
         return render_template("redesocial.html", username=usuario, posts=posts, profile_pic=profile_pic)
 
-
 @app.route("/like", methods=["POST"])
 def like_post():
     if "username" in session:
@@ -133,17 +135,6 @@ def comentar():
         return jsonify(success=True)
     return jsonify(success=False)
 
-@app.route("/comment", methods=["POST"])
-def comment():
-    if "username" in session:
-        post_id = request.form["post_id"]
-        comentario = request.form["comentario"]
-        username = session["username"]
-        comentar_post(post_id, username, comentario)
-        return jsonify(success=True)
-    return jsonify(success=False)
-
-
 @app.route("/comments/<int:post_id>")
 def get_comments(post_id):
     with conectar_bd() as conn:
@@ -170,11 +161,19 @@ def get_likes():
 
 @app.before_request
 def load_profile_pic():
-    g.profile_pic = session.get('profile_pic', '/path/to/default/profile_pic.jpg')
+    if 'username' in session:
+        g.username = session['username']
+        g.profile_pic = session.get('profile_pic')
+        if not g.profile_pic:
+            g.profile_pic = buscar_url_imagem_perfil(session['username'])
+            session['profile_pic'] = g.profile_pic
+    else:
+        g.username = None
+        g.profile_pic = '/static/uploads/default/profile_pic.jpg'
 
 @app.context_processor
-def inject_profile_pic():
-    return {'profile_pic': g.profile_pic}
+def inject_user():
+    return {'username': g.username, 'profile_pic': g.profile_pic}
 
 if __name__ == "__main__":
     with app.app_context():

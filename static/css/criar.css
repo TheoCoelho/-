@@ -1,0 +1,136 @@
+/* Definir altura total para html e body */
+html, body {
+  height: 100%;
+  margin: 0;
+  padding: 0;
+}
+
+/* Aplicando os estilos somente na página "criar" */
+body.criar-page {
+  background-color: #333; /* Fundo cinza escuro */
+  color: #fff;
+  font-family: Arial, sans-serif;
+}
+
+/* Ajustes na .page-container */
+.page-container {
+  padding-top: 80px; /* Ajuste conforme a altura do seu cabeçalho */
+  /* Remover overflow: hidden; */
+  /* height: calc(100% - 80px); */ /* Remover esta linha */
+}
+
+/* Ajustes na .main-container */
+.main-container {
+  width: 90%;
+  max-width: 1200px;
+  margin: auto;
+  background-color: #000000; /* Fundo preto */
+  padding: 20px;
+  padding-top: 20px; /* Adicionado para evitar corte no topo */
+  box-sizing: border-box; /* Garantir que padding seja incluído na altura total */
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  border-radius: 10px;
+  /* height: 100%; */ /* Remover esta linha */
+  min-height: calc(100vh - 80px - 40px); /* Altura mínima ajustada */
+  overflow-y: auto; /* Permite rolagem vertical */
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start; /* Alinha os itens no topo */
+}
+
+/* Esconde os carrosséis por padrão */
+.carousel-container {
+  display: none;
+}
+
+/* Exibe apenas os carrosséis com a classe 'visible' */
+.carousel-container.visible {
+  display: block;
+}
+
+.carousel-container {
+  position: relative;
+  width: 90%;
+  max-width: 660px;
+  overflow: hidden;
+  border-radius: 10px;
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+  margin: 20px auto;
+  flex: 0 0 auto; /* Evita problemas com flexbox */
+}
+
+.carousel-track {
+  display: flex;
+  transition: transform 0.5s ease-in-out;
+}
+
+.carousel-item {
+  min-width: 200px;
+  height: 150px;
+  margin: 10px;
+  background-size: cover;
+  background-position: center;
+  text-align: center;
+  line-height: 150px;
+  font-size: 20px;
+  color: white;
+  border-radius: 5px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+  cursor: pointer;
+  transition: transform 0.2s, background-color 0.2s;
+}
+
+.carousel-item img {
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  margin-bottom: 10px;
+}
+
+.carousel-item.selected {
+  background-color: #FF5722;
+  transform: scale(1.1);
+}
+
+.carousel-control {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  background-color: rgba(243, 243, 243, 0.5);
+  color: white;
+  border: none;
+  cursor: pointer;
+  width: 40px;
+  height: 40px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  border-radius: 50%;
+  font-size: 20px;
+  z-index: 10;
+}
+
+.carousel-control.prev {
+  left: 10px;
+}
+
+.carousel-control.next {
+  right: 10px;
+}
+
+/* Ajustes para responsividade */
+@media (max-width: 768px) {
+  .carousel-item {
+    min-width: 150px;
+    height: 120px;
+  }
+
+  .carousel-item img {
+    width: 60px;
+    height: 60px;
+  }
+}

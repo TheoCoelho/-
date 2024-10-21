@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Carrossel Contínuo com Seleção e Imagens</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/header.css') }}">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/criar.css') }}">
+</head>
+<body class="criar-page">
+
+  <!-- Incluindo o header -->
+  {% include 'header.html' %}
+
+  <!-- Envolvendo o conteúdo principal com .page-container -->
+  <div class="page-container">
+    <div class="main-container">
+      <!-- Primeiro carrossel com a classe 'visible' -->
+      <div class="carousel-container visible" id="carousel-1">
+        <div class="carousel-track">
+          <div class="carousel-item">
+            <img src="https://via.placeholder.com/80" alt="Avatar 1">
+            <span>Bloco 1</span>
+          </div>
+          <div class="carousel-item">
+            <img src="https://via.placeholder.com/80" alt="Avatar 2">
+            <span>Bloco 2</span>
+          </div>
+          <div class="carousel-item">
+            <img src="https://via.placeholder.com/80" alt="Avatar 3">
+            <span>Bloco 3</span>
+          </div>
+          <div class="carousel-item">
+            <img src="https://via.placeholder.com/80" alt="Avatar 4">
+            <span>Bloco 4</span>
+          </div>
+          <div class="carousel-item">
+            <img src="https://via.placeholder.com/80" alt="Avatar 5">
+            <span>Bloco 5</span>
+          </div>
+          <div class="carousel-item">
+            <img src="https://via.placeholder.com/80" alt="Avatar 6">
+            <span>Bloco 6</span>
+          </div>
+          <div class="carousel-item">
+            <img src="https://via.placeholder.com/80" alt="Avatar 7">
+            <span>Bloco 7</span>
+          </div>
+        </div>
+        <button class="carousel-control prev">&#10094;</button>
+        <button class="carousel-control next">&#10095;</button>
+      </div>
+
+      <!-- Segundo carrossel -->
+      <div class="carousel-container" id="carousel-2">
+        <div class="carousel-track">
+          <div class="carousel-item">
+            <img src="https://via.placeholder.com/80" alt="Avatar 8">
+            <span>Bloco 8</span>
+          </div>
+          <div class="carousel-item">
+            <img src="https://via.placeholder.com/80" alt="Avatar 9">
+            <span>Bloco 9</span>
+          </div>
+          <div class="carousel-item">
+            <img src="https://via.placeholder.com/80" alt="Avatar 10">
+            <span>Bloco 10</span>
+          </div>
+          <div class="carousel-item">
+            <img src="https://via.placeholder.com/80" alt="Avatar 11">
+            <span>Bloco 11</span>
+          </div>
+          <div class="carousel-item">
+            <img src="https://via.placeholder.com/80" alt="Avatar 12">
+            <span>Bloco 12</span>
+          </div>
+          <div class="carousel-item">
+            <img src="https://via.placeholder.com/80" alt="Avatar 13">
+            <span>Bloco 13</span>
+          </div>
+        </div>
+        <button class="carousel-control prev">&#10094;</button>
+        <button class="carousel-control next">&#10095;</button>
+      </div>
+
+      <!-- Terceiro carrossel -->
+      <div class="carousel-container" id="carousel-3">
+        <div class="carousel-track">
+          <div class="carousel-item">
+            <img src="https://via.placeholder.com/80" alt="Avatar 14">
+            <span>Bloco 14</span>
+          </div>
+          <div class="carousel-item">
+            <img src="https://via.placeholder.com/80" alt="Avatar 15">
+            <span>Bloco 15</span>
+          </div>
+          <div class="carousel-item">
+            <img src="https://via.placeholder.com/80" alt="Avatar 16">
+            <span>Bloco 16</span>
+          </div>
+          <div class="carousel-item">
+            <img src="https://via.placeholder.com/80" alt="Avatar 17">
+            <span>Bloco 17</span>
+          </div>
+          <div class="carousel-item">
+            <img src="https://via.placeholder.com/80" alt="Avatar 18">
+            <span>Bloco 18</span>
+          </div>
+          <div class="carousel-item">
+            <img src="https://via.placeholder.com/80" alt="Avatar 19">
+            <span>Bloco 19</span>
+          </div>
+        </div>
+        <button class="carousel-control prev">&#10094;</button>
+        <button class="carousel-control next">&#10095;</button>
+      </div>
+
+      <!-- Quarto carrossel -->
+      <div class="carousel-container" id="carousel-4">
+        <div class="carousel-track">
+          <div class="carousel-item">
+            <img src="https://via.placeholder.com/80" alt="Avatar 20">
+            <span>Bloco 20</span>
+          </div>
+          <div class="carousel-item">
+            <img src="https://via.placeholder.com/80" alt="Avatar 21">
+            <span>Bloco 21</span>
+          </div>
+          <div class="carousel-item">
+            <img src="https://via.placeholder.com/80" alt="Avatar 22">
+            <span>Bloco 22</span>
+          </div>
+          <div class="carousel-item">
+            <img src="https://via.placeholder.com/80" alt="Avatar 23">
+            <span>Bloco 23</span>
+          </div>
+          <div class="carousel-item">
+            <img src="https://via.placeholder.com/80" alt="Avatar 24">
+            <span>Bloco 24</span>
+          </div>
+          <div class="carousel-item">
+            <img src="https://via.placeholder.com/80" alt="Avatar 25">
+            <span>Bloco 25</span>
+          </div>
+        </div>
+        <button class="carousel-control prev">&#10094;</button>
+        <button class="carousel-control next">&#10095;</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      const carousels = document.querySelectorAll('.carousel-container');
+  
+      carousels.forEach((carousel, index) => {
+        // Controla a visibilidade inicial dos carrosséis
+        if (index !== 0) {
+          carousel.classList.remove('visible');
+        } else {
+          carousel.classList.add('visible');
+        }
+  
+        const track = carousel.querySelector('.carousel-track');
+        const items = Array.from(track.children);
+        const prevButton = carousel.querySelector('.carousel-control.prev');
+        const nextButton = carousel.querySelector('.carousel-control.next');
+        let isMoving = false;
+  
+        function updateCarousel(offset) {
+          track.style.transition = 'transform 0.5s ease-in-out';
+          track.style.transform = `translateX(${offset}px)`;
+        }
+  
+        function moveItemToEnd() {
+          const firstItem = items.shift();
+          track.appendChild(firstItem);
+          items.push(firstItem);
+          track.style.transition = 'none';
+          track.style.transform = 'translateX(0)';
+          requestAnimationFrame(() => (isMoving = false));
+        }
+  
+        function moveItemToStart() {
+          const lastItem = items.pop();
+          track.prepend(lastItem);
+          items.unshift(lastItem);
+          track.style.transition = 'none';
+          track.style.transform = `translateX(${-items[0].offsetWidth - 20}px)`;
+          requestAnimationFrame(() => {
+            track.style.transition = 'transform 0.5s ease-in-out';
+            updateCarousel(0);
+          });
+        }
+  
+        nextButton.addEventListener('click', () => {
+          if (isMoving) return;
+          isMoving = true;
+          updateCarousel(-items[0].offsetWidth - 20);
+          track.addEventListener('transitionend', moveItemToEnd, { once: true });
+        });
+  
+        prevButton.addEventListener('click', () => {
+          if (isMoving) return;
+          isMoving = true;
+          moveItemToStart();
+          track.addEventListener('transitionend', () => {
+            isMoving = false;
+          }, { once: true });
+        });
+  
+        items.forEach(item => {
+          item.addEventListener('click', () => {
+            items.forEach(i => i.classList.remove('selected'));
+            item.classList.add('selected');
+  
+            // Exibir o próximo carrossel sem ocultar o atual
+            if (index < carousels.length - 1) {
+              // Removemos esta linha
+              // carousels[index].classList.remove('visible');
+              carousels[index + 1].classList.add('visible');
+            }
+          });
+        });
+      });
+  
+      window.addEventListener('resize', () => {
+        carousels.forEach(carousel => {
+          const track = carousel.querySelector('.carousel-track');
+          track.style.transition = 'none';
+          track.style.transform = 'translateX(0)';
+        });
+      });
+    });
+  </script>
+
+</body>
+</html>

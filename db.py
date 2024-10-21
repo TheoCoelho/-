@@ -126,13 +126,13 @@ def criar_tabela_interacoes():
             )
         """)
         conn.commit()
-def buscar_url_imagem_perfil(username):
-    """Busca a URL da imagem de perfil do usuário no banco de dados."""
+def buscar_url_imagem_perfil(usuario):
+    """Retorna o caminho da imagem de perfil do usuário."""
     with conectar_bd() as conn:
         cursor = conn.cursor()
-        cursor.execute("SELECT profile_pic FROM usuarios WHERE username = ?", (username,))
-        row = cursor.fetchone()
-        if row:
-            return row[0]
+        cursor.execute("SELECT profile_pic FROM usuarios WHERE username = ?", (usuario,))
+        result = cursor.fetchone()
+        if result and result[0]:
+            return result[0]
         else:
-            return None
+            return '/static/uploads/default/profile_pic.jpg'

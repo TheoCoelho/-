@@ -1,4 +1,4 @@
-from db import conectar_bd
+from db import conectar_bd, buscar_url_imagem_perfil
 
 def cadastrar_usuario(username, password, email, nome, sobrenome, data_nascimento):
     """Insere um novo usuário no banco de dados."""
@@ -23,6 +23,7 @@ def login(request, session, redirect, render_template):
         user = verificar_usuario(username, password)
         if user:
             session["username"] = username
+            session["profile_pic"] = buscar_url_imagem_perfil(username)  # Adicione esta linha
             return redirect("/index")
         else:
             return render_template("login.html", error="Usuário ou senha incorretos.")
@@ -32,6 +33,7 @@ def login(request, session, redirect, render_template):
 def logout(session, redirect):
     """Rota para fazer logout. Remove o usuário da sessão e redireciona para a página inicial."""
     session.pop("username", None)
+    session.pop("profile_pic", None)
     return redirect("/")
 
 def registro(request, verificar_usuario, cadastrar_usuario, redirect, render_template):
