@@ -1,16 +1,18 @@
-/* Header CSS for Navbar */
 .navbar {
-    background-color: #000000; /* Fundo preto */
-    color: #D3D3D3; /* Letras cinza claro */
-    padding: 10px 20px;
+    background-color: transparent; /* Fundo transparente */
+    color: #000000; /* Letras pretas */
+    padding: 10px 0; /* Removido o padding lateral para evitar conflito */
     font-family: Arial, sans-serif;
     position: fixed; /* Mantém o header fixo no topo */
     top: 0;
     left: 0;
     width: 100%;
     z-index: 1000;
-    border-radius: 0 0 10px 10px; /* Bordas inferiores arredondadas */
-    box-shadow: 0 2px 5px rgba(0,0,0,0.5);
+    /* Removido border-bottom */
+    /* border-bottom: 1px solid #D3D3D3; */
+}
+body {
+    padding-top: 60px; /* Ajuste este valor conforme a altura do seu cabeçalho */
 }
 
 .navbar-container {
@@ -29,6 +31,7 @@
     height: 40px;
 }
 
+/* Estilização dos links do menu (Mantidos como estavam) */
 .nav-menu {
     list-style: none;
     display: flex;
@@ -41,21 +44,34 @@
 }
 
 .nav-menu li a {
-    color: #D3D3D3; /* Letras cinza claro */
+    color: #000000; /* Letras pretas */
     text-decoration: none;
-    font-weight: bold;
-    transition: color 0.3s ease-in-out;
+    font-weight: 800; /* Fonte mais grossa */
+    position: relative;
+    padding-bottom: 2px; /* Espaço para a linha inferior */
+    transition: all 0.3s;
+    display: inline-block;
 }
 
-.nav-menu li a:hover {
-    color: #FFFFFF; /* Branco ao passar o mouse */
+.nav-menu li a:hover::after,
+.nav-menu li a.active::after {
+    content: "";
+    position: absolute;
+    left: 0;
+    bottom: 0;
+    height: 2px; /* Espessura da linha */
+    width: 100%;
+    background-color: #000000; /* Cor da linha */
 }
 
+/* Seção Direita */
 .navbar-right {
     display: flex;
     align-items: center;
+    padding-right: 20px; /* Evita que o ícone seja coberto pela barra de rolagem */
 }
 
+/* Estilos para a foto de perfil e menu dropdown modificado */
 .profile-dropdown {
     display: flex;
     align-items: center;
@@ -77,90 +93,118 @@
     object-fit: cover;
 }
 
-.dropdown {
+.menu-dropdown {
     position: relative;
+    margin-left: 10px; /* Move o ícone do menu para a esquerda */
 }
 
-.dropdown-toggle {
+.menu-button {
     background: none;
     border: none;
-    color: #D3D3D3;
     cursor: pointer;
-    font-size: 16px;
-    padding: 0;
+    padding: 5px;
 }
 
-.dropdown-menu {
+.menu-button svg {
+    width: 24px;
+    height: 24px;
+    fill: #000000;
+    transition: fill 0.3s;
+}
+
+.menu-button:hover svg {
+    fill: #333333;
+}
+
+.dropdown-content {
     display: none;
     position: absolute;
-    top: 100%;
     right: 0;
-    background-color: #111; /* Fundo do dropdown */
+    top: 35px; /* Posiciona abaixo do botão */
+    background-color: transparent; /* Fundo transparente */
+    min-width: 50px;
+    border: none; /* Remover borda */
     border-radius: 5px;
-    overflow: hidden;
-    min-width: 150px;
-    box-shadow: 0 5px 10px rgba(0,0,0,0.5);
+    z-index: 1;
 }
 
-.dropdown-menu li {
-    list-style: none;
-}
-
-.dropdown-menu li a {
-    display: block;
+.dropdown-content a {
     padding: 10px;
-    color: #D3D3D3;
-    text-decoration: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
 
-.dropdown-menu li a:hover {
-    background-color: #333;
+.dropdown-content a svg {
+    width: 24px;
+    height: 24px;
+    fill: #000000;
+    transition: fill 0.3s;
 }
 
-.dropdown-divider {
-    border-top: 1px solid #666;
-    margin: 5px 0;
+.dropdown-content a:hover svg {
+    fill: #333333;
 }
 
-.dropdown:hover .dropdown-menu {
+.dropdown-content a::after {
+    content: none;
+}
+
+.menu-dropdown:hover .dropdown-content {
     display: block;
 }
 
+/* Estilos para os links de autenticação (Login e Registro) */
 .auth-links {
     display: flex;
     align-items: center;
 }
 
 .auth-button {
-    background-color: #333;
-    color: #D3D3D3;
+    background-color: #f0f0f0;
+    color: #000000;
     text-decoration: none;
     padding: 8px 12px;
     margin-left: 10px;
-    border: 1px solid #D3D3D3;
+    border: 1px solid #000000;
     border-radius: 5px;
     transition: background-color 0.3s;
 }
 
 .auth-button:hover {
-    background-color: #444;
+    background-color: #e0e0e0;
 }
 
+/* Responsividade */
 @media (max-width: 768px) {
     .navbar-container {
         flex-direction: column;
+        align-items: flex-start;
     }
     .nav-menu {
         flex-direction: column;
         align-items: center;
+        margin-top: 10px;
     }
     .nav-menu li {
-        margin: 10px 0;
-    }
-    .auth-links {
-        margin-top: 10px;
+        margin: 5px 0;
     }
     .navbar-right {
         margin-top: 10px;
     }
+    .auth-links {
+        margin-top: 10px;
+    }
+}
+
+.navbar::after {
+    content: "";
+    display: block;
+    position: absolute;
+    bottom: 0;
+    left: 20px; /* Ajuste este valor para controlar a margem esquerda */
+    right: 20px; /* Ajuste este valor para controlar a margem direita */
+    height: 5px; /* Espessura da linha (mude este valor para alterar a grossura) */
+    background-color: black; /* Cor da linha */
+    border-radius: 10px;
 }

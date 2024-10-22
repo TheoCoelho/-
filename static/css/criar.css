@@ -29,7 +29,7 @@ body.criar-page {
   padding-top: 20px; /* Adicionado para evitar corte no topo */
   box-sizing: border-box; /* Garantir que padding seja incluído na altura total */
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-  border-radius: 10px;
+  border-radius: 0px;
   /* height: 100%; */ /* Remover esta linha */
   min-height: calc(100vh - 80px - 40px); /* Altura mínima ajustada */
   overflow-y: auto; /* Permite rolagem vertical */
