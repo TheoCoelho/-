@@ -50,13 +50,15 @@ body.criar-page {
   position: absolute;
   top: 0;
   left: 0;
-  width: 512px;
-  height: 512px;
+  width: 100%; /* Ajustado para 100% */
+  height: 100%; /* Ajustado para 100% */
   z-index: 10;
   pointer-events: none;
+  background-color: rgba(255, 255, 255, 0.205); /* Cor do destaque */
 }
 
-.highlight::before {
+/* Remover o pseudo-elemento ::before para evitar conflitos */
+/* .highlight::before {
   content: "";
   display: block;
   position: absolute;
@@ -64,24 +66,11 @@ body.criar-page {
   left: 0;
   width: 100%;
   height: 100%;
-  background-color: rgba(255, 0, 0, 0.3);
+  background-color: rgba(255, 255, 255, 0.205);
   clip-path: polygon(0% 0%, 100% 0%, 100% 100%, 0% 100%);
-}
+} */
 
 /* Esconde os carrosséis por padrão */
-.carousel-container {
-  display: none;
-  margin-top: 20px; /* Adiciona um espaçamento em relação à silhueta */
-}
-
-/* Exibe apenas os carrosséis com a classe 'visible' */
-.carousel-container.visible {
-  display: flex;
-  justify-content: center;
-  animation: slideIn 0.5s ease-in-out forwards;
-}
-
-/* Carrossel */
 .carousel-container {
   position: relative;
   width: 90%;
@@ -91,6 +80,19 @@ body.criar-page {
   box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
   margin: 20px auto;
   flex: 0 0 auto;
+  display: none; /* Eles são escondidos por padrão */
+  transition: opacity 0.5s ease-in-out; /* Adicionado para transição suave */
+}
+
+.carousel-container.visible {
+  display: block;
+  opacity: 1;
+  pointer-events: all;
+}
+
+.carousel-container.hidden {
+  opacity: 0;
+  pointer-events: none;
 }
 
 .carousel-track {
@@ -99,7 +101,7 @@ body.criar-page {
 }
 
 .carousel-item {
-  min-width: calc(100% / 3 - 20px); /* Altere para 3 blocos por vez */
+  min-width: 200px;
   height: 150px;
   margin: 10px;
   background-size: cover;
@@ -126,7 +128,7 @@ body.criar-page {
 }
 
 .carousel-item.selected {
-  background-color: #FF5722;
+  background-color: #ffffff;
   transform: scale(1.1);
 }
 
@@ -174,5 +176,3 @@ body.criar-page {
     transform: translateY(0);
   }
 }
-
-/* Ajustes para responsividade */

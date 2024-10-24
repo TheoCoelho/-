@@ -1,0 +1,42 @@
+{
+    "cabeca": {
+      "opcoes": ["Boné", "Chapéu", "Toca", "Bucket", "Boina", "Gorro", "Viseira", "Capacete"],
+      "tecido": {
+        "Boné": ["Algodão", "Poliéster", "Nylon", "Lona", "Sintético"],
+        "Chapéu": ["Palha", "Algodão", "Lã", "Couro", "Sintético"],
+        "Toca": ["Lã", "Acrílico", "Poliéster", "Fleece"],
+        "Bucket": ["Algodão", "Lona", "Sintético", "Denim"],
+        "Boina": ["Lã", "Algodão", "Poliéster", "Couro"],
+        "Gorro": ["Lã", "Acrílico", "Fleece", "Algodão"],
+        "Viseira": ["Poliéster", "Nylon", "Sintético", "Algodão"],
+        "Capacete": ["Fibra de Vidro", "Plástico", "Policarbonato", "Fibra de Carbono"]
+      }
+    },
+    "tronco": {
+      "opcoes": ["Camisa", "Camiseta", "Blusa", "Manga Longa", "Jaqueta", "Regata", "Moletom", "Colete"],
+      "tecido": {
+        "Camisa": ["Algodão", "Seda", "Poliéster", "Linho", "Viscose"],
+        "Camiseta": ["Algodão", "Poliéster", "Viscose", "Dry-fit", "Bamboo"],
+        "Blusa": ["Lã", "Algodão", "Acrílico", "Fleece", "Cashmere"],
+        "Manga Longa": ["Algodão", "Poliéster", "Lã", "Viscose"],
+        "Jaqueta": ["Couro", "Nylon", "Poliéster", "Sarja", "Jeans"],
+        "Regata": ["Algodão", "Poliéster", "Lycra", "Dry-fit"],
+        "Moletom": ["Algodão", "Fleece", "Poliéster", "Veludo"],
+        "Colete": ["Nylon", "Poliéster", "Lã", "Sarja"]
+      }
+    },
+    "pernas": {
+      "opcoes": ["Calça", "Bermuda", "Shorts", "Legging", "Saia", "Macacão", "Pantalona", "Jogger"],
+      "tecido": {
+        "Calça": ["Jeans", "Sarja", "Algodão", "Linho", "Viscose"],
+        "Bermuda": ["Algodão", "Poliéster", "Jeans", "Sarja", "Linho"],
+        "Shorts": ["Algodão", "Nylon", "Lycra", "Poliéster"],
+        "Legging": ["Lycra", "Algodão", "Poliéster", "Nylon"],
+        "Saia": ["Algodão", "Poliéster", "Lã", "Viscose", "Seda"],
+        "Macacão": ["Algodão", "Linho", "Jeans", "Sarja"],
+        "Pantalona": ["Viscose", "Linho", "Algodão", "Poliéster"],
+        "Jogger": ["Moletom", "Poliéster", "Algodão", "Lycra"]
+      }
+    }
+  }
+  

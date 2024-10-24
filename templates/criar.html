@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
+
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -7,6 +8,7 @@
   <link rel="stylesheet" href="{{ url_for('static', filename='css/header.css') }}">
   <link rel="stylesheet" href="{{ url_for('static', filename='css/criar.css') }}">
 </head>
+
 <body class="criar-page">
 
   <!-- Incluindo o header -->
@@ -15,242 +17,263 @@
   <!-- Silhueta -->
   <div class="main-container">
     <div class="silhouette-container">
-      <img src="{{ url_for('static', filename='silhueta2.webp') }}" alt="Silhueta" class="silhouette-image" usemap="#image-map">
+      <img src="{{ url_for('static', filename='silhueta2.webp') }}" alt="Silhueta" class="silhouette-image"
+        usemap="#image-map">
       <map name="image-map">
         <!-- Cabeça -->
-        <area shape="poly" coords="243,89,241,75,235,66,232,52,234,41,238,32,244,27,252,23,259,21,266,22,274,28,278,35,279,44,281,51,285,55,284,62,279,69,276,75,275,82,274,88,270,88,263,91,259,92,252,90,242,91"
-              alt="Cabeça" title="Cabeça" 
-              onmouseover="highlightArea('243,89,241,75,235,66,232,52,234,41,238,32,244,27,252,23,259,21,266,22,274,28,278,35,279,44,281,51,285,55,284,62,279,69,276,75,275,82,274,88,270,88,263,91,259,92,252,90,242,91')" 
-              onmouseout="removeHighlight()" 
-              onclick="selectPart('cabeca', '243,89,241,75,235,66,232,52,234,41,238,32,244,27,252,23,259,21,266,22,274,28,278,35,279,44,281,51,285,55,284,62,279,69,276,75,275,82,274,88,270,88,263,91,259,92,252,90,242,91')">
+        <area shape="poly"
+          coords="243,89,241,75,235,66,232,52,234,41,238,32,244,27,252,23,259,21,266,22,274,28,278,35,279,44,281,51,285,55,284,62,279,69,276,75,275,82,274,88,270,88,263,91,259,92,252,90,242,91"
+          alt="cabeca" title="Cabeça"
+          onmouseover="highlightArea('243,89,241,75,235,66,232,52,234,41,238,32,244,27,252,23,259,21,266,22,274,28,278,35,279,44,281,51,285,55,284,62,279,69,276,75,275,82,274,88,270,88,263,91,259,92,252,90,242,91')"
+          onmouseout="removeHighlight()"
+          onclick="selectPart('cabeca', '243,89,241,75,235,66,232,52,234,41,238,32,244,27,252,23,259,21,266,22,274,28,278,35,279,44,281,51,285,55,284,62,279,69,276,75,275,82,274,88,270,88,263,91,259,92,252,90,242,91')">
         <!-- Tronco -->
-        <area shape="poly" coords="237,92,218,101,209,104,201,108,195,116,190,123,178,134,169,146,162,160,162,167,161,176,167,187,174,195,183,206,191,218,196,227,202,236,210,239,218,241,227,242,241,244,250,243,263,244,273,246,283,248,295,247,303,246,314,242,323,235,334,216,344,197,351,183,351,168,343,156,336,140,322,120,312,104,296,94,283,91"
-              alt="Tronco" title="Tronco" 
-              onmouseover="highlightArea('237,92,218,101,209,104,201,108,195,116,190,123,178,134,169,146,162,160,162,167,161,176,167,187,174,195,183,206,191,218,196,227,202,236,210,239,218,241,227,242,241,244,250,243,263,244,273,246,283,248,295,247,303,246,314,242,323,235,334,216,344,197,351,183,351,168,343,156,336,140,322,120,312,104,296,94,283,91')" 
-              onmouseout="removeHighlight()" 
-              onclick="selectPart('tronco', '237,92,218,101,209,104,201,108,195,116,190,123,178,134,169,146,162,160,162,167,161,176,167,187,174,195,183,206,191,218,196,227,202,236,210,239,218,241,227,242,241,244,250,243,263,244,273,246,283,248,295,247,303,246,314,242,323,235,334,216,344,197,351,183,351,168,343,156,336,140,322,120,312,104,296,94,283,91')">
-        <!-- Pernas -->
-        <area shape="poly" coords="213,249,213,264,211,275,207,287,206,299,209,309,211,320,211,335,210,351,209,360,209,371,208,389,211,401,213,415,214,427,214,437,214,447,236,450,235,427,237,415,241,401,241,388,240,374,239,358,245,348,251,331,255,324,260,332,264,338,267,346,270,356,276,365,278,375,282,384,282,393,286,404,291,410,292,419,294,430,298,433,297,456,328,452,320,436,319,398,313,353,317,338,315,322,312,296,307,272,303,261,302,252')"
-              alt="Pernas" title="Pernas" 
-              onmouseover="highlightArea('213,249,213,264,211,275,207,287,206,299,209,309,211,320,211,335,210,351,209,360,209,371,208,389,211,401,213,415,214,427,214,437,214,447,236,450,235,427,237,415,241,401,241,388,240,374,239,358,245,348,251,331,255,324,260,332,264,338,267,346,270,356,276,365,278,375,282,384,282,393,286,404,291,410,292,419,294,430,298,433,297,456,328,452,320,436,319,398,313,353,317,338,315,322,312,296,307,272,303,261,302,252')" 
-              onmouseout="removeHighlight()" 
-              onclick="selectPart('pernas', '213,249,213,264,211,275,207,287,206,299,209,309,211,320,211,335,210,351,209,360,209,371,208,389,211,401,213,415,214,427,214,437,214,447,236,450,235,427,237,415,241,401,241,388,240,374,239,358,245,348,251,331,255,324,260,332,264,338,267,346,270,356,276,365,278,375,282,384,282,393,286,404,291,410,292,419,294,430,298,433,297,456,328,452,320,436,319,398,313,353,317,338,315,322,312,296,307,272,303,261,302,252')">
+        <area shape="poly"
+          coords="237,92,218,101,209,104,201,108,195,116,190,123,178,134,169,146,162,160,162,167,161,176,167,187,174,195,183,206,191,218,196,227,202,236,210,239,218,241,227,242,241,244,250,243,263,244,273,246,283,248,295,247,303,246,314,242,323,235,334,216,344,197,351,183,351,168,343,156,336,140,322,120,312,104,296,94,283,91"
+          alt="Tronco" title="Tronco"
+          onmouseover="highlightArea('237,92,218,101,209,104,201,108,195,116,190,123,178,134,169,146,162,160,162,167,161,176,167,187,174,195,183,206,191,218,196,227,202,236,210,239,218,241,227,242,241,244,250,243,263,244,273,246,283,248,295,247,303,246,314,242,323,235,334,216,344,197,351,183,351,168,343,156,336,140,322,120,312,104,296,94,283,91')"
+          onmouseout="removeHighlight()"
+          onclick="selectPart('tronco', '237,92,218,101,209,104,201,108,195,116,190,123,178,134,169,146,162,160,162,167,161,176,167,187,174,195,183,206,191,218,196,227,202,236,210,239,218,241,227,242,241,244,250,243,263,244,273,246,283,248,295,247,303,246,314,242,323,235,334,216,344,197,351,183,351,168,343,156,336,140,322,120,312,104,296,94,283,91')">
+        <!-- Pernas (Novo Mapeamento) -->
+        <area shape="poly"
+          coords="209,265,209,285,207,302,212,319,211,340,207,363,208,389,210,410,214,428,215,447,205,473,208,484,230,487,241,458,237,413,241,363,255,320,271,352,281,375,284,397,295,423,297,453,298,475,311,480,342,490,344,477,319,431,318,378,313,299,304,260"
+          alt="Pernas" title="Pernas"
+          onmouseover="highlightArea('209,265,209,285,207,302,212,319,211,340,207,363,208,389,210,410,214,428,215,447,205,473,208,484,230,487,241,458,237,413,241,363,255,320,271,352,281,375,284,397,295,423,297,453,298,475,311,480,342,490,344,477,319,431,318,378,313,299,304,260')"
+          onmouseout="removeHighlight()"
+          onclick="selectPart('pernas', '209,265,209,285,207,302,212,319,211,340,207,363,208,389,210,410,214,428,215,447,205,473,208,484,230,487,241,458,237,413,241,363,255,320,271,352,281,375,284,397,295,423,297,453,298,475,311,480,342,490,344,477,319,431,318,378,313,299,304,260')">
       </map>
     </div>
 
     <!-- Carrosséis escondidos -->
     <div class="carousel-container hidden" id="carousel-1">
-      <div class="carousel-track">
-        <div class="carousel-item">
-          <img src="https://via.placeholder.com/80" alt="Avatar 1">
-          <span>Bloco 1</span>
-        </div>
-        <div class="carousel-item">
-          <img src="https://via.placeholder.com/80" alt="Avatar 2">
-          <span>Bloco 2</span>
-        </div>
-        <div class="carousel-item">
-          <img src="https://via.placeholder.com/80" alt="Avatar 3">
-          <span>Bloco 3</span>
-        </div>
-        <div class="carousel-item">
-          <img src="https://via.placeholder.com/80" alt="Avatar 4">
-          <span>Bloco 4</span>
-        </div>
-        <div class="carousel-item">
-          <img src="https://via.placeholder.com/80" alt="Avatar 5">
-          <span>Bloco 5</span>
-        </div>
-        <div class="carousel-item">
-          <img src="https://via.placeholder.com/80" alt="Avatar 6">
-          <span>Bloco 6</span>
-        </div>
-        <!-- Adicionar mais itens conforme necessário -->
-      </div>
+      <div class="carousel-track"></div>
       <button class="carousel-control prev">&#10094;</button>
       <button class="carousel-control next">&#10095;</button>
     </div>
 
     <div class="carousel-container hidden" id="carousel-2">
-      <div class="carousel-track">
-        <div class="carousel-item">
-          <img src="https://via.placeholder.com/80" alt="Avatar 8">
-          <span>Bloco 8</span>
-        </div>
-        <div class="carousel-item">
-          <img src="https://via.placeholder.com/80" alt="Avatar 9">
-          <span>Bloco 9</span>
-        </div>
-        <div class="carousel-item">
-          <img src="https://via.placeholder.com/80" alt="Avatar 10">
-          <span>Bloco 10</span>
-        </div>
-        <div class="carousel-item">
-          <img src="https://via.placeholder.com/80" alt="Avatar 11">
-          <span>Bloco 11</span>
-        </div>
-        <div class="carousel-item">
-          <img src="https://via.placeholder.com/80" alt="Avatar 12">
-          <span>Bloco 12</span>
-        </div>
-        <div class="carousel-item">
-          <img src="https://via.placeholder.com/80" alt="Avatar 13">
-          <span>Bloco 13</span>
-        </div>
-        <!-- Adicionar mais itens conforme necessário -->
-      </div>
-      <button class="carousel-control prev">&#10094;</button>
-      <button class="carousel-control next">&#10095;</button>
-    </div>
-
-    <div class="carousel-container hidden" id="carousel-3">
-      <div class="carousel-track">
-        <div class="carousel-item">
-          <img src="https://via.placeholder.com/80" alt="Avatar 14">
-          <span>Bloco 14</span>
-        </div>
-        <div class="carousel-item">
-          <img src="https://via.placeholder.com/80" alt="Avatar 15">
-          <span>Bloco 15</span>
-        </div>
-        <div class="carousel-item">
-          <img src="https://via.placeholder.com/80" alt="Avatar 16">
-          <span>Bloco 16</span>
-        </div>
-        <div class="carousel-item">
-          <img src="https://via.placeholder.com/80" alt="Avatar 17">
-          <span>Bloco 17</span>
-        </div>
-        <div class="carousel-item">
-          <img src="https://via.placeholder.com/80" alt="Avatar 18">
-          <span>Bloco 18</span>
-        </div>
-        <div class="carousel-item">
-          <img src="https://via.placeholder.com/80" alt="Avatar 19">
-          <span>Bloco 19</span>
-        </div>
-        <!-- Adicionar mais itens conforme necessário -->
-      </div>
+      <div class="carousel-track"></div>
       <button class="carousel-control prev">&#10094;</button>
       <button class="carousel-control next">&#10095;</button>
     </div>
   </div>
 
+
+  </div>
+
   <script>
-document.addEventListener('DOMContentLoaded', () => {
-  const carousels = document.querySelectorAll('.carousel-container');
 
-  function addHighlight(coords) {
-    const previousHighlight = document.querySelector('.highlight');
-    if (previousHighlight) {
-      previousHighlight.remove();
-    }
+    document.addEventListener('DOMContentLoaded', () => {
+      let data; // Variável para armazenar os dados JSON carregados
 
-    const highlight = document.createElement('div');
-    highlight.classList.add('highlight');
+      // Carregar o arquivo JSON com as opções e tecidos
+      fetch('/static/carrossel_opcoes.json')
+        .then(response => response.json())
+        .then(json => {
+          data = json; // Armazena os dados do JSON carregado
+          setupEventListeners(); // Configurar os eventos após o JSON ser carregado
+        })
+        .catch(error => console.error('Erro ao carregar o JSON:', error));
 
-    const points = coords.split(',').map(Number);
-    let clipPathCoords = points.reduce((acc, val, index) => {
-      return index % 2 === 0 ? `${acc}${val}px ` : `${acc}${val}px, `;
-    }, '').slice(0, -2);
-
-    highlight.style.clipPath = `polygon(${clipPathCoords})`;
-    highlight.style.position = 'absolute';
-    highlight.style.top = '0';
-    highlight.style.left = '0';
-    highlight.style.width = '512px';
-    highlight.style.height = '512px';
-    highlight.style.background = 'rgba(255, 0, 0, 0.3)';
-    highlight.style.pointerEvents = 'none';
-
-    document.querySelector('.silhouette-container').appendChild(highlight);
-  }
-
-  function removeHighlight() {
-    const previousHighlight = document.querySelector('.highlight');
-    if (previousHighlight) {
-      previousHighlight.remove();
-    }
-  }
-
-  function selectPart(part, coords) {
-    console.log("Parte selecionada:", part);
-
-    addHighlight(coords);
-
-    const firstCarousel = document.getElementById('carousel-1');
-    if (firstCarousel && !firstCarousel.classList.contains('visible')) {
-      firstCarousel.classList.add('visible', 'slide-in');
-    }
-  }
-
-  window.selectPart = (part, coords) => selectPart(part, coords);
-  window.highlightArea = (coords) => addHighlight(coords);
-  window.removeHighlight = () => removeHighlight();
-
-  carousels.forEach((carousel) => {
-    const track = carousel.querySelector('.carousel-track');
-    const items = Array.from(track.children);
-    const prevButton = carousel.querySelector('.carousel-control.prev');
-    const nextButton = carousel.querySelector('.carousel-control.next');
-    let isMoving = false;
-
-    function updateCarousel(offset) {
-      track.style.transition = 'transform 0.5s ease-in-out';
-      track.style.transform = `translateX(${offset}px)`;
-    }
-
-    function moveItemToEnd() {
-      const firstItem = items.shift();
-      track.appendChild(firstItem);
-      items.push(firstItem);
-      track.style.transition = 'none';
-      track.style.transform = 'translateX(0)';
-      requestAnimationFrame(() => (isMoving = false));
-    }
-
-    function moveItemToStart() {
-      const lastItem = items.pop();
-      track.prepend(lastItem);
-      items.unshift(lastItem);
-      track.style.transition = 'none';
-      track.style.transform = `translateX(${-items[0].offsetWidth - 20}px)`;
-      requestAnimationFrame(() => {
-        track.style.transition = 'transform 0.5s ease-in-out';
-        updateCarousel(0);
-      });
-    }
-
-    nextButton.addEventListener('click', () => {
-      if (isMoving) return;
-      isMoving = true;
-      updateCarousel(-items[0].offsetWidth - 20);
-      track.addEventListener('transitionend', moveItemToEnd, { once: true });
-    });
-
-    prevButton.addEventListener('click', () => {
-      if (isMoving) return;
-      isMoving = true;
-      moveItemToStart();
-      track.addEventListener('transitionend', () => {
-        isMoving = false;
-      }, { once: true });
-    });
-
-    items.forEach(item => {
-      item.addEventListener('click', () => {
-        items.forEach(i => i.classList.remove('selected'));
-        item.classList.add('selected');
-        const nextCarousel = carousel.nextElementSibling;
-        if (nextCarousel && nextCarousel.classList.contains('carousel-container')) {
-          nextCarousel.classList.add('visible', 'slide-in');
+      // Função para adicionar o destaque ao selecionar a área do corpo
+      function addHighlight(coords) {
+        // Remove o destaque anterior, se existir
+        const previousHighlight = document.querySelector('.highlight');
+        if (previousHighlight) {
+          previousHighlight.remove();
         }
-      });
-    });
-  });
-});
 
+        // Cria um novo destaque
+        const highlight = document.createElement('div');
+        highlight.classList.add('highlight');
+
+        // Converte as coordenadas para o formato correto de clip-path
+        const points = coords.split(',').map(Number);
+
+        // Verifica se o número de pontos é par (X, Y pares) e faz a redução corretamente
+        let clipPathCoords = '';
+        for (let i = 0; i < points.length; i += 2) {
+          clipPathCoords += `${points[i]}px ${points[i + 1]}px, `;
+        }
+        clipPathCoords = clipPathCoords.slice(0, -2); // Remove a vírgula extra no final
+
+        // Aplica o estilo do clip-path para destacar a área selecionada
+        highlight.style.clipPath = `polygon(${clipPathCoords})`;
+        highlight.style.position = 'absolute';
+        highlight.style.top = '0';
+        highlight.style.left = '0';
+        highlight.style.width = '100%';
+        highlight.style.height = '100%';
+        highlight.style.background = 'rgba(255, 255, 255, 0.205)'; // Cor do destaque
+        highlight.style.pointerEvents = 'none';
+
+        // Adiciona o destaque na silhueta
+        document.querySelector('.silhouette-container').appendChild(highlight);
+      }
+
+      function removeHighlight() {
+        const previousHighlight = document.querySelector('.highlight');
+        if (previousHighlight) {
+          previousHighlight.remove();
+        }
+      }
+
+      // Função para selecionar a parte do corpo
+      function selectPart(part, coords) {
+        console.log("Parte selecionada:", part);
+
+        addHighlight(coords);
+
+        // Esconder e redefinir os carrosséis
+        const carousels = document.querySelectorAll('.carousel-container');
+        carousels.forEach(carousel => {
+          carousel.classList.add('hidden');
+          carousel.classList.remove('visible');
+          const track = carousel.querySelector('.carousel-track');
+          track.innerHTML = '';
+        });
+
+        // Mostrar o primeiro carrossel
+        const firstCarousel = document.getElementById('carousel-1');
+        if (firstCarousel) {
+          firstCarousel.classList.remove('hidden');
+          firstCarousel.classList.add('visible');
+        }
+
+        loadCarrosselOptions(part, 'carousel-1');
+      }
+
+      // Função para carregar as opções do carrossel dinamicamente
+      function loadCarrosselOptions(part, carouselId) {
+        const carousel = document.getElementById(carouselId);
+        const track = carousel.querySelector('.carousel-track');
+        track.innerHTML = '';  // Limpar o carrossel
+
+        let options = data[part]?.opcoes || []; // Pegar as opções do JSON baseado na parte do corpo
+
+        if (!options.length) {
+          console.error(`Nenhuma opção encontrada para a parte: ${part}`);
+          return;
+        }
+
+        options.forEach(option => {
+          const item = document.createElement('div');
+          item.classList.add('carousel-item');
+          item.innerHTML = `<span>${option}</span>`;
+          item.addEventListener('click', () => {
+            loadNextCarousel(part, option, 'carousel-2'); // Carregar o próximo carrossel
+          });
+          track.appendChild(item);
+        });
+
+        initializeCarousel(carousel);
+      }
+
+      // Função para carregar o segundo carrossel com base na peça selecionada
+      function loadNextCarousel(part, option, nextCarouselId) {
+        const nextCarousel = document.getElementById(nextCarouselId);
+        const track = nextCarousel.querySelector('.carousel-track');
+        track.innerHTML = '';  // Limpar o próximo carrossel
+
+        let options = data[part]?.tecido[option] || []; // Pegar os tipos de tecido do JSON baseado na peça escolhida
+
+        if (!options.length) {
+          console.error(`Nenhum tecido encontrado para a peça: ${option}`);
+          return;
+        }
+
+        options.forEach(opt => {
+          const item = document.createElement('div');
+          item.classList.add('carousel-item');
+          item.innerHTML = `<span>${opt}</span>`;
+          track.appendChild(item);
+        });
+
+        nextCarousel.classList.remove('hidden');
+        nextCarousel.classList.add('visible');
+        initializeCarousel(nextCarousel);
+      }
+
+      // Função para inicializar o carrossel com rolagem infinita e suave
+      function initializeCarousel(carousel) {
+        const track = carousel.querySelector('.carousel-track');
+        const prevButton = carousel.querySelector('.carousel-control.prev');
+        const nextButton = carousel.querySelector('.carousel-control.next');
+        let isMoving = false;
+
+        // Remover event listeners existentes
+        prevButton.replaceWith(prevButton.cloneNode(true));
+        nextButton.replaceWith(nextButton.cloneNode(true));
+
+        const newPrevButton = carousel.querySelector('.carousel-control.prev');
+        const newNextButton = carousel.querySelector('.carousel-control.next');
+
+        function updateCarousel(offset) {
+          track.style.transition = 'transform 0.5s ease-in-out';
+          track.style.transform = `translateX(${offset}px)`;
+        }
+
+        function moveToEnd() {
+          const firstItem = track.firstElementChild;
+          track.appendChild(firstItem);
+          track.style.transition = 'none';
+          track.style.transform = 'translateX(0)';
+          requestAnimationFrame(() => {
+            isMoving = false;
+          });
+        }
+
+        function moveToStart() {
+          const lastItem = track.lastElementChild;
+          const itemWidth = lastItem.offsetWidth + 20; // Ajuste para a margem/padding
+          track.style.transition = 'none';
+          track.style.transform = `translateX(${-itemWidth}px)`;
+          track.prepend(lastItem);
+          requestAnimationFrame(() => {
+            track.style.transition = 'transform 0.5s ease-in-out';
+            updateCarousel(0);
+          });
+        }
+
+        newNextButton.addEventListener('click', () => {
+          if (isMoving) return;
+          isMoving = true;
+          const itemWidth = track.firstElementChild.offsetWidth + 20;
+          updateCarousel(-itemWidth);
+          track.addEventListener('transitionend', () => {
+            moveToEnd();
+          }, { once: true });
+        });
+
+        newPrevButton.addEventListener('click', () => {
+          if (isMoving) return;
+          isMoving = true;
+          moveToStart();
+          track.addEventListener('transitionend', () => {
+            isMoving = false;
+          }, { once: true });
+        });
+      }
+
+      // Funções globais
+      window.selectPart = (part, coords) => selectPart(part, coords);
+      window.highlightArea = (coords) => addHighlight(coords);
+      window.removeHighlight = () => removeHighlight();
+
+      // Função para garantir que os eventos só sejam ativados após carregar o JSON
+      function setupEventListeners() {
+        const mapAreas = document.querySelectorAll('area');
+        mapAreas.forEach(area => {
+          area.addEventListener('click', (event) => {
+            const part = event.target.getAttribute('alt').toLowerCase();
+            const coords = event.target.getAttribute('coords');
+            selectPart(part, coords);
+          });
+        });
+      }
+    });
 
   </script>
 </body>
+
 </html>

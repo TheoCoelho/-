@@ -1,3 +1,4 @@
+import json
 from flask import Flask, render_template, request, redirect, session, url_for, jsonify, g
 import os
 from werkzeug.utils import secure_filename
@@ -174,6 +175,15 @@ def load_profile_pic():
 @app.context_processor
 def inject_user():
     return {'username': g.username, 'profile_pic': g.profile_pic}
+
+@app.route('/get_carrossel_options/<part>')
+def get_carrossel_options(part):
+    with open('carrossel_opcoes.json') as f:
+        data = json.load(f)
+    if part in data:
+        return jsonify(data[part])
+    else:
+        return jsonify({"error": "Part not found"}), 404
 
 if __name__ == "__main__":
     with app.app_context():
