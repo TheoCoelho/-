@@ -1,26 +1,32 @@
+/* Estilos do Header */
 .navbar {
-    background-color: transparent; /* Fundo transparente */
-    color: #000000; /* Letras pretas */
-    padding: 10px 0; /* Removido o padding lateral para evitar conflito */
-    font-family: Arial, sans-serif;
-    position: fixed; /* Mantém o header fixo no topo */
+    position: fixed;
     top: 0;
     left: 0;
     width: 100%;
+    height: 100px; /* Altura total do cabeçalho */
+    background-color: transparent;
     z-index: 1000;
-    /* Removido border-bottom */
-    /* border-bottom: 1px solid #D3D3D3; */
+    display: flex;
+    align-items: flex-start; /* Centraliza verticalmente mais para cima */
+    justify-content: space-between; /* Garante espaçamento horizontal adequado */
+    padding: 10px 20px; /* Reduzido para ajustar o espaçamento superior */
+    box-sizing: border-box;
 }
+
+/* Espaçamento no body para compensar o header fixo */
 body {
-    padding-top: 60px; /* Ajuste este valor conforme a altura do seu cabeçalho */
+    padding-top: 100px; /* Valor ajustado de acordo com a altura do cabeçalho */
 }
 
 .navbar-container {
     display: flex;
     justify-content: space-between;
     align-items: center;
+    width: 100%;
 }
 
+/* Alinha os itens à esquerda, centro e direita corretamente */
 .navbar-left, .navbar-center, .navbar-right {
     display: flex;
     align-items: center;
@@ -29,9 +35,10 @@ body {
 .logo-navbar {
     width: 40px;
     height: 40px;
+    margin-right: 20px; /* Espaçamento entre logo e links de navegação */
 }
 
-/* Estilização dos links do menu (Mantidos como estavam) */
+/* Estilização dos links do menu */
 .nav-menu {
     list-style: none;
     display: flex;
@@ -46,9 +53,9 @@ body {
 .nav-menu li a {
     color: #000000; /* Letras pretas */
     text-decoration: none;
-    font-weight: 800; /* Fonte mais grossa */
+    font-weight: 800;
     position: relative;
-    padding-bottom: 2px; /* Espaço para a linha inferior */
+    padding-bottom: 2px;
     transition: all 0.3s;
     display: inline-block;
 }
@@ -59,19 +66,19 @@ body {
     position: absolute;
     left: 0;
     bottom: 0;
-    height: 2px; /* Espessura da linha */
+    height: 2px;
     width: 100%;
-    background-color: #000000; /* Cor da linha */
+    background-color: #000000;
 }
 
 /* Seção Direita */
 .navbar-right {
     display: flex;
     align-items: center;
-    padding-right: 20px; /* Evita que o ícone seja coberto pela barra de rolagem */
+    padding-right: 20px;
 }
 
-/* Estilos para a foto de perfil e menu dropdown modificado */
+/* Estilos para a foto de perfil e menu dropdown */
 .profile-dropdown {
     display: flex;
     align-items: center;
@@ -95,7 +102,7 @@ body {
 
 .menu-dropdown {
     position: relative;
-    margin-left: 10px; /* Move o ícone do menu para a esquerda */
+    margin-left: 10px;
 }
 
 .menu-button {
@@ -120,10 +127,9 @@ body {
     display: none;
     position: absolute;
     right: 0;
-    top: 35px; /* Posiciona abaixo do botão */
-    background-color: transparent; /* Fundo transparente */
+    top: 35px;
+    background-color: transparent;
     min-width: 50px;
-    border: none; /* Remover borda */
     border-radius: 5px;
     z-index: 1;
 }
@@ -135,26 +141,11 @@ body {
     justify-content: center;
 }
 
-.dropdown-content a svg {
-    width: 24px;
-    height: 24px;
-    fill: #000000;
-    transition: fill 0.3s;
-}
-
-.dropdown-content a:hover svg {
-    fill: #333333;
-}
-
-.dropdown-content a::after {
-    content: none;
-}
-
 .menu-dropdown:hover .dropdown-content {
     display: block;
 }
 
-/* Estilos para os links de autenticação (Login e Registro) */
+/* Links de autenticação (Login e Registro) */
 .auth-links {
     display: flex;
     align-items: center;
@@ -181,30 +172,34 @@ body {
         flex-direction: column;
         align-items: flex-start;
     }
+
     .nav-menu {
         flex-direction: column;
         align-items: center;
         margin-top: 10px;
     }
+
     .nav-menu li {
         margin: 5px 0;
     }
+
     .navbar-right {
         margin-top: 10px;
     }
+
     .auth-links {
         margin-top: 10px;
     }
 }
 
+/* Linha divisória */
 .navbar::after {
     content: "";
-    display: block;
     position: absolute;
-    bottom: 0;
-    left: 20px; /* Ajuste este valor para controlar a margem esquerda */
-    right: 20px; /* Ajuste este valor para controlar a margem direita */
-    height: 5px; /* Espessura da linha (mude este valor para alterar a grossura) */
-    background-color: black; /* Cor da linha */
-    border-radius: 10px;
+    bottom: 35px; /* Posiciona a linha um pouco abaixo do conteúdo do cabeçalho */
+    left: 60px; /* Margem da linha a partir da borda esquerda */
+    right: 60px; /* Margem da linha a partir da borda direita */
+    height: 3px;
+    background-color: #000000; /* Cor da linha divisória */
+    border-radius: 6px; /* Bordas arredondadas para um acabamento mais suave */
 }

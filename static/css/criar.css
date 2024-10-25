@@ -1,8 +1,10 @@
-html, body {
+body, html {
+  overflow: hidden;
   height: 100%;
   margin: 0;
-  padding: 0;
 }
+
+
 
 body.criar-page {
   background-color: #333;
@@ -10,29 +12,19 @@ body.criar-page {
   font-family: Arial, sans-serif;
 }
 
-/* Ajustes na .page-container */
-.page-container {
-  padding-top: 80px;
-}
 
-/* Ajustes na .main-container */
 .main-container {
-  width: 90%;
-  max-width: 1200px;
-  margin: auto;
+  margin-top: 100px; /* Espaço entre o cabeçalho e o main container */
+  height: calc(100vh - 100px); /* Altura total disponível, subtraindo o cabeçalho */
+  overflow-y: auto; /* Permite rolagem interna */
   background-color: #000;
   padding: 20px;
-  box-sizing: border-box;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-  border-radius: 0px;
-  min-height: calc(100vh - 80px - 40px);
-  overflow-y: auto;
-  display: flex;
-  flex-direction: column;
-  justify-content: flex-start;
+  width: 90%;
+  max-width: 1200px;
+  margin-left: auto;
+  margin-right: auto;
 }
 
-/* Estilos da silhueta */
 .silhouette-container {
   position: relative;
   text-align: center;
