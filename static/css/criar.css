@@ -4,27 +4,38 @@ body, html {
   margin: 0;
 }
 
-
-
 body.criar-page {
   background-color: #333;
   color: #fff;
   font-family: Arial, sans-serif;
 }
 
-
 .main-container {
-  margin-top: 100px; /* Espaço entre o cabeçalho e o main container */
-  height: calc(100vh - 100px); /* Altura total disponível, subtraindo o cabeçalho */
-  overflow-y: auto; /* Permite rolagem interna */
-  background-color: #000;
-  padding: 20px;
+  position: fixed; /* Fixar o main-container na tela */
+  top: 100px; /* Ajustar conforme necessário para não sobrepor o cabeçalho */
+  left: 50%;
+  transform: translateX(-50%);
   width: 90%;
   max-width: 1200px;
-  margin-left: auto;
-  margin-right: auto;
+  height: calc(100vh - 120px); /* Altura da viewport menos a altura do cabeçalho e margem */
+  overflow-y: auto; /* Permitir rolagem dentro do main-container */
+  background-color: #000;
+  padding: 20px;
+  box-sizing: border-box;
+  transition: max-height 0.5s ease-in-out, transform 0.5s ease-in-out; /* Animação suave */
+  color: #fff; /* Ajuste para legibilidade */
 }
 
+
+
+.main-container.expanded-1 {
+  max-height: 600px; /* Expandir ao mostrar o primeiro carrossel */
+}
+
+.main-container.expanded-2 {
+  max-height: none; /* Permitir rolagem ao mostrar o segundo carrossel */
+  overflow-y: auto;  /* Permitir rolagem interna */
+}
 .silhouette-container {
   position: relative;
   text-align: center;
@@ -42,49 +53,31 @@ body.criar-page {
   position: absolute;
   top: 0;
   left: 0;
-  width: 100%; /* Ajustado para 100% */
-  height: 100%; /* Ajustado para 100% */
-  z-index: 10;
-  pointer-events: none;
-  background-color: rgba(255, 255, 255, 0.205); /* Cor do destaque */
-}
-
-/* Remover o pseudo-elemento ::before para evitar conflitos */
-/* .highlight::before {
-  content: "";
-  display: block;
-  position: absolute;
-  top: 0;
-  left: 0;
   width: 100%;
   height: 100%;
+  z-index: 10;
+  pointer-events: none;
   background-color: rgba(255, 255, 255, 0.205);
-  clip-path: polygon(0% 0%, 100% 0%, 100% 100%, 0% 100%);
-} */
+}
 
-/* Esconde os carrosséis por padrão */
+/* Carrosséis */
 .carousel-container {
   position: relative;
   width: 90%;
   max-width: 660px;
   overflow: hidden;
   border-radius: 10px;
-  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
   margin: 20px auto;
-  flex: 0 0 auto;
-  display: none; /* Eles são escondidos por padrão */
-  transition: opacity 0.5s ease-in-out; /* Adicionado para transição suave */
+  opacity: 0;
+  transform: translateY(-50px);
+  pointer-events: none;
+  transition: opacity 0.5s ease-in-out, transform 0.5s ease-in-out;
 }
 
 .carousel-container.visible {
-  display: block;
   opacity: 1;
+  transform: translateY(0);
   pointer-events: all;
-}
-
-.carousel-container.hidden {
-  opacity: 0;
-  pointer-events: none;
 }
 
 .carousel-track {
@@ -110,13 +103,6 @@ body.criar-page {
   box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
   cursor: pointer;
   transition: transform 0.2s, background-color 0.2s;
-}
-
-.carousel-item img {
-  width: 80px;
-  height: 80px;
-  border-radius: 50%;
-  margin-bottom: 10px;
 }
 
 .carousel-item.selected {
@@ -150,21 +136,10 @@ body.criar-page {
   right: 10px;
 }
 
-/* Ajustes para responsividade */
+/* Responsiveness */
 @media (max-width: 768px) {
   .carousel-item {
-    min-width: calc(100% / 2 - 20px); /* Exibe 2 blocos por vez em telas menores */
+    min-width: calc(100% / 2 - 20px);
     height: 120px;
-  }
-}
-
-@keyframes slideIn {
-  from {
-    opacity: 0;
-    transform: translateY(-100%);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
   }
 }

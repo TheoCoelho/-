@@ -7,11 +7,10 @@
   <title>Carrossel Contínuo com Seleção e Imagens</title>
   <link rel="stylesheet" href="{{ url_for('static', filename='css/header.css') }}">
   <link rel="stylesheet" href="{{ url_for('static', filename='css/criar.css') }}">
-
 </head>
 
 <body class="criar-page">
- {% include 'header.html' %}
+  {% include 'header.html' %}
 
   <!-- Silhueta -->
   <div class="main-container">
@@ -29,39 +28,35 @@
         <!-- Tronco -->
         <area shape="poly"
           coords="237,92,218,101,209,104,201,108,195,116,190,123,178,134,169,146,162,160,162,167,161,176,167,187,174,195,183,206,191,218,196,227,202,236,210,239,218,241,227,242,241,244,250,243,263,244,273,246,283,248,295,247,303,246,314,242,323,235,334,216,344,197,351,183,351,168,343,156,336,140,322,120,312,104,296,94,283,91"
-          alt="Tronco" title="Tronco"
+          alt="tronco" title="Tronco"
           onmouseover="highlightArea('237,92,218,101,209,104,201,108,195,116,190,123,178,134,169,146,162,160,162,167,161,176,167,187,174,195,183,206,191,218,196,227,202,236,210,239,218,241,227,242,241,244,250,243,263,244,273,246,283,248,295,247,303,246,314,242,323,235,334,216,344,197,351,183,351,168,343,156,336,140,322,120,312,104,296,94,283,91')"
           onmouseout="removeHighlight()"
           onclick="selectPart('tronco', '237,92,218,101,209,104,201,108,195,116,190,123,178,134,169,146,162,160,162,167,161,176,167,187,174,195,183,206,191,218,196,227,202,236,210,239,218,241,227,242,241,244,250,243,263,244,273,246,283,248,295,247,303,246,314,242,323,235,334,216,344,197,351,183,351,168,343,156,336,140,322,120,312,104,296,94,283,91')">
-        <!-- Pernas (Novo Mapeamento) -->
+        <!-- Pernas -->
         <area shape="poly"
           coords="209,265,209,285,207,302,212,319,211,340,207,363,208,389,210,410,214,428,215,447,205,473,208,484,230,487,241,458,237,413,241,363,255,320,271,352,281,375,284,397,295,423,297,453,298,475,311,480,342,490,344,477,319,431,318,378,313,299,304,260"
-          alt="Pernas" title="Pernas"
+          alt="pernas" title="Pernas"
           onmouseover="highlightArea('209,265,209,285,207,302,212,319,211,340,207,363,208,389,210,410,214,428,215,447,205,473,208,484,230,487,241,458,237,413,241,363,255,320,271,352,281,375,284,397,295,423,297,453,298,475,311,480,342,490,344,477,319,431,318,378,313,299,304,260')"
           onmouseout="removeHighlight()"
           onclick="selectPart('pernas', '209,265,209,285,207,302,212,319,211,340,207,363,208,389,210,410,214,428,215,447,205,473,208,484,230,487,241,458,237,413,241,363,255,320,271,352,281,375,284,397,295,423,297,453,298,475,311,480,342,490,344,477,319,431,318,378,313,299,304,260')">
       </map>
     </div>
 
-    <!-- Carrosséis escondidos -->
-    <div class="carousel-container hidden" id="carousel-1">
+    <!-- Carrosséis -->
+    <div class="carousel-container" id="carousel-1">
       <div class="carousel-track"></div>
       <button class="carousel-control prev">&#10094;</button>
       <button class="carousel-control next">&#10095;</button>
     </div>
 
-    <div class="carousel-container hidden" id="carousel-2">
+    <div class="carousel-container" id="carousel-2">
       <div class="carousel-track"></div>
       <button class="carousel-control prev">&#10094;</button>
       <button class="carousel-control next">&#10095;</button>
     </div>
-  </div>
-
-
   </div>
 
   <script>
-
     document.addEventListener('DOMContentLoaded', () => {
       let data; // Variável para armazenar os dados JSON carregados
 
@@ -119,36 +114,43 @@
 
       // Função para selecionar a parte do corpo
       function selectPart(part, coords) {
-        console.log("Parte selecionada:", part);
+    console.log("Parte selecionada:", part);
 
-        addHighlight(coords);
+    addHighlight(coords);
 
-        // Esconder e redefinir os carrosséis
-        const carousels = document.querySelectorAll('.carousel-container');
-        carousels.forEach(carousel => {
-          carousel.classList.add('hidden');
-          carousel.classList.remove('visible');
-          const track = carousel.querySelector('.carousel-track');
-          track.innerHTML = '';
-        });
+    // Esconder e redefinir os carrosséis
+    const carousels = document.querySelectorAll('.carousel-container');
+    carousels.forEach(carousel => {
+        carousel.classList.remove('visible');
+        const track = carousel.querySelector('.carousel-track');
+        track.innerHTML = '';
+    });
 
-        // Mostrar o primeiro carrossel
-        const firstCarousel = document.getElementById('carousel-1');
-        if (firstCarousel) {
-          firstCarousel.classList.remove('hidden');
-          firstCarousel.classList.add('visible');
-        }
+    // Expandir o main-container suavemente
+    const mainContainer = document.querySelector('.main-container');
+    mainContainer.classList.add('expanded-1');
+    mainContainer.style.maxHeight = '1000px'; // Definindo a altura para garantir uma expansão suave
 
-        loadCarrosselOptions(part, 'carousel-1');
-      }
+    // Mostrar o primeiro carrossel
+    const firstCarousel = document.getElementById('carousel-1');
+    if (firstCarousel) {
+        firstCarousel.classList.add('visible');
+    }
 
+    loadCarrosselOptions(part, 'carousel-1');
+}
       // Função para carregar as opções do carrossel dinamicamente
       function loadCarrosselOptions(part, carouselId) {
         const carousel = document.getElementById(carouselId);
         const track = carousel.querySelector('.carousel-track');
         track.innerHTML = '';  // Limpar o carrossel
 
+        console.log('Dados carregados:', data);
+        console.log('Parte selecionada:', part);
+
         let options = data[part]?.opcoes || []; // Pegar as opções do JSON baseado na parte do corpo
+
+        console.log('Opções encontradas:', options);
 
         if (!options.length) {
           console.error(`Nenhuma opção encontrada para a parte: ${part}`);
@@ -170,28 +172,38 @@
 
       // Função para carregar o segundo carrossel com base na peça selecionada
       function loadNextCarousel(part, option, nextCarouselId) {
-        const nextCarousel = document.getElementById(nextCarouselId);
-        const track = nextCarousel.querySelector('.carousel-track');
-        track.innerHTML = '';  // Limpar o próximo carrossel
+    console.log('Opção selecionada no primeiro carrossel:', option);
 
-        let options = data[part]?.tecido[option] || []; // Pegar os tipos de tecido do JSON baseado na peça escolhida
+    const nextCarousel = document.getElementById(nextCarouselId);
+    const track = nextCarousel.querySelector('.carousel-track');
+    track.innerHTML = '';  // Limpar o próximo carrossel
 
-        if (!options.length) {
-          console.error(`Nenhum tecido encontrado para a peça: ${option}`);
-          return;
-        }
+    let options = data[part]?.tecido[option] || []; // Pegar os tipos de tecido do JSON baseado na peça escolhida
 
-        options.forEach(opt => {
-          const item = document.createElement('div');
-          item.classList.add('carousel-item');
-          item.innerHTML = `<span>${opt}</span>`;
-          track.appendChild(item);
-        });
+    console.log('Opções para o segundo carrossel:', options);
 
-        nextCarousel.classList.remove('hidden');
-        nextCarousel.classList.add('visible');
-        initializeCarousel(nextCarousel);
-      }
+    if (!options.length) {
+        console.error(`Nenhum tecido encontrado para a peça: ${option}`);
+        return;
+    }
+
+    options.forEach(opt => {
+        const item = document.createElement('div');
+        item.classList.add('carousel-item');
+        item.innerHTML = `<span>${opt}</span>`;
+        track.appendChild(item);
+    });
+
+    // Expandir ainda mais o main-container e permitir rolagem
+    const mainContainer = document.querySelector('.main-container');
+    mainContainer.classList.add('expanded-2');
+    mainContainer.style.maxHeight = 'none'; // Remover o limite para permitir rolagem
+    mainContainer.style.overflowY = 'auto'; // Permitir rolagem
+
+    nextCarousel.classList.add('visible');
+    initializeCarousel(nextCarousel);
+}
+
 
       // Função para inicializar o carrossel com rolagem infinita e suave
       function initializeCarousel(carousel) {
@@ -271,7 +283,6 @@
         });
       }
     });
-
   </script>
 </body>
 
