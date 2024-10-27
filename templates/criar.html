@@ -71,39 +71,45 @@
 
       // Função para adicionar o destaque ao selecionar a área do corpo
       function addHighlight(coords) {
-        // Remove o destaque anterior, se existir
-        const previousHighlight = document.querySelector('.highlight');
-        if (previousHighlight) {
-          previousHighlight.remove();
-        }
+  // Remove o destaque anterior, se existir
+  const previousHighlight = document.querySelector('.highlight');
+  if (previousHighlight) {
+    previousHighlight.remove();
+  }
 
-        // Cria um novo destaque
-        const highlight = document.createElement('div');
-        highlight.classList.add('highlight');
+  // Remove o destaque selecionado anterior, se existir
+  const previousSelectedHighlight = document.querySelector('.selected-highlight');
+  if (previousSelectedHighlight) {
+    previousSelectedHighlight.remove();
+  }
 
-        // Converte as coordenadas para o formato correto de clip-path
-        const points = coords.split(',').map(Number);
+  // Cria um novo destaque
+  const highlight = document.createElement('div');
+  highlight.classList.add('highlight');
 
-        // Verifica se o número de pontos é par (X, Y pares) e faz a redução corretamente
-        let clipPathCoords = '';
-        for (let i = 0; i < points.length; i += 2) {
-          clipPathCoords += `${points[i]}px ${points[i + 1]}px, `;
-        }
-        clipPathCoords = clipPathCoords.slice(0, -2); // Remove a vírgula extra no final
+  // Converte as coordenadas para o formato correto de clip-path
+  const points = coords.split(',').map(Number);
 
-        // Aplica o estilo do clip-path para destacar a área selecionada
-        highlight.style.clipPath = `polygon(${clipPathCoords})`;
-        highlight.style.position = 'absolute';
-        highlight.style.top = '0';
-        highlight.style.left = '0';
-        highlight.style.width = '100%';
-        highlight.style.height = '100%';
-        highlight.style.background = 'rgba(255, 255, 255, 0.205)'; // Cor do destaque
-        highlight.style.pointerEvents = 'none';
+  // Verifica se o número de pontos é par (X, Y pares) e faz a redução corretamente
+  let clipPathCoords = '';
+  for (let i = 0; i < points.length; i += 2) {
+    clipPathCoords += `${points[i]}px ${points[i + 1]}px, `;
+  }
+  clipPathCoords = clipPathCoords.slice(0, -2); // Remove a vírgula extra no final
 
-        // Adiciona o destaque na silhueta
-        document.querySelector('.silhouette-container').appendChild(highlight);
-      }
+  // Aplica o estilo do clip-path para destacar a área selecionada
+  highlight.style.clipPath = `polygon(${clipPathCoords})`;
+  highlight.style.position = 'absolute';
+  highlight.style.top = '0';
+  highlight.style.left = '0';
+  highlight.style.width = '100%';
+  highlight.style.height = '100%';
+  highlight.style.background = 'rgba(255, 255, 255, 0.205)'; // Cor do destaque
+  highlight.style.pointerEvents = 'none';
+
+  // Adiciona o destaque na silhueta
+  document.querySelector('.silhouette-container').appendChild(highlight);
+}
 
       function removeHighlight() {
         const previousHighlight = document.querySelector('.highlight');
@@ -114,30 +120,35 @@
 
       // Função para selecionar a parte do corpo
       function selectPart(part, coords) {
-    console.log("Parte selecionada:", part);
+  console.log("Parte selecionada:", part);
 
-    addHighlight(coords);
+  // Adiciona destaque e mantém após a seleção
+  addHighlight(coords);
+  const highlight = document.querySelector('.highlight');
+  if (highlight) {
+    highlight.classList.add('selected-highlight');
+  }
 
-    // Esconder e redefinir os carrosséis
-    const carousels = document.querySelectorAll('.carousel-container');
-    carousels.forEach(carousel => {
-        carousel.classList.remove('visible');
-        const track = carousel.querySelector('.carousel-track');
-        track.innerHTML = '';
-    });
+  // Esconder e redefinir os carrosséis
+  const carousels = document.querySelectorAll('.carousel-container');
+  carousels.forEach(carousel => {
+    carousel.classList.remove('visible');
+    const track = carousel.querySelector('.carousel-track');
+    track.innerHTML = '';
+  });
 
-    // Expandir o main-container suavemente
-    const mainContainer = document.querySelector('.main-container');
-    mainContainer.classList.add('expanded-1');
-    mainContainer.style.maxHeight = '1000px'; // Definindo a altura para garantir uma expansão suave
+  // Expandir o main-container suavemente
+  const mainContainer = document.querySelector('.main-container');
+  mainContainer.classList.add('expanded-1');
+  mainContainer.style.maxHeight = '1000px'; // Definindo a altura para garantir uma expansão suave
 
-    // Mostrar o primeiro carrossel
-    const firstCarousel = document.getElementById('carousel-1');
-    if (firstCarousel) {
-        firstCarousel.classList.add('visible');
-    }
+  // Mostrar o primeiro carrossel
+  const firstCarousel = document.getElementById('carousel-1');
+  if (firstCarousel) {
+    firstCarousel.classList.add('visible');
+  }
 
-    loadCarrosselOptions(part, 'carousel-1');
+  loadCarrosselOptions(part, 'carousel-1');
 }
       // Função para carregar as opções do carrossel dinamicamente
       function loadCarrosselOptions(part, carouselId) {
@@ -162,6 +173,12 @@
           item.classList.add('carousel-item');
           item.innerHTML = `<span>${option}</span>`;
           item.addEventListener('click', () => {
+            // Adicionar indicação de seleção
+            document.querySelectorAll('.carousel-item.selected').forEach(selectedItem => {
+              selectedItem.classList.remove('selected');
+            });
+            item.classList.add('selected');
+
             loadNextCarousel(part, option, 'carousel-2'); // Carregar o próximo carrossel
           });
           track.appendChild(item);
@@ -172,38 +189,44 @@
 
       // Função para carregar o segundo carrossel com base na peça selecionada
       function loadNextCarousel(part, option, nextCarouselId) {
-    console.log('Opção selecionada no primeiro carrossel:', option);
+        console.log('Opção selecionada no primeiro carrossel:', option);
 
-    const nextCarousel = document.getElementById(nextCarouselId);
-    const track = nextCarousel.querySelector('.carousel-track');
-    track.innerHTML = '';  // Limpar o próximo carrossel
+        const nextCarousel = document.getElementById(nextCarouselId);
+        const track = nextCarousel.querySelector('.carousel-track');
+        track.innerHTML = '';  // Limpar o próximo carrossel
 
-    let options = data[part]?.tecido[option] || []; // Pegar os tipos de tecido do JSON baseado na peça escolhida
+        let options = data[part]?.tecido[option] || []; // Pegar os tipos de tecido do JSON baseado na peça escolhida
 
-    console.log('Opções para o segundo carrossel:', options);
+        console.log('Opções para o segundo carrossel:', options);
 
-    if (!options.length) {
-        console.error(`Nenhum tecido encontrado para a peça: ${option}`);
-        return;
-    }
+        if (!options.length) {
+          console.error(`Nenhum tecido encontrado para a peça: ${option}`);
+          return;
+        }
 
-    options.forEach(opt => {
-        const item = document.createElement('div');
-        item.classList.add('carousel-item');
-        item.innerHTML = `<span>${opt}</span>`;
-        track.appendChild(item);
-    });
+        options.forEach(opt => {
+          const item = document.createElement('div');
+          item.classList.add('carousel-item');
+          item.innerHTML = `<span>${opt}</span>`;
+          item.addEventListener('click', () => {
+            // Adicionar indicação de seleção
+            document.querySelectorAll('#' + nextCarouselId + ' .carousel-item.selected').forEach(selectedItem => {
+              selectedItem.classList.remove('selected');
+            });
+            item.classList.add('selected');
+          });
+          track.appendChild(item);
+        });
 
-    // Expandir ainda mais o main-container e permitir rolagem
-    const mainContainer = document.querySelector('.main-container');
-    mainContainer.classList.add('expanded-2');
-    mainContainer.style.maxHeight = 'none'; // Remover o limite para permitir rolagem
-    mainContainer.style.overflowY = 'auto'; // Permitir rolagem
+        // Expandir ainda mais o main-container e permitir rolagem
+        const mainContainer = document.querySelector('.main-container');
+        mainContainer.classList.add('expanded-2');
+        mainContainer.style.maxHeight = 'none'; // Remover o limite para permitir rolagem
+        mainContainer.style.overflowY = 'auto'; // Permitir rolagem
 
-    nextCarousel.classList.add('visible');
-    initializeCarousel(nextCarousel);
-}
-
+        nextCarousel.classList.add('visible');
+        initializeCarousel(nextCarousel);
+      }
 
       // Função para inicializar o carrossel com rolagem infinita e suave
       function initializeCarousel(carousel) {

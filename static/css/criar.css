@@ -26,7 +26,27 @@ body.criar-page {
   color: #fff; /* Ajuste para legibilidade */
 }
 
+/* Estilizar a barra de rolagem para navegadores que suportam ::-webkit-scrollbar */
+.main-container::-webkit-scrollbar {
+  width: 7px; /* Largura da barra de rolagem */
+}
 
+/* Estilizar a trilha da barra de rolagem */
+.main-container::-webkit-scrollbar-track {
+  background: #000; /* Fundo preto para a trilha da barra de rolagem */
+}
+
+/* Estilizar o polegar da barra de rolagem */
+.main-container::-webkit-scrollbar-thumb {
+  background: #66666699; /* Barra de rolagem cinza escuro */
+  border-radius: 0px;
+  opacity: 100%; /* Deixar o polegar arredondado */
+}
+
+/* Opcional: Estilo ao passar o mouse sobre a barra de rolagem */
+.main-container::-webkit-scrollbar-thumb:hover {
+  background: #555; /* Cor ligeiramente mais clara ao passar o mouse */
+}
 
 .main-container.expanded-1 {
   max-height: 600px; /* Expandir ao mostrar o primeiro carrossel */
@@ -36,6 +56,7 @@ body.criar-page {
   max-height: none; /* Permitir rolagem ao mostrar o segundo carrossel */
   overflow-y: auto;  /* Permitir rolagem interna */
 }
+
 .silhouette-container {
   position: relative;
   text-align: center;
@@ -58,6 +79,13 @@ body.criar-page {
   z-index: 10;
   pointer-events: none;
   background-color: rgba(255, 255, 255, 0.205);
+  transition: background-color 0.3s ease-in-out;
+}
+
+/* Manter o destaque após a seleção */
+.selected-highlight {
+  background-color: rgba(255, 255, 255, 0.4);
+  transition: background-color 0.3s ease-in-out;
 }
 
 /* Carrosséis */
@@ -106,7 +134,8 @@ body.criar-page {
 }
 
 .carousel-item.selected {
-  background-color: #ffffff;
+  background-color: #ffffff34;
+  color: #000000;
   transform: scale(1.1);
 }
 
