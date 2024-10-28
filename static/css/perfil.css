@@ -1,0 +1,184 @@
+/* Estilo global */
+html, body {
+    background-color: #333333;
+    margin: 0;
+    font-family: Arial, sans-serif;
+    color: #000000;
+    height: 100%;
+    overflow: hidden; /* Remove a rolagem */
+    box-sizing: border-box;
+}
+
+body {
+    padding-top: 100px; /* Compensação para o cabeçalho fixo */
+}
+
+/* Container da barra lateral esquerda (perfil) */
+.left-rectangle {
+    width: 30%;
+    height: calc(100vh - 130px); /* Altura da tela menos a altura do cabeçalho e margens */
+    float: left;
+    background-color: #444444;
+    box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1);
+    padding: 20px;
+    box-sizing: border-box;
+    border-radius: 0px;
+    margin: 0 30px 30px 30px; /* Margem uniforme de 30px */
+    overflow: hidden; /* Impede que conteúdo extra crie rolagem */
+}
+
+/* Container principal à direita */
+.right-rectangle {
+    width: 65%;
+    height: calc(100vh - 130px); /* Altura da tela menos a altura do cabeçalho e margens */
+    float: right;
+    background-color: #444444;
+    box-shadow: -2px 0 5px rgba(0, 0, 0, 0.1);
+    padding: 20px;
+    box-sizing: border-box;
+    border-radius: 0px;
+    margin: 0 30px 30px 0; /* Margem uniforme de 30px */
+    overflow: auto; /* Impede que conteúdo extra crie rolagem */
+}
+
+/* Conteúdo interno do container direito */
+.inside-right-rectangle {
+    display: flex;
+    justify-content: space-around;
+    margin-bottom: 20px;
+}
+
+.load-content {
+    color: #000000;
+    text-decoration: none;
+    font-weight: bold;
+    padding: 10px;
+    border-radius: 5px;
+    transition: background-color 0.3s ease;
+}
+
+.load-content:hover {
+    background-color: #7c7c7c;
+    color: #ffffff;
+}
+
+.content-right-rectangle {
+    padding: 25px;
+    background-color: #555555;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
+    border-radius: 8px;
+}
+
+/* Informações do perfil */
+.profile-container {
+    text-align: center;
+}
+
+.profile-header {
+    margin-bottom: 20px;
+    position: relative;
+}
+
+.profile-picture img {
+    width: 160px;
+    height: 160px;
+    border-radius: 0%;
+    border: 5px solid #bdbebf;
+    object-fit: cover;
+}
+
+/* Ícone de lápis para trocar foto */
+.profile-picture {
+    position: relative;
+    display: inline-block;
+}
+
+.profile-picture .edit-icon {
+    position: absolute;
+    bottom: 0;
+    right: 0;
+    background-color: #444444;
+    color: #ffffff;
+    border-radius: 0%;
+    padding: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+.profile-picture .edit-icon:hover {
+    background-color: #dddddd;
+}
+
+.username {
+    font-size: 1.5em;
+    font-weight: bold;
+    color: #ffffff;
+    margin-top: 10px;
+}
+
+/* Informações adicionais do perfil */
+.profile-info {
+    text-align: left;
+    font-size: 1em;
+    color: #cccccc;
+    line-height: 1.6;
+}
+
+.profile-info p {
+    margin: 10px 0;
+}
+
+.social-links {
+    margin-top: 20px;
+    display: flex;
+    justify-content: space-around;
+}
+
+.social-links a {
+    color: #afafaf;
+    text-decoration: none;
+    transition: color 0.3s ease;
+}
+
+.social-links a:hover {
+    color: #898989;
+}
+
+/* Responsividade */
+@media (max-width: 768px) {
+    .right-rectangle, .left-rectangle {
+        width: 100%;
+        float: none;
+        height: auto;
+        margin-bottom: 20px;
+    }
+
+    .profile-container {
+        margin-bottom: 20px;
+    }
+}
+
+/* Estilo da barra de rolagem para o main container */
+.main-container::-webkit-scrollbar {
+    width: 12px;
+}
+
+.main-container::-webkit-scrollbar-track {
+    background: #333333;
+    border-radius: 10px;
+}
+
+.main-container::-webkit-scrollbar-thumb {
+    background: #555555;
+    border-radius: 10px;
+    border: 3px solid #333333;
+}
+
+.main-container::-webkit-scrollbar-thumb:hover {
+    background: #777777;
+}
+
+.main-container {
+    scrollbar-width: thin; /* Firefox */
+    scrollbar-color: #555555 #333333; /* Firefox */
+}

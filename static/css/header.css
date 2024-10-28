@@ -16,7 +16,7 @@
 
 /* Espaçamento no body para compensar o header fixo */
 body {
-    padding-top: 100px; /* Valor ajustado de acordo com a altura do cabeçalho */
+    padding-top: 75px; /* Valor ajustado de acordo com a altura do cabeçalho */
 }
 
 .navbar-container {
