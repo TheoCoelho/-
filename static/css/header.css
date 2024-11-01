@@ -4,19 +4,34 @@
     top: 0;
     left: 0;
     width: 100%;
-    height: 100px; /* Altura total do cabeçalho */
-    background-color: transparent;
+    height: 75px; /* Reduzida para coincidir com a linha */
+    background-color: transparent; /* Fundo semi-transparente */
+    backdrop-filter: blur(10px); /* Define o desfoque */
     z-index: 1000;
     display: flex;
-    align-items: flex-start; /* Centraliza verticalmente mais para cima */
-    justify-content: space-between; /* Garante espaçamento horizontal adequado */
-    padding: 10px 20px; /* Reduzido para ajustar o espaçamento superior */
+    align-items: center; /* Centraliza verticalmente */
+    justify-content: space-between;
+    padding: 10px 20px;
     box-sizing: border-box;
 }
 
+/* Linha divisória */
+.navbar::after {
+    content: "";
+    position: absolute;
+    bottom: 0; /* Posiciona a linha na parte inferior do cabeçalho */
+    left: 60px; /* Margem da linha a partir da borda esquerda */
+    right: 60px; /* Margem da linha a partir da borda direita */
+    height: 3px;
+    background-color: #000000; /* Cor da linha divisória */
+    border-radius: 6px; /* Bordas arredondadas para um acabamento mais suave */
+}
+
+
+
 /* Espaçamento no body para compensar o header fixo */
 body {
-    padding-top: 75px; /* Valor ajustado de acordo com a altura do cabeçalho */
+    padding-top: 100px; /* Compensação ajustada para a altura do cabeçalho fixo */
 }
 
 .navbar-container {
@@ -192,14 +207,4 @@ body {
     }
 }
 
-/* Linha divisória */
-.navbar::after {
-    content: "";
-    position: absolute;
-    bottom: 35px; /* Posiciona a linha um pouco abaixo do conteúdo do cabeçalho */
-    left: 60px; /* Margem da linha a partir da borda esquerda */
-    right: 60px; /* Margem da linha a partir da borda direita */
-    height: 3px;
-    background-color: #000000; /* Cor da linha divisória */
-    border-radius: 6px; /* Bordas arredondadas para um acabamento mais suave */
-}
+

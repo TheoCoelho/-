@@ -57,255 +57,259 @@
   </div>
 
   <script>
-    document.addEventListener('DOMContentLoaded', () => {
-      let data; // Variável para armazenar os dados JSON carregados
+document.addEventListener('DOMContentLoaded', () => {
+  let data; // Variável para armazenar os dados JSON carregados
 
-      // Carregar o arquivo JSON com as opções e tecidos
-      fetch('/static/carrossel_opcoes.json')
-        .then(response => response.json())
-        .then(json => {
-          data = json; // Armazena os dados do JSON carregado
-          setupEventListeners(); // Configurar os eventos após o JSON ser carregado
-        })
-        .catch(error => console.error('Erro ao carregar o JSON:', error));
+  // Carregar o arquivo JSON com as opções e tecidos
+  fetch('/static/carrossel_opcoes.json')
+    .then(response => response.json())
+    .then(json => {
+      data = json; // Armazena os dados do JSON carregado
+      setupEventListeners(); // Configurar os eventos após o JSON ser carregado
+    })
+    .catch(error => console.error('Erro ao carregar o JSON:', error));
 
-      // Função para adicionar o destaque ao selecionar a área do corpo
-      function addHighlight(coords) {
-  // Remove o destaque anterior, se existir
-  const previousHighlight = document.querySelector('.highlight');
-  if (previousHighlight) {
-    previousHighlight.remove();
+  // Função para adicionar o destaque ao selecionar a área do corpo
+  function addHighlight(coords) {
+    const previousHighlight = document.querySelector('.highlight');
+    if (previousHighlight) {
+      previousHighlight.remove();
+    }
+    const previousSelectedHighlight = document.querySelector('.selected-highlight');
+    if (previousSelectedHighlight) {
+      previousSelectedHighlight.remove();
+    }
+
+    const highlight = document.createElement('div');
+    highlight.classList.add('highlight');
+    const points = coords.split(',').map(Number);
+    let clipPathCoords = '';
+    for (let i = 0; i < points.length; i += 2) {
+      clipPathCoords += `${points[i]}px ${points[i + 1]}px, `;
+    }
+    clipPathCoords = clipPathCoords.slice(0, -2);
+    highlight.style.clipPath = `polygon(${clipPathCoords})`;
+    highlight.style.position = 'absolute';
+    highlight.style.top = '0';
+    highlight.style.left = '0';
+    highlight.style.width = '100%';
+    highlight.style.height = '100%';
+    highlight.style.background = 'rgba(255, 255, 255, 0.205)';
+    highlight.style.pointerEvents = 'none';
+    document.querySelector('.silhouette-container').appendChild(highlight);
   }
 
-  // Remove o destaque selecionado anterior, se existir
-  const previousSelectedHighlight = document.querySelector('.selected-highlight');
-  if (previousSelectedHighlight) {
-    previousSelectedHighlight.remove();
+  function removeHighlight() {
+    const previousHighlight = document.querySelector('.highlight');
+    if (previousHighlight) {
+      previousHighlight.remove();
+    }
   }
 
-  // Cria um novo destaque
-  const highlight = document.createElement('div');
-  highlight.classList.add('highlight');
+  // Função para aplicar animação de retração e exibição dos carrosséis
+  function animateCarouselUpdate(carousel, callback) {
+    carousel.style.opacity = '1';
+    carousel.style.transform = 'translateY(0)';
+    carousel.style.transition = 'opacity 0.5s ease, transform 0.5s ease';
 
-  // Converte as coordenadas para o formato correto de clip-path
-  const points = coords.split(',').map(Number);
+    // Animação de retração
+    setTimeout(() => {
+      carousel.style.opacity = '0';
+      carousel.style.transform = 'translateY(-20px)';
+    }, 10);
 
-  // Verifica se o número de pontos é par (X, Y pares) e faz a redução corretamente
-  let clipPathCoords = '';
-  for (let i = 0; i < points.length; i += 2) {
-    clipPathCoords += `${points[i]}px ${points[i + 1]}px, `;
-  }
-  clipPathCoords = clipPathCoords.slice(0, -2); // Remove a vírgula extra no final
-
-  // Aplica o estilo do clip-path para destacar a área selecionada
-  highlight.style.clipPath = `polygon(${clipPathCoords})`;
-  highlight.style.position = 'absolute';
-  highlight.style.top = '0';
-  highlight.style.left = '0';
-  highlight.style.width = '100%';
-  highlight.style.height = '100%';
-  highlight.style.background = 'rgba(255, 255, 255, 0.205)'; // Cor do destaque
-  highlight.style.pointerEvents = 'none';
-
-  // Adiciona o destaque na silhueta
-  document.querySelector('.silhouette-container').appendChild(highlight);
-}
-
-      function removeHighlight() {
-        const previousHighlight = document.querySelector('.highlight');
-        if (previousHighlight) {
-          previousHighlight.remove();
-        }
-      }
-
-      // Função para selecionar a parte do corpo
-      function selectPart(part, coords) {
-  console.log("Parte selecionada:", part);
-
-  // Adiciona destaque e mantém após a seleção
-  addHighlight(coords);
-  const highlight = document.querySelector('.highlight');
-  if (highlight) {
-    highlight.classList.add('selected-highlight');
+    // Executa o callback após a animação de retração
+    setTimeout(() => {
+      if (callback) callback();
+      setTimeout(() => {
+        // Animação de surgimento
+        carousel.style.opacity = '1';
+        carousel.style.transform = 'translateY(20px)';
+      }, 10);
+    }, 500); // Tempo da animação de retração
   }
 
-  // Esconder e redefinir os carrosséis
-  const carousels = document.querySelectorAll('.carousel-container');
-  carousels.forEach(carousel => {
-    carousel.classList.remove('visible');
-    const track = carousel.querySelector('.carousel-track');
-    track.innerHTML = '';
-  });
+  // Função para selecionar a parte do corpo
+  function selectPart(part, coords) {
+    console.log("Parte selecionada:", part);
 
-  // Expandir o main-container suavemente
-  const mainContainer = document.querySelector('.main-container');
-  mainContainer.classList.add('expanded-1');
-  mainContainer.style.maxHeight = '1000px'; // Definindo a altura para garantir uma expansão suave
+    addHighlight(coords);
+    const highlight = document.querySelector('.highlight');
+    if (highlight) {
+      highlight.classList.add('selected-highlight');
+    }
 
-  // Mostrar o primeiro carrossel
-  const firstCarousel = document.getElementById('carousel-1');
-  if (firstCarousel) {
-    firstCarousel.classList.add('visible');
-  }
-
-  loadCarrosselOptions(part, 'carousel-1');
-}
-      // Função para carregar as opções do carrossel dinamicamente
-      function loadCarrosselOptions(part, carouselId) {
-        const carousel = document.getElementById(carouselId);
+    const carousels = document.querySelectorAll('.carousel-container');
+    carousels.forEach(carousel => {
+      animateCarouselUpdate(carousel, () => {
+        carousel.classList.remove('visible');
         const track = carousel.querySelector('.carousel-track');
-        track.innerHTML = '';  // Limpar o carrossel
-
-        console.log('Dados carregados:', data);
-        console.log('Parte selecionada:', part);
-
-        let options = data[part]?.opcoes || []; // Pegar as opções do JSON baseado na parte do corpo
-
-        console.log('Opções encontradas:', options);
-
-        if (!options.length) {
-          console.error(`Nenhuma opção encontrada para a parte: ${part}`);
-          return;
-        }
-
-        options.forEach(option => {
-          const item = document.createElement('div');
-          item.classList.add('carousel-item');
-          item.innerHTML = `<span>${option}</span>`;
-          item.addEventListener('click', () => {
-            // Adicionar indicação de seleção
-            document.querySelectorAll('.carousel-item.selected').forEach(selectedItem => {
-              selectedItem.classList.remove('selected');
-            });
-            item.classList.add('selected');
-
-            loadNextCarousel(part, option, 'carousel-2'); // Carregar o próximo carrossel
-          });
-          track.appendChild(item);
-        });
-
-        initializeCarousel(carousel);
-      }
-
-      // Função para carregar o segundo carrossel com base na peça selecionada
-      function loadNextCarousel(part, option, nextCarouselId) {
-        console.log('Opção selecionada no primeiro carrossel:', option);
-
-        const nextCarousel = document.getElementById(nextCarouselId);
-        const track = nextCarousel.querySelector('.carousel-track');
-        track.innerHTML = '';  // Limpar o próximo carrossel
-
-        let options = data[part]?.tecido[option] || []; // Pegar os tipos de tecido do JSON baseado na peça escolhida
-
-        console.log('Opções para o segundo carrossel:', options);
-
-        if (!options.length) {
-          console.error(`Nenhum tecido encontrado para a peça: ${option}`);
-          return;
-        }
-
-        options.forEach(opt => {
-          const item = document.createElement('div');
-          item.classList.add('carousel-item');
-          item.innerHTML = `<span>${opt}</span>`;
-          item.addEventListener('click', () => {
-            // Adicionar indicação de seleção
-            document.querySelectorAll('#' + nextCarouselId + ' .carousel-item.selected').forEach(selectedItem => {
-              selectedItem.classList.remove('selected');
-            });
-            item.classList.add('selected');
-          });
-          track.appendChild(item);
-        });
-
-        // Expandir ainda mais o main-container e permitir rolagem
-        const mainContainer = document.querySelector('.main-container');
-        mainContainer.classList.add('expanded-2');
-        mainContainer.style.maxHeight = 'none'; // Remover o limite para permitir rolagem
-        mainContainer.style.overflowY = 'auto'; // Permitir rolagem
-
-        nextCarousel.classList.add('visible');
-        initializeCarousel(nextCarousel);
-      }
-
-      // Função para inicializar o carrossel com rolagem infinita e suave
-      function initializeCarousel(carousel) {
-        const track = carousel.querySelector('.carousel-track');
-        const prevButton = carousel.querySelector('.carousel-control.prev');
-        const nextButton = carousel.querySelector('.carousel-control.next');
-        let isMoving = false;
-
-        // Remover event listeners existentes
-        prevButton.replaceWith(prevButton.cloneNode(true));
-        nextButton.replaceWith(nextButton.cloneNode(true));
-
-        const newPrevButton = carousel.querySelector('.carousel-control.prev');
-        const newNextButton = carousel.querySelector('.carousel-control.next');
-
-        function updateCarousel(offset) {
-          track.style.transition = 'transform 0.5s ease-in-out';
-          track.style.transform = `translateX(${offset}px)`;
-        }
-
-        function moveToEnd() {
-          const firstItem = track.firstElementChild;
-          track.appendChild(firstItem);
-          track.style.transition = 'none';
-          track.style.transform = 'translateX(0)';
-          requestAnimationFrame(() => {
-            isMoving = false;
-          });
-        }
-
-        function moveToStart() {
-          const lastItem = track.lastElementChild;
-          const itemWidth = lastItem.offsetWidth + 20; // Ajuste para a margem/padding
-          track.style.transition = 'none';
-          track.style.transform = `translateX(${-itemWidth}px)`;
-          track.prepend(lastItem);
-          requestAnimationFrame(() => {
-            track.style.transition = 'transform 0.5s ease-in-out';
-            updateCarousel(0);
-          });
-        }
-
-        newNextButton.addEventListener('click', () => {
-          if (isMoving) return;
-          isMoving = true;
-          const itemWidth = track.firstElementChild.offsetWidth + 20;
-          updateCarousel(-itemWidth);
-          track.addEventListener('transitionend', () => {
-            moveToEnd();
-          }, { once: true });
-        });
-
-        newPrevButton.addEventListener('click', () => {
-          if (isMoving) return;
-          isMoving = true;
-          moveToStart();
-          track.addEventListener('transitionend', () => {
-            isMoving = false;
-          }, { once: true });
-        });
-      }
-
-      // Funções globais
-      window.selectPart = (part, coords) => selectPart(part, coords);
-      window.highlightArea = (coords) => addHighlight(coords);
-      window.removeHighlight = () => removeHighlight();
-
-      // Função para garantir que os eventos só sejam ativados após carregar o JSON
-      function setupEventListeners() {
-        const mapAreas = document.querySelectorAll('area');
-        mapAreas.forEach(area => {
-          area.addEventListener('click', (event) => {
-            const part = event.target.getAttribute('alt').toLowerCase();
-            const coords = event.target.getAttribute('coords');
-            selectPart(part, coords);
-          });
-        });
-      }
+        track.innerHTML = '';
+      });
     });
+
+    const firstCarousel = document.getElementById('carousel-1');
+    if (firstCarousel) {
+      animateCarouselUpdate(firstCarousel, () => {
+        loadCarrosselOptions(part, 'carousel-1');
+      });
+    }
+  }
+
+  // Função para carregar as opções do carrossel dinamicamente
+  function loadCarrosselOptions(part, carouselId) {
+    const carousel = document.getElementById(carouselId);
+    const track = carousel.querySelector('.carousel-track');
+    track.innerHTML = '';  // Limpar o carrossel
+
+    console.log('Dados carregados:', data);
+    console.log('Parte selecionada:', part);
+
+    let options = data[part]?.opcoes || []; // Pegar as opções do JSON baseado na parte do corpo
+
+    console.log('Opções encontradas:', options);
+
+    if (!options.length) {
+      console.error(`Nenhuma opção encontrada para a parte: ${part}`);
+      return;
+    }
+
+    options.forEach(option => {
+      const item = document.createElement('div');
+      item.classList.add('carousel-item');
+      item.innerHTML = `<span>${option}</span>`;
+      item.addEventListener('click', () => {
+        document.querySelectorAll('.carousel-item.selected').forEach(selectedItem => {
+          selectedItem.classList.remove('selected');
+        });
+        item.classList.add('selected');
+
+        const nextCarousel = document.getElementById('carousel-2');
+        if (nextCarousel) {
+          animateCarouselUpdate(nextCarousel, () => {
+            loadNextCarousel(part, option, 'carousel-2');
+          });
+        }
+      });
+      track.appendChild(item);
+    });
+
+    carousel.classList.add('visible');
+    initializeCarousel(carousel);
+  }
+
+  // Função para carregar o segundo carrossel com base na peça selecionada
+  function loadNextCarousel(part, option, nextCarouselId) {
+    console.log('Opção selecionada no primeiro carrossel:', option);
+
+    const nextCarousel = document.getElementById(nextCarouselId);
+    const track = nextCarousel.querySelector('.carousel-track');
+    track.innerHTML = '';  // Limpar o próximo carrossel
+
+    let options = data[part]?.tecido[option] || [];
+
+    console.log('Opções para o segundo carrossel:', options);
+
+    if (!options.length) {
+      console.error(`Nenhum tecido encontrado para a peça: ${option}`);
+      return;
+    }
+
+    options.forEach(opt => {
+      const item = document.createElement('div');
+      item.classList.add('carousel-item');
+      item.innerHTML = `<span>${opt}</span>`;
+      item.addEventListener('click', () => {
+        document.querySelectorAll('#' + nextCarouselId + ' .carousel-item.selected').forEach(selectedItem => {
+          selectedItem.classList.remove('selected');
+        });
+        item.classList.add('selected');
+      });
+      track.appendChild(item);
+    });
+
+    animateCarouselUpdate(nextCarousel, () => {
+      nextCarousel.classList.add('visible');
+    });
+    initializeCarousel(nextCarousel);
+  }
+
+  // Função para inicializar o carrossel com rolagem infinita e suave
+  function initializeCarousel(carousel) {
+    const track = carousel.querySelector('.carousel-track');
+    const prevButton = carousel.querySelector('.carousel-control.prev');
+    const nextButton = carousel.querySelector('.carousel-control.next');
+    let isMoving = false;
+
+    prevButton.replaceWith(prevButton.cloneNode(true));
+    nextButton.replaceWith(nextButton.cloneNode(true));
+
+    const newPrevButton = carousel.querySelector('.carousel-control.prev');
+    const newNextButton = carousel.querySelector('.carousel-control.next');
+
+    function updateCarousel(offset) {
+      track.style.transition = 'transform 0.5s ease-in-out';
+      track.style.transform = `translateX(${offset}px)`;
+    }
+
+    function moveToEnd() {
+      const firstItem = track.firstElementChild;
+      track.appendChild(firstItem);
+      track.style.transition = 'none';
+      track.style.transform = 'translateX(0)';
+      requestAnimationFrame(() => {
+        isMoving = false;
+      });
+    }
+
+    function moveToStart() {
+      const lastItem = track.lastElementChild;
+      const itemWidth = lastItem.offsetWidth + 20;
+      track.style.transition = 'none';
+      track.style.transform = `translateX(${-itemWidth}px)`;
+      track.prepend(lastItem);
+      requestAnimationFrame(() => {
+        track.style.transition = 'transform 0.5s ease-in-out';
+        updateCarousel(0);
+      });
+    }
+
+    newNextButton.addEventListener('click', () => {
+      if (isMoving) return;
+      isMoving = true;
+      const itemWidth = track.firstElementChild.offsetWidth + 20;
+      updateCarousel(-itemWidth);
+      track.addEventListener('transitionend', () => {
+        moveToEnd();
+      }, { once: true });
+    });
+
+    newPrevButton.addEventListener('click', () => {
+      if (isMoving) return;
+      isMoving = true;
+      moveToStart();
+      track.addEventListener('transitionend', () => {
+        isMoving = false;
+      }, { once: true });
+    });
+  }
+
+  window.selectPart = (part, coords) => selectPart(part, coords);
+  window.highlightArea = (coords) => addHighlight(coords);
+  window.removeHighlight = () => removeHighlight();
+
+  function setupEventListeners() {
+    const mapAreas = document.querySelectorAll('area');
+    mapAreas.forEach(area => {
+      area.addEventListener('click', (event) => {
+        const part = event.target.getAttribute('alt').toLowerCase();
+        const coords = event.target.getAttribute('coords');
+        selectPart(part, coords);
+      });
+    });
+  }
+});
+
   </script>
 </body>
 
