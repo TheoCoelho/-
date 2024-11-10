@@ -45,7 +45,7 @@ def atualizar_perfil(app):
     return redirect("/login")
 
 def design_page():
-    return render_template("design.html")
+    return render_template("meusdesign.html")
 
 def favoritos_page():
     return render_template("favoritos.html")

@@ -41,13 +41,7 @@ html, body {
     border-bottom: 1px solid #555;
 }
 
-.profile-img {
-    width: 50px;
-    height: 50px;
-    border-radius: 50%;
-    margin-right: 15px;
-    border: 2px solid #bdbebf;
-}
+
 
 .post-content h3 {
     font-size: 1.2em;

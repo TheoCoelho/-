@@ -64,7 +64,7 @@ def descurtir(post_id):
         descurtir_post(post_id, session["username"])
     return jsonify(success=True)
 
-@app.route("/design")
+@app.route("/meusdesign")
 def design():
     return design_page()
 
@@ -184,6 +184,10 @@ def get_carrossel_options(part):
         return jsonify(data[part])
     else:
         return jsonify({"error": "Part not found"}), 404
+    
+@app.route('/design')
+def design_route():
+    return render_template('design.html')
 
 if __name__ == "__main__":
     with app.app_context():

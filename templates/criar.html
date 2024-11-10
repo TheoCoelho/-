@@ -54,7 +54,11 @@
       <button class="carousel-control prev">&#10094;</button>
       <button class="carousel-control next">&#10095;</button>
     </div>
+    <div class="confirmation-container">
+      <button id="confirmButton" class="confirm-button" style="display: none;">Confirmar</button>
+    </div>
   </div>
+
 
   <script>
 document.addEventListener('DOMContentLoaded', () => {
@@ -68,6 +72,13 @@ document.addEventListener('DOMContentLoaded', () => {
       setupEventListeners(); // Configurar os eventos após o JSON ser carregado
     })
     .catch(error => console.error('Erro ao carregar o JSON:', error));
+
+  const confirmButton = document.getElementById('confirmButton');
+
+  // Adicionar evento de clique para redirecionar ao clicar no botão de confirmação
+  confirmButton.addEventListener('click', () => {
+    window.location.href = '/design'; // Redireciona para a rota design
+  });
 
   // Função para adicionar o destaque ao selecionar a área do corpo
   function addHighlight(coords) {
@@ -106,30 +117,25 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   }
 
-  // Função para aplicar animação de retração e exibição dos carrosséis
   function animateCarouselUpdate(carousel, callback) {
     carousel.style.opacity = '1';
     carousel.style.transform = 'translateY(0)';
     carousel.style.transition = 'opacity 0.5s ease, transform 0.5s ease';
 
-    // Animação de retração
     setTimeout(() => {
       carousel.style.opacity = '0';
       carousel.style.transform = 'translateY(-20px)';
     }, 10);
 
-    // Executa o callback após a animação de retração
     setTimeout(() => {
       if (callback) callback();
       setTimeout(() => {
-        // Animação de surgimento
         carousel.style.opacity = '1';
         carousel.style.transform = 'translateY(20px)';
       }, 10);
-    }, 500); // Tempo da animação de retração
+    }, 500);
   }
 
-  // Função para selecionar a parte do corpo
   function selectPart(part, coords) {
     console.log("Parte selecionada:", part);
 
@@ -152,20 +158,20 @@ document.addEventListener('DOMContentLoaded', () => {
     if (firstCarousel) {
       animateCarouselUpdate(firstCarousel, () => {
         loadCarrosselOptions(part, 'carousel-1');
+        confirmButton.style.display = 'none'; // Esconder o botão ao mudar a parte
       });
     }
   }
 
-  // Função para carregar as opções do carrossel dinamicamente
   function loadCarrosselOptions(part, carouselId) {
     const carousel = document.getElementById(carouselId);
     const track = carousel.querySelector('.carousel-track');
-    track.innerHTML = '';  // Limpar o carrossel
+    track.innerHTML = '';
 
     console.log('Dados carregados:', data);
     console.log('Parte selecionada:', part);
 
-    let options = data[part]?.opcoes || []; // Pegar as opções do JSON baseado na parte do corpo
+    let options = data[part]?.opcoes || [];
 
     console.log('Opções encontradas:', options);
 
@@ -198,13 +204,12 @@ document.addEventListener('DOMContentLoaded', () => {
     initializeCarousel(carousel);
   }
 
-  // Função para carregar o segundo carrossel com base na peça selecionada
   function loadNextCarousel(part, option, nextCarouselId) {
     console.log('Opção selecionada no primeiro carrossel:', option);
 
     const nextCarousel = document.getElementById(nextCarouselId);
     const track = nextCarousel.querySelector('.carousel-track');
-    track.innerHTML = '';  // Limpar o próximo carrossel
+    track.innerHTML = '';
 
     let options = data[part]?.tecido[option] || [];
 
@@ -224,6 +229,7 @@ document.addEventListener('DOMContentLoaded', () => {
           selectedItem.classList.remove('selected');
         });
         item.classList.add('selected');
+        confirmButton.style.display = 'block'; // Mostrar o botão de confirmação ao selecionar a última opção
       });
       track.appendChild(item);
     });
@@ -234,7 +240,6 @@ document.addEventListener('DOMContentLoaded', () => {
     initializeCarousel(nextCarousel);
   }
 
-  // Função para inicializar o carrossel com rolagem infinita e suave
   function initializeCarousel(carousel) {
     const track = carousel.querySelector('.carousel-track');
     const prevButton = carousel.querySelector('.carousel-control.prev');
@@ -309,6 +314,7 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 });
+
 
   </script>
 </body>
