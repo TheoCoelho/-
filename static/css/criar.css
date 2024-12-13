@@ -16,6 +16,7 @@ body.criar-page {
   left: 50%;
   transform: translateX(-50%);
   width: 90%;
+  max-height: 100vh;
   max-width: 1200px;
   height: calc(100vh - 120px);
   overflow-y: auto;
@@ -26,6 +27,8 @@ body.criar-page {
   color: #fff;
   scrollbar-width: thin; /* Para navegadores compatíveis com esse padrão (Firefox) */
   scrollbar-color: #66666699 #000; /* Cor do polegar e do track */
+  padding-bottom: 20px;
+
 }
 
 /* Estilizar a barra de rolagem para navegadores que suportam ::-webkit-scrollbar */
@@ -95,19 +98,19 @@ body.criar-page {
   width: 90%;
   max-width: 660px;
   overflow: hidden;
-  border-radius: 10px;
   margin: 20px auto;
-  opacity: 1;
-  transform: translateY(0);
-  pointer-events: none;
+  margin-bottom: 20px; 
+  opacity: 0;
+  transform: translateY(-20px);
   transition: opacity 0.5s ease, transform 0.5s ease;
 }
 
 .carousel-container.visible {
   opacity: 1;
   transform: translateY(0);
-  pointer-events: all;
+  display: block; /* ADICIONE ESSA LINHA */
 }
+
 
 .carousel-track {
   display: flex;
@@ -197,6 +200,15 @@ body.criar-page {
   background-color: #ffffff66; /* Cor de destaque ao passar o mouse */
   transform: scale(1.05); /* Aumenta levemente o botão ao passar o mouse */
 }
+#carousel-modelo {
+  margin-top: 20px;
+}
+
+#carousel-modelo .carousel-item {
+  text-align: center;
+  padding: 10px;
+}
+
 
 @media (max-width: 768px) {
   .carousel-item {

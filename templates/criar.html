@@ -48,6 +48,13 @@
       <button class="carousel-control prev">&#10094;</button>
       <button class="carousel-control next">&#10095;</button>
     </div>
+    <!-- Novo carrossel para modelos de camisetas -->
+    <div class="carousel-container" id="carousel-modelo" style="display: none;">
+      <div class="carousel-track"></div>
+      <button class="carousel-control prev">&#10094;</button>
+      <button class="carousel-control next">&#10095;</button>
+    </div>
+
 
     <div class="carousel-container" id="carousel-2">
       <div class="carousel-track"></div>
@@ -61,259 +68,257 @@
 
 
   <script>
-document.addEventListener('DOMContentLoaded', () => {
-  let data; // Variável para armazenar os dados JSON carregados
 
-  // Carregar o arquivo JSON com as opções e tecidos
-  fetch('/static/carrossel_opcoes.json')
-    .then(response => response.json())
-    .then(json => {
-      data = json; // Armazena os dados do JSON carregado
-      setupEventListeners(); // Configurar os eventos após o JSON ser carregado
+let data;
+
+// Função para inicializar o sistema após carregar o JSON
+document.addEventListener("DOMContentLoaded", () => {
+  fetch("/static/carrossel_opcoes.json")
+    .then((response) => response.json())
+    .then((json) => {
+      data = json;
+      setupEventListeners();
     })
-    .catch(error => console.error('Erro ao carregar o JSON:', error));
+    .catch((error) => console.error("Erro ao carregar o JSON:", error));
 
-  const confirmButton = document.getElementById('confirmButton');
+  document.getElementById("confirmButton").addEventListener("click", () => {
+    window.location.href = "/design";
+  });
+});
 
-  // Adicionar evento de clique para redirecionar ao clicar no botão de confirmação
-  confirmButton.addEventListener('click', () => {
-    window.location.href = '/design'; // Redireciona para a rota design
+// Reseta os carrosséis e esconde o botão de confirmação
+function resetCarousels(callback = null) {
+  const carousels = document.querySelectorAll(".carousel-container.visible");
+
+  if (carousels.length === 0 && callback) {
+    callback(); // Se nenhum carrossel estiver visível, chama o callback imediatamente
+    return;
+  }
+
+  let completedAnimations = 0;
+
+  carousels.forEach((carousel) => {
+    animateCarousel(carousel, false, () => {
+      carousel.querySelector(".carousel-track").innerHTML = "";
+      completedAnimations++;
+
+      // Chama o callback após todas as animações terminarem
+      if (completedAnimations === carousels.length && callback) {
+        callback();
+      }
+    });
+  });
+}
+
+
+function selectPart(part, coords) {
+  resetCarousels(() => {
+    highlightArea(coords); // Destaca a área somente após o reset
+    loadCarouselOptions(part, "carousel-1");
+  });
+}
+
+
+// Adiciona o destaque à área selecionada
+function highlightArea(coords) {
+  const previousHighlight = document.querySelector(".highlight");
+  if (previousHighlight) {
+    previousHighlight.remove();
+  }
+
+  const highlight = document.createElement("div");
+  highlight.classList.add("highlight");
+  const points = coords.split(",").map(Number);
+  let clipPathCoords = "";
+  for (let i = 0; i < points.length; i += 2) {
+    clipPathCoords += `${points[i]}px ${points[i + 1]}px, `;
+  }
+  clipPathCoords = clipPathCoords.slice(0, -2);
+  highlight.style.clipPath = `polygon(${clipPathCoords})`;
+  highlight.style.position = "absolute";
+  highlight.style.top = "0";
+  highlight.style.left = "0";
+  highlight.style.width = "100%";
+  highlight.style.height = "100%";
+  highlight.style.background = "rgba(255, 255, 255, 0.205)";
+  highlight.style.pointerEvents = "none";
+  document.querySelector(".silhouette-container").appendChild(highlight);
+}
+
+// Remove o destaque de uma área selecionada anteriormente
+function removeHighlight() {
+  const highlight = document.querySelector(".highlight");
+  if (highlight) {
+    highlight.remove();
+  }
+}
+
+// Carrega as opções do carrossel para a parte selecionada
+function loadCarouselOptions(part, carouselId) {
+  const carousel = document.getElementById(carouselId);
+  const track = carousel.querySelector(".carousel-track");
+  const options = data[part]?.opcoes || [];
+
+  track.innerHTML = ""; // Limpa antes de preencher
+
+  if (options.length === 0) {
+    console.error(`Nenhuma opção encontrada para a parte: ${part}`);
+    return;
+  }
+
+  options.forEach((option) => {
+    const item = document.createElement("div");
+    item.className = "carousel-item";
+    item.textContent = option;
+    item.addEventListener("click", () => handleOptionSelection(part, option, item));
+    track.appendChild(item);
   });
 
-  // Função para adicionar o destaque ao selecionar a área do corpo
-  function addHighlight(coords) {
-    const previousHighlight = document.querySelector('.highlight');
-    if (previousHighlight) {
-      previousHighlight.remove();
-    }
-    const previousSelectedHighlight = document.querySelector('.selected-highlight');
-    if (previousSelectedHighlight) {
-      previousSelectedHighlight.remove();
-    }
+  animateCarousel(carousel, true); // Garante que o carrossel seja exibido
+}
 
-    const highlight = document.createElement('div');
-    highlight.classList.add('highlight');
-    const points = coords.split(',').map(Number);
-    let clipPathCoords = '';
-    for (let i = 0; i < points.length; i += 2) {
-      clipPathCoords += `${points[i]}px ${points[i + 1]}px, `;
-    }
-    clipPathCoords = clipPathCoords.slice(0, -2);
-    highlight.style.clipPath = `polygon(${clipPathCoords})`;
-    highlight.style.position = 'absolute';
-    highlight.style.top = '0';
-    highlight.style.left = '0';
-    highlight.style.width = '100%';
-    highlight.style.height = '100%';
-    highlight.style.background = 'rgba(255, 255, 255, 0.205)';
-    highlight.style.pointerEvents = 'none';
-    document.querySelector('.silhouette-container').appendChild(highlight);
-  }
 
-  function removeHighlight() {
-    const previousHighlight = document.querySelector('.highlight');
-    if (previousHighlight) {
-      previousHighlight.remove();
-    }
-  }
+// Lida com a seleção de opções no primeiro carrossel
+function handleOptionSelection(part, option, clickedItem) {
+  // Remove seleções anteriores
+  document.querySelectorAll(".carousel-item.selected").forEach((item) => {
+    item.classList.remove("selected");
+  });
+  clickedItem.classList.add("selected");
 
-  function animateCarouselUpdate(carousel, callback) {
-    carousel.style.opacity = '1';
-    carousel.style.transform = 'translateY(0)';
-    carousel.style.transition = 'opacity 0.5s ease, transform 0.5s ease';
+  const details = data[part]?.detalhes?.[option];
+  const secondCarousel = document.getElementById("carousel-2");
+
+  // Oculta o segundo carrossel antes de atualizar suas opções
+  animateCarousel(secondCarousel, false, () => {
+    const secondTrack = secondCarousel.querySelector(".carousel-track");
+    secondTrack.innerHTML = "";
+
+    if (details) {
+      details.forEach((detail) => {
+        const item = document.createElement("div");
+        item.className = "carousel-item";
+        item.textContent = detail;
+
+        item.addEventListener("click", () => {
+          document
+            .querySelectorAll("#carousel-2 .carousel-item.selected")
+            .forEach((selectedItem) => selectedItem.classList.remove("selected"));
+          item.classList.add("selected");
+          document.getElementById("confirmButton").style.display = "block";
+        });
+
+        secondTrack.appendChild(item);
+      });
+
+      // Exibe o segundo carrossel com a nova animação
+      animateCarousel(secondCarousel, true);
+    } else {
+      document.getElementById("confirmButton").style.display = "block";
+    }
+  });
+}
+
+
+// Animação do carrossel para surgimento e desaparecimento
+function animateCarousel(carousel, show, callback = null) {
+  if (show) {
+    carousel.classList.add("visible");
+    carousel.style.opacity = "0";
+    carousel.style.transform = "translateY(-20px)";
 
     setTimeout(() => {
-      carousel.style.opacity = '0';
-      carousel.style.transform = 'translateY(-20px)';
-    }, 10);
-
-    setTimeout(() => {
+      carousel.style.opacity = "1";
+      carousel.style.transform = "translateY(0)";
+      carousel.style.transition = "opacity 0.5s ease, transform 0.5s ease";
       if (callback) callback();
-      setTimeout(() => {
-        carousel.style.opacity = '1';
-        carousel.style.transform = 'translateY(20px)';
-      }, 10);
+    }, 10);
+  } else {
+    carousel.style.opacity = "0";
+    carousel.style.transform = "translateY(-20px)";
+    carousel.style.transition = "opacity 0.5s ease, transform 0.5s ease";
+
+    setTimeout(() => {
+      carousel.classList.remove("visible");
+      carousel.style.transition = "none";
+      if (callback) callback();
     }, 500);
   }
+}
 
-  function selectPart(part, coords) {
-    console.log("Parte selecionada:", part);
 
-    addHighlight(coords);
-    const highlight = document.querySelector('.highlight');
-    if (highlight) {
-      highlight.classList.add('selected-highlight');
-    }
 
-    const carousels = document.querySelectorAll('.carousel-container');
-    carousels.forEach(carousel => {
-      animateCarouselUpdate(carousel, () => {
-        carousel.classList.remove('visible');
-        const track = carousel.querySelector('.carousel-track');
-        track.innerHTML = '';
-      });
+// Inicializa os controles de rolagem infinita do carrossel
+function initializeCarousel(carousel) {
+  const track = carousel.querySelector(".carousel-track");
+  const prevButton = carousel.querySelector(".carousel-control.prev");
+  const nextButton = carousel.querySelector(".carousel-control.next");
+  let isMoving = false;
+
+  prevButton.replaceWith(prevButton.cloneNode(true));
+  nextButton.replaceWith(nextButton.cloneNode(true));
+
+  const newPrevButton = carousel.querySelector(".carousel-control.prev");
+  const newNextButton = carousel.querySelector(".carousel-control.next");
+
+  // Move o primeiro item para o final
+  function moveToEnd() {
+    const firstItem = track.firstElementChild;
+    track.appendChild(firstItem);
+    track.style.transition = "none";
+    track.style.transform = "translateX(0)";
+    requestAnimationFrame(() => {
+      isMoving = false;
     });
-
-    const firstCarousel = document.getElementById('carousel-1');
-    if (firstCarousel) {
-      animateCarouselUpdate(firstCarousel, () => {
-        loadCarrosselOptions(part, 'carousel-1');
-        confirmButton.style.display = 'none'; // Esconder o botão ao mudar a parte
-      });
-    }
   }
 
-  function loadCarrosselOptions(part, carouselId) {
-    const carousel = document.getElementById(carouselId);
-    const track = carousel.querySelector('.carousel-track');
-    track.innerHTML = '';
-
-    console.log('Dados carregados:', data);
-    console.log('Parte selecionada:', part);
-
-    let options = data[part]?.opcoes || [];
-
-    console.log('Opções encontradas:', options);
-
-    if (!options.length) {
-      console.error(`Nenhuma opção encontrada para a parte: ${part}`);
-      return;
-    }
-
-    options.forEach(option => {
-      const item = document.createElement('div');
-      item.classList.add('carousel-item');
-      item.innerHTML = `<span>${option}</span>`;
-      item.addEventListener('click', () => {
-        document.querySelectorAll('.carousel-item.selected').forEach(selectedItem => {
-          selectedItem.classList.remove('selected');
-        });
-        item.classList.add('selected');
-
-        const nextCarousel = document.getElementById('carousel-2');
-        if (nextCarousel) {
-          animateCarouselUpdate(nextCarousel, () => {
-            loadNextCarousel(part, option, 'carousel-2');
-          });
-        }
-      });
-      track.appendChild(item);
+  // Move o último item para o início
+  function moveToStart() {
+    const lastItem = track.lastElementChild;
+    const itemWidth = lastItem.offsetWidth + 20;
+    track.style.transition = "none";
+    track.style.transform = `translateX(${-itemWidth}px)`;
+    track.prepend(lastItem);
+    requestAnimationFrame(() => {
+      track.style.transition = "transform 0.5s ease-in-out";
+      track.style.transform = "translateX(0)";
     });
-
-    carousel.classList.add('visible');
-    initializeCarousel(carousel);
   }
 
-  function loadNextCarousel(part, option, nextCarouselId) {
-    console.log('Opção selecionada no primeiro carrossel:', option);
-
-    const nextCarousel = document.getElementById(nextCarouselId);
-    const track = nextCarousel.querySelector('.carousel-track');
-    track.innerHTML = '';
-
-    let options = data[part]?.tecido[option] || [];
-
-    console.log('Opções para o segundo carrossel:', options);
-
-    if (!options.length) {
-      console.error(`Nenhum tecido encontrado para a peça: ${option}`);
-      return;
-    }
-
-    options.forEach(opt => {
-      const item = document.createElement('div');
-      item.classList.add('carousel-item');
-      item.innerHTML = `<span>${opt}</span>`;
-      item.addEventListener('click', () => {
-        document.querySelectorAll('#' + nextCarouselId + ' .carousel-item.selected').forEach(selectedItem => {
-          selectedItem.classList.remove('selected');
-        });
-        item.classList.add('selected');
-        confirmButton.style.display = 'block'; // Mostrar o botão de confirmação ao selecionar a última opção
-      });
-      track.appendChild(item);
-    });
-
-    animateCarouselUpdate(nextCarousel, () => {
-      nextCarousel.classList.add('visible');
-    });
-    initializeCarousel(nextCarousel);
-  }
-
-  function initializeCarousel(carousel) {
-    const track = carousel.querySelector('.carousel-track');
-    const prevButton = carousel.querySelector('.carousel-control.prev');
-    const nextButton = carousel.querySelector('.carousel-control.next');
-    let isMoving = false;
-
-    prevButton.replaceWith(prevButton.cloneNode(true));
-    nextButton.replaceWith(nextButton.cloneNode(true));
-
-    const newPrevButton = carousel.querySelector('.carousel-control.prev');
-    const newNextButton = carousel.querySelector('.carousel-control.next');
-
-    function updateCarousel(offset) {
-      track.style.transition = 'transform 0.5s ease-in-out';
-      track.style.transform = `translateX(${offset}px)`;
-    }
-
-    function moveToEnd() {
-      const firstItem = track.firstElementChild;
-      track.appendChild(firstItem);
-      track.style.transition = 'none';
-      track.style.transform = 'translateX(0)';
-      requestAnimationFrame(() => {
-        isMoving = false;
-      });
-    }
-
-    function moveToStart() {
-      const lastItem = track.lastElementChild;
-      const itemWidth = lastItem.offsetWidth + 20;
-      track.style.transition = 'none';
-      track.style.transform = `translateX(${-itemWidth}px)`;
-      track.prepend(lastItem);
-      requestAnimationFrame(() => {
-        track.style.transition = 'transform 0.5s ease-in-out';
-        updateCarousel(0);
-      });
-    }
-
-    newNextButton.addEventListener('click', () => {
-      if (isMoving) return;
-      isMoving = true;
-      const itemWidth = track.firstElementChild.offsetWidth + 20;
-      updateCarousel(-itemWidth);
-      track.addEventListener('transitionend', () => {
+  newNextButton.addEventListener("click", () => {
+    if (isMoving) return;
+    isMoving = true;
+    const itemWidth = track.firstElementChild.offsetWidth + 20;
+    track.style.transform = `translateX(-${itemWidth}px)`;
+    track.style.transition = "transform 0.5s ease-in-out";
+    track.addEventListener(
+      "transitionend",
+      () => {
         moveToEnd();
-      }, { once: true });
-    });
+      },
+      { once: true }
+    );
+  });
 
-    newPrevButton.addEventListener('click', () => {
-      if (isMoving) return;
-      isMoving = true;
-      moveToStart();
-      track.addEventListener('transitionend', () => {
-        isMoving = false;
-      }, { once: true });
-    });
-  }
+  newPrevButton.addEventListener("click", () => {
+    if (isMoving) return;
+    isMoving = true;
+    moveToStart();
+  });
+}
 
-  window.selectPart = (part, coords) => selectPart(part, coords);
-  window.highlightArea = (coords) => addHighlight(coords);
-  window.removeHighlight = () => removeHighlight();
-
-  function setupEventListeners() {
-    const mapAreas = document.querySelectorAll('area');
-    mapAreas.forEach(area => {
-      area.addEventListener('click', (event) => {
-        const part = event.target.getAttribute('alt').toLowerCase();
-        const coords = event.target.getAttribute('coords');
-        selectPart(part, coords);
-      });
+// Configura os eventos de clique nas áreas do mapa
+function setupEventListeners() {
+  const mapAreas = document.querySelectorAll("area");
+  mapAreas.forEach((area) => {
+    area.addEventListener("click", (event) => {
+      const part = event.target.getAttribute("alt").toLowerCase();
+      const coords = event.target.getAttribute("coords");
+      selectPart(part, coords);
     });
-  }
-});
+  });
+}
+
 
 
   </script>

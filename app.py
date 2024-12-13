@@ -188,6 +188,13 @@ def get_carrossel_options(part):
 @app.route('/design')
 def design_route():
     return render_template('design.html')
+@app.route('/get_modelos/<opcao>')
+def get_modelos(opcao):
+    with open('static/carrossel_opcoes.json') as f:
+        data = json.load(f)
+    modelos = data['tronco']['modelos'].get(opcao, [])
+    return jsonify(modelos=modelos)
+
 
 if __name__ == "__main__":
     with app.app_context():
