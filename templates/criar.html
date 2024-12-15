@@ -78,6 +78,10 @@ document.addEventListener("DOMContentLoaded", () => {
     .then((json) => {
       data = json;
       setupEventListeners();
+
+      // Inicializa todos os carrosséis
+      const carousels = document.querySelectorAll(".carousel-container");
+      carousels.forEach((carousel) => initializeCarousel(carousel));
     })
     .catch((error) => console.error("Erro ao carregar o JSON:", error));
 
@@ -85,6 +89,7 @@ document.addEventListener("DOMContentLoaded", () => {
     window.location.href = "/design";
   });
 });
+
 
 // Reseta os carrosséis e esconde o botão de confirmação
 function resetCarousels(callback = null) {
@@ -248,64 +253,89 @@ function animateCarousel(carousel, show, callback = null) {
 
 
 
-// Inicializa os controles de rolagem infinita do carrossel
-function initializeCarousel(carousel) {
-  const track = carousel.querySelector(".carousel-track");
-  const prevButton = carousel.querySelector(".carousel-control.prev");
-  const nextButton = carousel.querySelector(".carousel-control.next");
-  let isMoving = false;
+// Código para carrossel infinito funcionando para ambos os lados
+let isMoving = false;
 
-  prevButton.replaceWith(prevButton.cloneNode(true));
-  nextButton.replaceWith(nextButton.cloneNode(true));
-
-  const newPrevButton = carousel.querySelector(".carousel-control.prev");
-  const newNextButton = carousel.querySelector(".carousel-control.next");
-
-  // Move o primeiro item para o final
-  function moveToEnd() {
-    const firstItem = track.firstElementChild;
-    track.appendChild(firstItem);
-    track.style.transition = "none";
-    track.style.transform = "translateX(0)";
-    requestAnimationFrame(() => {
-      isMoving = false;
-    });
-  }
-
-  // Move o último item para o início
-  function moveToStart() {
+function moveToStart(track) {
     const lastItem = track.lastElementChild;
     const itemWidth = lastItem.offsetWidth + 20;
+
+    // Move o último item para o início sem atrasos
     track.style.transition = "none";
-    track.style.transform = `translateX(${-itemWidth}px)`;
     track.prepend(lastItem);
-    requestAnimationFrame(() => {
-      track.style.transition = "transform 0.5s ease-in-out";
-      track.style.transform = "translateX(0)";
-    });
-  }
-
-  newNextButton.addEventListener("click", () => {
-    if (isMoving) return;
-    isMoving = true;
-    const itemWidth = track.firstElementChild.offsetWidth + 20;
     track.style.transform = `translateX(-${itemWidth}px)`;
-    track.style.transition = "transform 0.5s ease-in-out";
-    track.addEventListener(
-      "transitionend",
-      () => {
-        moveToEnd();
-      },
-      { once: true }
-    );
-  });
 
-  newPrevButton.addEventListener("click", () => {
+    // Reativa a transição suavemente
+    requestAnimationFrame(() => {
+        track.style.transition = "transform 0.5s ease-in-out";
+        track.style.transform = "translateX(0)";
+    });
+}
+
+function moveToEnd(track) {
+    const firstItem = track.firstElementChild;
+    const itemWidth = firstItem.offsetWidth + 20;
+
+    // Aplica a transição para a esquerda
+    track.style.transition = "transform 0.5s ease-in-out";
+    track.style.transform = `translateX(-${itemWidth}px)`;
+
+    track.addEventListener(
+        "transitionend",
+        () => {
+            track.style.transition = "none";
+            track.appendChild(firstItem);
+            track.style.transform = "translateX(0)";
+            isMoving = false; // Libera o movimento após a transição
+        },
+        { once: true }
+    );
+}
+
+function initializeCarousel(carousel) {
+    const track = carousel.querySelector(".carousel-track");
+    const prevButton = carousel.querySelector(".carousel-control.prev");
+    const nextButton = carousel.querySelector(".carousel-control.next");
+
+    prevButton.addEventListener("click", () => {
     if (isMoving) return;
     isMoving = true;
-    moveToStart();
-  });
+
+    const itemWidth = track.firstElementChild.offsetWidth + 20;
+
+    // Move imediatamente o último item para o início
+    track.style.transition = "none";
+    track.prepend(track.lastElementChild);
+    track.style.transform = `translateX(-${itemWidth}px)`;
+
+    // Ativa a transição suavemente
+    requestAnimationFrame(() => {
+        track.style.transition = "transform 0.5s ease-in-out";
+        track.style.transform = "translateX(0)";
+    });
+
+    track.addEventListener(
+        "transitionend",
+        () => {
+            isMoving = false;  // Libera o movimento
+        },
+        { once: true }
+    );
+});
+
+
+    nextButton.addEventListener("click", () => {
+        if (isMoving) return;
+        isMoving = true;
+        moveToEnd(track);
+    });
 }
+
+// Inicializa todos os carrosséis encontrados na página
+window.addEventListener("DOMContentLoaded", () => {
+    const carousels = document.querySelectorAll(".carousel-container");
+    carousels.forEach((carousel) => initializeCarousel(carousel));
+});
 
 // Configura os eventos de clique nas áreas do mapa
 function setupEventListeners() {

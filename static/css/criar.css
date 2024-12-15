@@ -137,6 +137,7 @@ body.criar-page {
   transition: transform 0.2s, background-color 0.2s;
 }
 
+
 .carousel-item.selected {
   background-color: #ffffff34;
   color: #000000;
