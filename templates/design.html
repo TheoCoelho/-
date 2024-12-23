@@ -1,11 +1,82 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="pt-BR">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Design</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Design Personalizado</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/header.css') }}">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/design.css') }}">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/base.css') }}">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css">
 </head>
-<body>
-    <h1>AAAAAAAAAAAAAAA</h1>
+<body class="design-page">
+  {% include 'header.html' %}
+
+  <div class="main-container">
+    <!-- Barra lateral com ícones -->
+    <div class="toolbar">
+      <button class="toolbar-button">
+        <i class="bi bi-tools"></i>
+      </button>
+      <button class="toolbar-button">
+        <i class="bi bi-cloud-arrow-up"></i>
+      </button>
+      <button class="toolbar-button">
+        <i class="bi bi-palette"></i>
+      </button>
+      <button class="toolbar-button">
+        <i class="bi bi-type"></i>
+      </button>
+    </div>
+    <div class="vertical-line"></div>
+
+    <!-- Contêiner do visualizador -->
+    <div class="viewer-container">
+      <div class="title-container">
+        <h2 id="design-name">{{ selecao['modelo'] or '(nome da peça)' }}</h2>
+        <button id="edit-button" class="icon-button">
+          <i class="bi bi-pencil-fill"></i>
+        </button>
+      </div>
+
+      <!-- Campo para edição do nome -->
+      <input type="text" id="edit-name" value="{{ selecao['modelo'] or '' }}" class="edit-input" style="display: none;">
+      <button id="save-button" class="save-button" style="display: none;">Salvar</button>
+
+      <!-- Visualizador do modelo -->
+      <div id="model-viewer"></div>
+    </div>
+  </div>
+
+  <script>
+    document.addEventListener("DOMContentLoaded", () => {
+      const editButton = document.getElementById("edit-button");
+      const saveButton = document.getElementById("save-button");
+      const designName = document.getElementById("design-name");
+      const editNameInput = document.getElementById("edit-name");
+
+      // Configuração do editor de nome
+      editButton.addEventListener("click", () => {
+        editNameInput.style.display = "inline-block";
+        saveButton.style.display = "inline-block";
+        editButton.style.display = "none";
+        designName.style.display = "none";
+        editNameInput.focus();
+      });
+
+      saveButton.addEventListener("click", () => {
+        const newName = editNameInput.value.trim();
+        if (newName) {
+          designName.textContent = newName;
+          editNameInput.style.display = "none";
+          saveButton.style.display = "none";
+          editButton.style.display = "inline-block";
+          designName.style.display = "inline-block";
+        } else {
+          alert("O nome não pode estar vazio.");
+        }
+      });
+    });
+  </script>
 </body>
 </html>

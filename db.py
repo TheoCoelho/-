@@ -136,3 +136,20 @@ def buscar_url_imagem_perfil(usuario):
             return result[0]
         else:
             return '/static/uploads/default/profile_pic.jpg'
+# db.py
+
+def criar_tabela_designs():
+    """Cria a tabela de designs se ela não existir."""
+    with conectar_bd() as conn:
+        cursor = conn.cursor()
+        cursor.execute("""
+            CREATE TABLE IF NOT EXISTS designs (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                username TEXT NOT NULL,
+                parte TEXT NOT NULL,
+                modelo TEXT NOT NULL,
+                opcoes TEXT,
+                data_criacao DATETIME DEFAULT CURRENT_TIMESTAMP
+            )
+        """)
+        conn.commit()

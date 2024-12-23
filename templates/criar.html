@@ -175,6 +175,7 @@ function loadCarouselOptions(part, carouselId) {
     const item = document.createElement("div");
     item.className = "carousel-item";
     item.textContent = option;
+    item.dataset.parte = part; // Adiciona a parte selecionada
     item.addEventListener("click", () => handleOptionSelection(part, option, item));
     track.appendChild(item);
   });
@@ -349,6 +350,36 @@ function setupEventListeners() {
   });
 }
 
+
+document.getElementById("confirmButton").addEventListener("click", () => {
+  const selectedItem = document.querySelector(".carousel-item.selected");
+  if (!selectedItem) {
+    alert("Selecione uma peça antes de confirmar!");
+    return;
+  }
+
+  const parte = selectedItem.dataset.parte;
+  const modelo = selectedItem.textContent;
+
+  // Envia a seleção ao servidor
+  fetch("/confirmar-selecao", {
+    method: "POST",
+    headers: { "Content-Type": "application/x-www-form-urlencoded" },
+    body: new URLSearchParams({ parte: parte, modelo: modelo }),
+  })
+    .then((response) => response.json())
+    .then((data) => {
+      if (data.success) {
+        window.location.href = "/design";
+      } else {
+        alert("Erro ao salvar a seleção.");
+      }
+    })
+    .catch((error) => {
+      console.error("Erro ao confirmar a seleção:", error);
+      alert("Erro ao confirmar a seleção.");
+    });
+});
 
 
   </script>

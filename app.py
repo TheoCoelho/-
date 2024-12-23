@@ -2,13 +2,13 @@ import json
 from flask import Flask, render_template, request, redirect, session, url_for, jsonify, g
 import os
 from werkzeug.utils import secure_filename
-from db import conectar_bd, criar_tabela_usuarios, adicionar_coluna_profile_pic, criar_tabela_posts, criar_tabela_likes, criar_tabela_comentarios, criar_tabela_compartilhamentos, criar_tabela_interacoes, buscar_url_imagem_perfil
+from db import conectar_bd, criar_tabela_usuarios, adicionar_coluna_profile_pic, criar_tabela_posts, criar_tabela_likes, criar_tabela_comentarios, criar_tabela_compartilhamentos, criar_tabela_interacoes, buscar_url_imagem_perfil,criar_tabela_designs
 from post import obter_posts, criar_post, curtir_post, descurtir_post, obter_usuarios_que_curtiram, comentar_post, compartilhar_post, get_likes_from_db
 from perfil import exibir_perfil, atualizar_perfil, design_page, favoritos_page, interacoes_page
 from user import cadastrar_usuario, verificar_usuario, login, logout, registro
 from settings import settings_page
 from utils import allowed_file
-
+from design import salvar_selecao, obter_selecao,salvar_design_no_bd;
 app = Flask(__name__, template_folder='templates', static_folder='static')
 app.secret_key = "sua_chave_secreta"
 app.config['UPLOAD_FOLDER'] = 'static/uploads'
@@ -185,9 +185,8 @@ def get_carrossel_options(part):
     else:
         return jsonify({"error": "Part not found"}), 404
     
-@app.route('/design')
-def design_route():
-    return render_template('design.html')
+
+
 @app.route('/get_modelos/<opcao>')
 def get_modelos(opcao):
     with open('static/carrossel_opcoes.json') as f:
@@ -195,6 +194,45 @@ def get_modelos(opcao):
     modelos = data['tronco']['modelos'].get(opcao, [])
     return jsonify(modelos=modelos)
 
+
+@app.route('/design')
+def design_route():
+    selecao = session.get('design_atual')
+    if not selecao:
+        selecao = {'parte': 'Nenhuma', 'modelo': 'Seleção'}
+    return render_template('design.html', selecao=selecao)
+
+
+@app.route('/confirmar-selecao', methods=['POST'])
+def confirmar_selecao():
+    parte = request.form.get('parte')
+    modelo = request.form.get('modelo')
+
+    if not parte or not modelo:
+        return jsonify({'error': 'Seleção inválida'}), 400
+
+    # Atualiza a sessão
+    session['design_atual'] = {'parte': parte, 'modelo': modelo}
+    session.modified = True
+
+    # Confirma o sucesso para redirecionamento via JavaScript
+    return jsonify(success=True)
+
+
+@app.route('/editar-design', methods=['POST'])
+def editar_design():
+    novo_nome = request.form.get('novo_nome')
+    
+    if not novo_nome:
+        return jsonify(success=False, message="Nome inválido.")
+
+    # Atualiza a sessão com o novo nome
+    if 'design_atual' in session:
+        session['design_atual']['modelo'] = novo_nome
+        session.modified = True
+        return jsonify(success=True)
+    
+    return jsonify(success=False, message="Nenhum design selecionado.")
 
 if __name__ == "__main__":
     with app.app_context():
@@ -205,5 +243,6 @@ if __name__ == "__main__":
         criar_tabela_comentarios()
         criar_tabela_compartilhamentos()
         criar_tabela_interacoes() 
+        criar_tabela_designs()
 
     app.run(debug=True)

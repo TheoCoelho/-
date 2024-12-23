@@ -22,8 +22,8 @@
     bottom: 0; /* Posiciona a linha na parte inferior do cabeçalho */
     left: 60px; /* Margem da linha a partir da borda esquerda */
     right: 60px; /* Margem da linha a partir da borda direita */
-    height: 3px;
-    background-color: #000000; /* Cor da linha divisória */
+    height: 2px;
+    background-color: #ffffff; /* Cor da linha divisória */
     border-radius: 6px; /* Bordas arredondadas para um acabamento mais suave */
 }
 
@@ -63,10 +63,11 @@ body {
 
 .nav-menu li {
     margin: 0 15px;
+    
 }
 
 .nav-menu li a {
-    color: #000000; /* Letras pretas */
+    color: #ffffff; /* Letras pretas */
     text-decoration: none;
     font-weight: 800;
     position: relative;
@@ -83,7 +84,7 @@ body {
     bottom: 0;
     height: 2px;
     width: 100%;
-    background-color: #000000;
+    background-color: #ffffff;
 }
 
 /* Seção Direita */
@@ -130,7 +131,7 @@ body {
 .menu-button svg {
     width: 24px;
     height: 24px;
-    fill: #000000;
+    fill: #ffffff;
     transition: fill 0.3s;
 }
 
@@ -168,11 +169,11 @@ body {
 
 .auth-button {
     background-color: #f0f0f0;
-    color: #000000;
+    color: #ffffff;
     text-decoration: none;
     padding: 8px 12px;
     margin-left: 10px;
-    border: 1px solid #000000;
+    border: 1px solid #ffffff;
     border-radius: 5px;
     transition: background-color 0.3s;
 }

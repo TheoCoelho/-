@@ -1,0 +1,131 @@
+/* Layout principal */
+.main-container {
+  display: flex;
+  flex-direction: row; /* Alinha os containers lado a lado */
+  justify-content: center;
+  align-items: flex-start;
+  height: 100vh;
+  padding: 20px;
+  background-color: #000000; /* Fundo preto */
+  color: #fff;
+  gap: 20px; /* Espaçamento entre os containers */
+  position: relative; /* Necessário para posicionar a linha */
+}
+
+/* Linha vertical */
+.vertical-line {
+  position: relative; /* Use 'relative' para alinhar dentro do contêiner pai */
+  width: 2px; /* Espessura da linha */
+  background-color: #fff; /* Cor da linha */
+  margin: 0 10px; /* Espaçamento horizontal entre os containers */
+  align-self: stretch; /* Garante que a linha ocupe toda a altura disponível */
+  height: 780px;
+}
+
+
+/* Barra lateral */
+.toolbar {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-evenly; /* Distribui os ícones com espaço nas margens superior e inferior */
+  align-items: center;
+  background-color: #000; /* Fundo preto */
+  padding: 20px;
+  width: 300px; /* Define a largura fixa */
+  height: 80%;
+  /* Degradê interno mais sutil */
+  box-shadow: inset 0 0 50px rgba(255, 255, 255, 0.05);
+  z-index: 2; /* Garante que esteja acima da linha */
+}
+
+/* Botões da toolbar */
+.toolbar-button {
+  background: none;
+  border: none;
+  color: #fff;
+  font-size: 3rem; /* Tamanho dos ícones */
+  cursor: pointer;
+  transition: color 0.3s ease-in-out;
+}
+
+.toolbar-button:hover {
+  color: #ff6347; /* Altera a cor ao passar o mouse */
+}
+
+/* Contêiner do visualizador */
+.viewer-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+  background-color: #000; /* Fundo preto */
+  padding: 20px;
+  width: 70%; /* Largura fixa */
+  height: 80%;
+  /* Degradê interno mais sutil */
+  box-shadow: inset 0 0 50px rgba(255, 255, 255, 0.05);
+  z-index: 2; /* Garante que esteja acima da linha */
+}
+
+/* Nome da peça e botão de edição */
+.title-container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  margin-bottom: 20px;
+}
+
+.title-container h2 {
+  font-size: 1.5rem;
+  color: #fff;
+}
+
+.icon-button {
+  background: none;
+  border: none;
+  color: #fff;
+  font-size: 1.5rem;
+  cursor: pointer;
+}
+
+.icon-button:hover {
+  color: #ff6347;
+}
+
+/* Campo de edição */
+.edit-input {
+  font-size: 1.2rem;
+  padding: 5px 10px;
+  border: 2px solid #ccc;
+  border-radius: 5px;
+  text-align: center;
+  display: none;
+}
+
+.save-button {
+  margin-top: 10px;
+  padding: 5px 10px;
+  font-size: 1rem;
+  background-color: #ff6347;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+.save-button:hover {
+  background-color: #e53e3e;
+}
+
+/* Visualizador */
+#model-viewer {
+  width: 300px;
+  height: 300px;
+  background-color: #fff;
+  border-radius: 10px;
+  border: 1px solid #ccc;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
