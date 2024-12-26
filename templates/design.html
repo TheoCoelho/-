@@ -18,9 +18,18 @@
       <button class="toolbar-button">
         <i class="bi bi-tools"></i>
       </button>
-      <button class="toolbar-button">
+      <button class="toolbar-button upload-button">
         <i class="bi bi-cloud-arrow-up"></i>
       </button>
+      <div class="upload-toolbar-content" style="display: none;">
+        <h3>Upload de Imagem</h3>
+        <form id="upload-form" action="/upload" method="post" enctype="multipart/form-data">
+          <input type="file" name="file" accept="image/*">
+          <button type="submit">Fazer Upload</button>
+        </form>
+        <!-- Galeria de imagens do usuário -->
+        <div id="upload-gallery" class="gallery"></div>
+      </div>
       <button class="toolbar-button">
         <i class="bi bi-palette"></i>
       </button>
@@ -32,6 +41,7 @@
 
     <!-- Contêiner do visualizador -->
     <div class="viewer-container">
+      <!-- Nome e botão de edição -->
       <div class="title-container">
         <h2 id="design-name">{{ selecao['modelo'] or '(nome da peça)' }}</h2>
         <button id="edit-button" class="icon-button">
@@ -43,19 +53,63 @@
       <input type="text" id="edit-name" value="{{ selecao['modelo'] or '' }}" class="edit-input" style="display: none;">
       <button id="save-button" class="save-button" style="display: none;">Salvar</button>
 
-      <!-- Visualizador do modelo -->
-      <div id="model-viewer"></div>
+      <!-- Imagem do modelo -->
+      <div id="model-viewer">
+        <img src="{{ url_for('static', filename='models/' + imagem) }}" alt="{{ selecao['modelo'] or 'Peça' }}" class="viewer-image">
+      </div>
     </div>
   </div>
 
   <script>
     document.addEventListener("DOMContentLoaded", () => {
+      const uploadButton = document.querySelector(".upload-button");
+      const toolbar = document.querySelector(".toolbar");
+      const uploadContent = document.querySelector(".upload-toolbar-content");
+      const galleryContainer = document.getElementById("upload-gallery");
+
+      async function loadUserImages() {
+        const response = await fetch("/gallery-data");
+        const data = await response.json();
+
+        if (data.success === false) {
+          console.error("Erro ao carregar imagens:", data.error);
+          return;
+        }
+
+        // Limpa a galeria antes de adicionar novas imagens
+        galleryContainer.innerHTML = "";
+
+        // Adiciona as imagens do usuário na galeria
+        data.images.forEach((image) => {
+          const imgElement = document.createElement("img");
+          imgElement.src = image;
+          imgElement.alt = "Imagem carregada";
+          const itemDiv = document.createElement("div");
+          itemDiv.classList.add("gallery-item");
+          itemDiv.appendChild(imgElement);
+          galleryContainer.appendChild(itemDiv);
+        });
+      }
+
+      uploadButton.addEventListener("click", async () => {
+        const isExpanded = toolbar.classList.toggle("expanded");
+        uploadButton.classList.toggle("selected", isExpanded);
+
+        // Mostra ou oculta o conteúdo extra
+        uploadContent.style.display = isExpanded ? "flex" : "none";
+
+        // Carrega as imagens do usuário se o botão estiver expandido
+        if (isExpanded) {
+          await loadUserImages();
+        }
+      });
+
+      // Configuração do editor de nome
       const editButton = document.getElementById("edit-button");
       const saveButton = document.getElementById("save-button");
       const designName = document.getElementById("design-name");
       const editNameInput = document.getElementById("edit-name");
 
-      // Configuração do editor de nome
       editButton.addEventListener("click", () => {
         editNameInput.style.display = "inline-block";
         saveButton.style.display = "inline-block";

@@ -13,8 +13,55 @@ app = Flask(__name__, template_folder='templates', static_folder='static')
 app.secret_key = "sua_chave_secreta"
 app.config['UPLOAD_FOLDER'] = 'static/uploads'
 
-ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg', 'gif', 'webp'}
+UPLOAD_FOLDER = 'static/uploads'
+ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg'}
+app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 
+# Certifique-se de que a pasta de upload existe
+os.makedirs(UPLOAD_FOLDER, exist_ok=True)
+
+def allowed_file(filename):
+    """Verifica se o arquivo tem uma extensão permitida."""
+    return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
+
+@app.route('/upload', methods=['POST'])
+def upload_file():
+    """Rota para upload de imagens."""
+    if 'username' not in session:
+        return jsonify({"success": False, "error": "Usuário não autenticado"}), 401
+
+    username = session['username']
+    user_folder = os.path.join(app.config['UPLOAD_FOLDER'], username)
+    os.makedirs(user_folder, exist_ok=True)  # Cria a pasta do usuário, se não existir
+
+    if 'file' not in request.files:
+        return jsonify({"success": False, "error": "Nenhum arquivo enviado"}), 400
+
+    file = request.files['file']
+    if file and allowed_file(file.filename):
+        filename = secure_filename(file.filename)
+        filepath = os.path.join(user_folder, filename)
+        file.save(filepath)
+        return jsonify({"success": True, "filename": filename}), 200
+
+    return jsonify({"success": False, "error": "Arquivo inválido"}), 400
+
+@app.route('/upload-img-data')
+def upload_img_data():
+    """Retorna as imagens do usuário no formato JSON."""
+    if 'username' not in session:
+        return jsonify({"success": False, "error": "Usuário não autenticado"}), 401
+
+    username = session['username']
+    user_folder = os.path.join(app.config['UPLOAD_FOLDER'], username)
+
+    if not os.path.exists(user_folder):
+        return jsonify({"images": []})  # Nenhuma imagem para o usuário
+
+    images = os.listdir(user_folder)
+    # Resolve o caminho completo da imagem
+    images = [url_for('static', filename=f'uploads/{username}/{img}') for img in images]
+    return jsonify({"images": images})
 @app.route('/')
 def home():
     username = session.get('username')
@@ -194,13 +241,21 @@ def get_modelos(opcao):
     modelos = data['tronco']['modelos'].get(opcao, [])
     return jsonify(modelos=modelos)
 
+import json
 
 @app.route('/design')
 def design_route():
-    selecao = session.get('design_atual')
-    if not selecao:
-        selecao = {'parte': 'Nenhuma', 'modelo': 'Seleção'}
-    return render_template('design.html', selecao=selecao)
+    selecao = session.get('design_atual', {})
+    modelo = selecao.get('modelo', 'default').lower()  # Modelo selecionado ou 'default'
+
+    # Carrega as opções do arquivo JSON
+    with open('static/carrossel_opcoes.json') as f:
+        data = json.load(f)
+
+    # Busca a imagem associada ao modelo ou usa a imagem padrão
+    imagem = data['pecas'].get(modelo, {}).get('imagem', 'default.png')
+
+    return render_template('design.html', selecao=selecao, imagem=imagem)
 
 
 @app.route('/confirmar-selecao', methods=['POST'])
@@ -233,6 +288,14 @@ def editar_design():
         return jsonify(success=True)
     
     return jsonify(success=False, message="Nenhum design selecionado.")
+
+@app.route('/gallery-data')
+def gallery_data():
+    """Retorna a lista de imagens no formato JSON."""
+    images = os.listdir(app.config['UPLOAD_FOLDER'])
+    images = [f'/{UPLOAD_FOLDER}/{img}' for img in images]
+    return {"images": images}
+
 
 if __name__ == "__main__":
     with app.app_context():

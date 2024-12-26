@@ -2,6 +2,7 @@
 
 from flask import session, jsonify
 from db import conectar_bd
+ 
 
 # Função para armazenar seleções na sessão
 def salvar_selecao(parte, modelo, opcoes=None):

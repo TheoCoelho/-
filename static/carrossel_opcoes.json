@@ -1,24 +1,64 @@
 {
-  "cabeca": {
-    "opcoes": ["Boné", "Chapéu", "Toca", "Bucket", "Boina", "Gorro", "Viseira", "Capacete"],
-    "detalhes": {
-      "Boné": ["Trucker", "Baseball", "Snapback", "Dad Hat", "Five Panel"],
-      "Chapéu": ["Cartola", "Boina", "Panamá", "Cowboy"]
+  "pecas": {
+    "bermuda": {
+      "imagem": "bermuda.avif"
+    },
+    "blusa": {
+      "imagem": "blusa.png"
+    },
+    "boina": {
+      "imagem": "boina.png"
+    },
+    "bone": {
+      "imagem": "bone.png"
+    },
+    "calca": {
+      "imagem": "calca.png"
+    },
+    "camisa": {
+      "imagem": "camisa.png"
+    },
+    "camiseta": {
+      "imagem": "camiseta.png"
+    },
+    "chapeu": {
+      "imagem": "chapeu.png"
+    },
+    "short": {
+      "imagem": "short.avif"
+    },
+    "default": {
+      "imagem": "default.png"
     }
   },
   "tronco": {
-    "opcoes": ["Camisa", "Camiseta", "Blusa", "Manga Longa", "Jaqueta", "Regata", "Moletom", "Colete"],
+    "opcoes": ["camiseta", "camisa", "blusa", "jaqueta", "regata"],
     "detalhes": {
-      "Camiseta": ["Casual", "Manga Longa", "Fit", "Reta", "Oversized", "Box", "Canelada"],
-      "Camisa": ["Manga Curta", "Linho", "Slim", "Social", "Polo", "Box"]
+      "camiseta": ["manga curta", "manga longa", "regata"],
+      "camisa": ["social", "casual", "xadrez"],
+      "blusa": ["moletom", "leve", "cardigan"],
+      "jaqueta": ["couro", "jeans", "puffer"],
+      "regata": ["básica", "esportiva"]
+    }
+  },
+  "cabeca": {
+    "opcoes": ["boina", "bone", "chapeu", "touca", "tiara"],
+    "detalhes": {
+      "boina": ["clássica", "moderna"],
+      "bone": ["com aba reta", "curvada", "trucker"],
+      "chapeu": ["panamá", "floppy", "bucket"],
+      "touca": ["de lã", "esportiva"],
+      "tiara": ["simples", "decorada"]
     }
   },
   "pernas": {
-    "opcoes": ["Calça", "Bermuda", "Shorts", "Legging", "Saia", "Macacão", "Pantalona", "Jogger"],
+    "opcoes": ["bermuda", "calca", "short", "legging", "saia"],
     "detalhes": {
-      "Calça": ["Jeans", "Reta", "Slim", "Baggy", "Skinny", "Jogger"],
-      "Bermuda": ["Sarja", "Tectel", "Jogger", "Chino", "Cargo", "Jeans", "Running", "Moletom"],
-      "Shorts": ["Alfaiataria", "Praia", "Tectel", "Skort"]
+      "bermuda": ["jeans", "sarja", "esportiva"],
+      "calca": ["social", "jeans", "cargo"],
+      "short": ["esportivo", "casual", "jeans"],
+      "legging": ["básica", "fitness"],
+      "saia": ["curta", "midi", "longa"]
     }
   }
 }
