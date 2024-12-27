@@ -1,9 +1,13 @@
+
+
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  {% extends "base.html" %}
   <title>Design Personalizado</title>
+  {% block content %}
   <link rel="stylesheet" href="{{ url_for('static', filename='css/header.css') }}">
   <link rel="stylesheet" href="{{ url_for('static', filename='css/design.css') }}">
   <link rel="stylesheet" href="{{ url_for('static', filename='css/base.css') }}">
@@ -12,6 +16,7 @@
 <body class="design-page">
   {% include 'header.html' %}
 
+  
   <div class="main-container">
     <!-- Barra lateral com ícones -->
     <div class="toolbar">
@@ -23,10 +28,11 @@
       </button>
       <div class="upload-toolbar-content" style="display: none;">
         <h3>Upload de Imagem</h3>
-        <form id="upload-form" action="/upload" method="post" enctype="multipart/form-data">
-          <input type="file" name="file" accept="image/*">
-          <button type="submit">Fazer Upload</button>
-        </form>
+        <!-- Botão estilizado -->
+        <label class="custom-file-upload">
+          <input type="file" id="file-input" accept="image/*">
+          Escolher arquivo
+        </label>
         <!-- Galeria de imagens do usuário -->
         <div id="upload-gallery" class="gallery"></div>
       </div>
@@ -43,7 +49,7 @@
     <div class="viewer-container">
       <!-- Nome e botão de edição -->
       <div class="title-container">
-        <h2 id="design-name">{{ selecao['modelo'] or '(nome da peça)' }}</h2>
+        <a d="design-name">{{ selecao['modelo'] or '(nome da peça)' }}</a>
         <button id="edit-button" class="icon-button">
           <i class="bi bi-pencil-fill"></i>
         </button>
@@ -60,56 +66,141 @@
     </div>
   </div>
 
+  <!-- Popup para pré-visualização -->
+  <div id="popup" class="popup hidden">
+    <div class="popup-content">
+      <h3>Pré-visualização da Imagem</h3>
+      <img id="preview-image" src="" alt="Pré-visualização">
+      <div class="popup-actions">
+        <button id="confirm-upload" class="btn-confirm">Confirmar</button>
+        <button id="cancel-upload" class="btn-cancel">Cancelar</button>
+      </div>
+    </div>
+  </div>
+
   <script>
     document.addEventListener("DOMContentLoaded", () => {
       const uploadButton = document.querySelector(".upload-button");
       const toolbar = document.querySelector(".toolbar");
       const uploadContent = document.querySelector(".upload-toolbar-content");
       const galleryContainer = document.getElementById("upload-gallery");
-
-      async function loadUserImages() {
-        const response = await fetch("/gallery-data");
-        const data = await response.json();
-
-        if (data.success === false) {
-          console.error("Erro ao carregar imagens:", data.error);
-          return;
+      const fileInput = document.getElementById("file-input");
+      const popup = document.getElementById("popup");
+      const previewImage = document.getElementById("preview-image");
+      const confirmButton = document.getElementById("confirm-upload");
+      const cancelButton = document.getElementById("cancel-upload");
+  
+      let selectedFile = null;
+  
+      // Abre o popup ao selecionar o arquivo
+      fileInput.addEventListener("change", (event) => {
+        const file = event.target.files[0];
+        if (file) {
+          selectedFile = file;
+          const reader = new FileReader();
+          reader.onload = (e) => {
+            previewImage.src = e.target.result;
+            popup.classList.remove("hidden");
+          };
+          reader.readAsDataURL(file);
         }
+      });
+  
+      // Confirmar o upload
+      confirmButton.addEventListener("click", async () => {
+        if (selectedFile) {
+          const formData = new FormData();
+          formData.append("file", selectedFile);
+  
+          const response = await fetch("/upload/design", {
+            method: "POST",
+            body: formData,
+          });
+  
+          const data = await response.json();
+          if (data.success) {
+            popup.classList.add("hidden");
+            selectedFile = null;
+  
+            // Atualizar a galeria
+            await loadUserDesignImages(data.image_url);
+          } else {
+            alert("Erro ao fazer upload: " + data.error);
+          }
+        }
+      });
+  
+      // Cancelar o upload
+      cancelButton.addEventListener("click", () => {
+        popup.classList.add("hidden");
+        selectedFile = null;
+      });
+  
+      async function loadUserDesignImages(newImageUrl = null) {
+  // Adiciona a nova imagem no início da galeria
+  if (newImageUrl) {
+    const newItem = createGalleryItem(newImageUrl);
+    galleryContainer.prepend(newItem); // Insere na primeira posição
+  }
 
-        // Limpa a galeria antes de adicionar novas imagens
-        galleryContainer.innerHTML = "";
+  const response = await fetch("/upload-img-data/design");
+  const data = await response.json();
 
-        // Adiciona as imagens do usuário na galeria
-        data.images.forEach((image) => {
-          const imgElement = document.createElement("img");
-          imgElement.src = image;
-          imgElement.alt = "Imagem carregada";
-          const itemDiv = document.createElement("div");
-          itemDiv.classList.add("gallery-item");
-          itemDiv.appendChild(imgElement);
-          galleryContainer.appendChild(itemDiv);
-        });
-      }
+  if (data.success === false) {
+    console.error("Erro ao carregar imagens:", data.error);
+    return;
+  }
+
+  // Garante que imagens antigas sejam empurradas para posições subsequentes
+  galleryContainer.innerHTML = ""; // Limpa a galeria antes de adicionar novas imagens
+  data.images.forEach((image) => {
+    const galleryItem = createGalleryItem(image);
+    galleryContainer.appendChild(galleryItem);
+  });
+
+  // Ordena a galeria para manter o layout de duas colunas
+  reorderGallery();
+}
+
+function createGalleryItem(imageUrl) {
+  const imgElement = document.createElement("img");
+  imgElement.src = imageUrl;
+  imgElement.alt = "Imagem carregada";
+
+  const itemDiv = document.createElement("div");
+  itemDiv.classList.add("gallery-item");
+  itemDiv.appendChild(imgElement);
+
+  return itemDiv;
+}
+
+function reorderGallery() {
+  const items = Array.from(document.querySelectorAll(".gallery-item"));
+  const tempContainer = document.createElement("div");
+
+  // Recria a galeria com base na ordem desejada
+  items.forEach((item, index) => {
+    tempContainer.appendChild(item);
+  });
+
+  galleryContainer.innerHTML = "";
+  galleryContainer.append(...tempContainer.children);
+}
 
       uploadButton.addEventListener("click", async () => {
         const isExpanded = toolbar.classList.toggle("expanded");
         uploadButton.classList.toggle("selected", isExpanded);
-
-        // Mostra ou oculta o conteúdo extra
         uploadContent.style.display = isExpanded ? "flex" : "none";
-
-        // Carrega as imagens do usuário se o botão estiver expandido
         if (isExpanded) {
-          await loadUserImages();
+          await loadUserDesignImages();
         }
       });
-
-      // Configuração do editor de nome
+  
       const editButton = document.getElementById("edit-button");
       const saveButton = document.getElementById("save-button");
       const designName = document.getElementById("design-name");
       const editNameInput = document.getElementById("edit-name");
-
+  
       editButton.addEventListener("click", () => {
         editNameInput.style.display = "inline-block";
         saveButton.style.display = "inline-block";
@@ -117,7 +208,7 @@
         designName.style.display = "none";
         editNameInput.focus();
       });
-
+  
       saveButton.addEventListener("click", () => {
         const newName = editNameInput.value.trim();
         if (newName) {
@@ -132,5 +223,6 @@
       });
     });
   </script>
+  {% endblock %}
 </body>
 </html>

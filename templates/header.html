@@ -1,9 +1,14 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
+    {% extends "base.html" %}
 <head>
     <meta charset="UTF-8">
+
     <title>Navbar</title>
+    {% block content %}
     <link href="/static/css/header.css" rel="stylesheet"> <!-- Link para o arquivo header.css -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/base.css') }}">
+
 </head>
 <body>
     <nav class="navbar">
@@ -66,4 +71,5 @@
         </div>
     </nav>
 </body>
+{% endblock %}
 </html>

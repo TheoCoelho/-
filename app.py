@@ -46,6 +46,48 @@ def upload_file():
 
     return jsonify({"success": False, "error": "Arquivo inválido"}), 400
 
+
+@app.route('/upload/design', methods=['POST'])
+def upload_design_file():
+    """Rota para upload de imagens da página Design."""
+    if 'username' not in session:
+        return jsonify({"success": False, "error": "Usuário não autenticado"}), 401
+
+    username = session['username']
+    user_folder = os.path.join(app.config['UPLOAD_FOLDER'], 'design', username)
+    os.makedirs(user_folder, exist_ok=True)  # Cria a pasta do usuário, se não existir
+
+    if 'file' not in request.files:
+        return jsonify({"success": False, "error": "Nenhum arquivo enviado"}), 400
+
+    file = request.files['file']
+    if file and allowed_file(file.filename):
+        filename = secure_filename(file.filename)
+        filepath = os.path.join(user_folder, filename)
+        file.save(filepath)
+        return jsonify({"success": True, "filename": filename}), 200
+
+    return jsonify({"success": False, "error": "Arquivo inválido"}), 400
+
+
+@app.route('/upload-img-data/design')
+def upload_img_data_design():
+    """Retorna as imagens da página Design do usuário autenticado no formato JSON."""
+    if 'username' not in session:
+        return jsonify({"success": False, "error": "Usuário não autenticado"}), 401
+
+    username = session['username']
+    user_folder = os.path.join(app.config['UPLOAD_FOLDER'], 'design', username)
+
+    if not os.path.exists(user_folder):
+        return jsonify({"images": []})  # Nenhuma imagem encontrada
+
+    images = os.listdir(user_folder)
+    # Retorna apenas os caminhos completos das imagens do usuário
+    images = [url_for('static', filename=f'uploads/design/{username}/{img}') for img in images]
+    return jsonify({"images": images})
+
+
 @app.route('/upload-img-data')
 def upload_img_data():
     """Retorna as imagens do usuário no formato JSON."""
