@@ -137,12 +137,14 @@
       });
   
       async function loadUserDesignImages(newImageUrl = null) {
-  // Adiciona a nova imagem no início da galeria
+  const images = [];
+
+  // Se uma nova imagem for adicionada, insira-a na primeira posição do array
   if (newImageUrl) {
-    const newItem = createGalleryItem(newImageUrl);
-    galleryContainer.prepend(newItem); // Insere na primeira posição
+    images.push(newImageUrl);
   }
 
+  // Fetch das imagens existentes
   const response = await fetch("/upload-img-data/design");
   const data = await response.json();
 
@@ -151,15 +153,27 @@
     return;
   }
 
-  // Garante que imagens antigas sejam empurradas para posições subsequentes
-  galleryContainer.innerHTML = ""; // Limpa a galeria antes de adicionar novas imagens
-  data.images.forEach((image) => {
+  // Adicione as imagens existentes ao array (depois da nova imagem, se houver)
+  images.push(...data.images);
+
+  // Limpa a galeria antes de renderizar
+  galleryContainer.innerHTML = "";
+
+  // Adiciona as imagens à galeria, garantindo que as duas primeiras ocupem as colunas corretas
+  images.forEach((image, index) => {
     const galleryItem = createGalleryItem(image);
+
+    // Define a posição específica da primeira e segunda imagens
+    if (index === 0) {
+      galleryItem.style.gridColumn = "1"; // Primeira coluna
+      galleryItem.style.gridRow = "1";   // Primeira linha
+    } else if (index === 1) {
+      galleryItem.style.gridColumn = "2"; // Segunda coluna
+      galleryItem.style.gridRow = "1";   // Primeira linha
+    }
+
     galleryContainer.appendChild(galleryItem);
   });
-
-  // Ordena a galeria para manter o layout de duas colunas
-  reorderGallery();
 }
 
 function createGalleryItem(imageUrl) {
@@ -173,6 +187,7 @@ function createGalleryItem(imageUrl) {
 
   return itemDiv;
 }
+
 
 function reorderGallery() {
   const items = Array.from(document.querySelectorAll(".gallery-item"));
