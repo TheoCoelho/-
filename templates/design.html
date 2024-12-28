@@ -137,55 +137,49 @@
       });
   
       async function loadUserDesignImages(newImageUrl = null) {
-  const images = [];
+    let images = [];
 
-  // Se uma nova imagem for adicionada, insira-a na primeira posição do array
-  if (newImageUrl) {
-    images.push(newImageUrl);
-  }
+    // Fetch das imagens existentes do servidor
+    const response = await fetch("/upload-img-data/design");
+    const data = await response.json();
 
-  // Fetch das imagens existentes
-  const response = await fetch("/upload-img-data/design");
-  const data = await response.json();
-
-  if (data.success === false) {
-    console.error("Erro ao carregar imagens:", data.error);
-    return;
-  }
-
-  // Adicione as imagens existentes ao array (depois da nova imagem, se houver)
-  images.push(...data.images);
-
-  // Limpa a galeria antes de renderizar
-  galleryContainer.innerHTML = "";
-
-  // Adiciona as imagens à galeria, garantindo que as duas primeiras ocupem as colunas corretas
-  images.forEach((image, index) => {
-    const galleryItem = createGalleryItem(image);
-
-    // Define a posição específica da primeira e segunda imagens
-    if (index === 0) {
-      galleryItem.style.gridColumn = "1"; // Primeira coluna
-      galleryItem.style.gridRow = "1";   // Primeira linha
-    } else if (index === 1) {
-      galleryItem.style.gridColumn = "2"; // Segunda coluna
-      galleryItem.style.gridRow = "1";   // Primeira linha
+    if (data.success === false) {
+        console.error("Erro ao carregar imagens:", data.error);
+        return;
     }
 
-    galleryContainer.appendChild(galleryItem);
-  });
+    // Adiciona as imagens existentes ao array
+    images = data.images;
+
+    // Se uma nova imagem for adicionada, insira-a no final
+    if (newImageUrl) {
+        images.push(newImageUrl); // Adiciona como a última imagem
+    }
+
+    // Limpa a galeria antes de renderizar
+    galleryContainer.innerHTML = "";
+
+    // Renderiza as imagens na ordem correta
+    images.reverse().forEach((image) => { // Reverse para exibir a mais recente primeiro
+        const galleryItem = createGalleryItem(image);
+        galleryContainer.appendChild(galleryItem);
+    });
 }
 
+
+
+
+
 function createGalleryItem(imageUrl) {
-  const imgElement = document.createElement("img");
-  imgElement.src = imageUrl;
-  imgElement.alt = "Imagem carregada";
+    const imgElement = document.createElement("img");
+    imgElement.src = imageUrl;
+    imgElement.alt = "Imagem carregada";
 
-  const itemDiv = document.createElement("div");
-  itemDiv.classList.add("gallery-item");
-  itemDiv.appendChild(imgElement);
+    const itemDiv = document.createElement("div");
+    itemDiv.classList.add("gallery-item");
+    itemDiv.appendChild(imgElement);
 
-  return itemDiv;
+    return itemDiv;
 }
 
 

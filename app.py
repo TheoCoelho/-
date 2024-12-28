@@ -82,8 +82,10 @@ def upload_img_data_design():
     if not os.path.exists(user_folder):
         return jsonify({"images": []})  # Nenhuma imagem encontrada
 
-    images = os.listdir(user_folder)
-    # Retorna apenas os caminhos completos das imagens do usuário
+    # Lista de arquivos no diretório
+    images = sorted(os.listdir(user_folder), key=lambda x: os.path.getctime(os.path.join(user_folder, x)))
+
+    # Retorna os caminhos completos das imagens
     images = [url_for('static', filename=f'uploads/design/{username}/{img}') for img in images]
     return jsonify({"images": images})
 
@@ -104,6 +106,7 @@ def upload_img_data():
     # Resolve o caminho completo da imagem
     images = [url_for('static', filename=f'uploads/{username}/{img}') for img in images]
     return jsonify({"images": images})
+
 @app.route('/')
 def home():
     username = session.get('username')
