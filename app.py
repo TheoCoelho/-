@@ -49,30 +49,35 @@ def upload_file():
 
 @app.route('/upload/design', methods=['POST'])
 def upload_design_file():
-    """Rota para upload de imagens da página Design."""
     if 'username' not in session:
         return jsonify({"success": False, "error": "Usuário não autenticado"}), 401
 
     username = session['username']
     user_folder = os.path.join(app.config['UPLOAD_FOLDER'], 'design', username)
-    os.makedirs(user_folder, exist_ok=True)  # Cria a pasta do usuário, se não existir
+    os.makedirs(user_folder, exist_ok=True)
 
     if 'file' not in request.files:
         return jsonify({"success": False, "error": "Nenhum arquivo enviado"}), 400
 
     file = request.files['file']
     if file and allowed_file(file.filename):
+        # Verifica o tamanho máximo do arquivo (exemplo: 5 MB)
+        if len(file.read()) > 5 * 1024 * 1024:
+            return jsonify({"success": False, "error": "Arquivo muito grande."}), 400
+        
+        # Resetando o ponteiro do arquivo após verificar o tamanho
+        file.seek(0)
+
         filename = secure_filename(file.filename)
         filepath = os.path.join(user_folder, filename)
         file.save(filepath)
-        return jsonify({"success": True, "filename": filename}), 200
+        image_url = url_for('static', filename=f'uploads/design/{username}/{filename}')
+        return jsonify({"success": True, "image_url": image_url}), 200
 
     return jsonify({"success": False, "error": "Arquivo inválido"}), 400
 
-
 @app.route('/upload-img-data/design')
 def upload_img_data_design():
-    """Retorna as imagens da página Design do usuário autenticado no formato JSON."""
     if 'username' not in session:
         return jsonify({"success": False, "error": "Usuário não autenticado"}), 401
 
@@ -80,15 +85,36 @@ def upload_img_data_design():
     user_folder = os.path.join(app.config['UPLOAD_FOLDER'], 'design', username)
 
     if not os.path.exists(user_folder):
-        return jsonify({"images": []})  # Nenhuma imagem encontrada
+        return jsonify({"images": []})
 
-    # Lista de arquivos no diretório
-    images = sorted(os.listdir(user_folder), key=lambda x: os.path.getctime(os.path.join(user_folder, x)))
+    # Lista os arquivos do diretório
+    images = sorted(
+        os.listdir(user_folder),
+        key=lambda x: os.path.getctime(os.path.join(user_folder, x)),
+        reverse=True
+    )
 
-    # Retorna os caminhos completos das imagens
-    images = [url_for('static', filename=f'uploads/design/{username}/{img}') for img in images]
-    return jsonify({"images": images})
+    # Retorna os URLs completos
+    image_urls = [f'/static/uploads/design/{username}/{img}' for img in images]
+    return jsonify({"images": image_urls})
 
+@app.route('/save-edited-image', methods=['POST'])
+def save_edited_image():
+    if 'username' not in session:
+        return jsonify({'success': False, 'error': 'Usuário não autenticado'}), 401
+
+    file = request.files.get('image')
+    if file:
+        username = session['username']
+        user_folder = os.path.join(app.config['UPLOAD_FOLDER'], 'design', username)
+        os.makedirs(user_folder, exist_ok=True)
+
+        filename = secure_filename(file.filename)
+        filepath = os.path.join(user_folder, filename)
+        file.save(filepath)
+
+        return jsonify({'success': True, 'filepath': filepath})
+    return jsonify({'success': False, 'error': 'Nenhuma imagem enviada'}), 400
 
 @app.route('/upload-img-data')
 def upload_img_data():

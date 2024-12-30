@@ -1,41 +1,57 @@
-
-
 <!DOCTYPE html>
 <html lang="pt-BR">
+
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  {% extends "base.html" %}
   <title>Design Personalizado</title>
-  {% block content %}
   <link rel="stylesheet" href="{{ url_for('static', filename='css/header.css') }}">
   <link rel="stylesheet" href="{{ url_for('static', filename='css/design.css') }}">
   <link rel="stylesheet" href="{{ url_for('static', filename='css/base.css') }}">
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/fabric.js/4.6.0/fabric.min.js"></script>
+
 </head>
+
 <body class="design-page">
+  {% extends "base.html" %}
+  {% block content %}
+
   {% include 'header.html' %}
 
-  
   <div class="main-container">
     <!-- Barra lateral com ícones -->
     <div class="toolbar">
-      <button class="toolbar-button">
+      <!-- Botão de edição do nome -->
+      <button class="toolbar-button edit-button">
         <i class="bi bi-tools"></i>
       </button>
+      <div class="edit-toolbar-content toolbar-content" style="display: none; opacity: 0;">
+        <div class="edit-container">
+          <span id="name-display">{{ selecao['modelo'] or '(nome da peça)' }}</span>
+          <button id="edit-name-button" class="icon-button">
+            <i class="bi bi-pencil"></i>
+          </button>
+        </div>
+        <div id="edit-input-container" style="display: none;">
+          <input type="text" id="edit-name-toolbar" value="{{ selecao['modelo'] or '' }}" class="edit-input">
+          <button id="save-name-toolbar" class="save-button">Salvar</button>
+        </div>
+      </div>
+      <!-- Botão de upload -->
       <button class="toolbar-button upload-button">
         <i class="bi bi-cloud-arrow-up"></i>
       </button>
-      <div class="upload-toolbar-content" style="display: none;">
+      <div class="upload-toolbar-content toolbar-content" style="display: none;">
         <h3>Upload de Imagem</h3>
-        <!-- Botão estilizado -->
         <label class="custom-file-upload">
           <input type="file" id="file-input" accept="image/*">
           Escolher arquivo
         </label>
-        <!-- Galeria de imagens do usuário -->
         <div id="upload-gallery" class="gallery"></div>
       </div>
+    
+      <!-- Botões adicionais -->
       <button class="toolbar-button">
         <i class="bi bi-palette"></i>
       </button>
@@ -47,191 +63,406 @@
 
     <!-- Contêiner do visualizador -->
     <div class="viewer-container">
-      <!-- Nome e botão de edição -->
-      <div class="title-container">
-        <a d="design-name">{{ selecao['modelo'] or '(nome da peça)' }}</a>
-        <button id="edit-button" class="icon-button">
-          <i class="bi bi-pencil-fill"></i>
-        </button>
-      </div>
-
-      <!-- Campo para edição do nome -->
-      <input type="text" id="edit-name" value="{{ selecao['modelo'] or '' }}" class="edit-input" style="display: none;">
-      <button id="save-button" class="save-button" style="display: none;">Salvar</button>
-
       <!-- Imagem do modelo -->
       <div id="model-viewer">
         <img src="{{ url_for('static', filename='models/' + imagem) }}" alt="{{ selecao['modelo'] or 'Peça' }}" class="viewer-image">
       </div>
     </div>
-  </div>
-
-  <!-- Popup para pré-visualização -->
-  <div id="popup" class="popup hidden">
-    <div class="popup-content">
-      <h3>Pré-visualização da Imagem</h3>
-      <img id="preview-image" src="" alt="Pré-visualização">
-      <div class="popup-actions">
-        <button id="confirm-upload" class="btn-confirm">Confirmar</button>
-        <button id="cancel-upload" class="btn-cancel">Cancelar</button>
+    <div id="popup" class="popup hidden">
+      <div class="popup-content">
+        <h3>Pré-visualização da Imagem</h3>
+        <img id="preview-image" src="" alt="Pré-visualização">
+        <div class="popup-actions">
+          <button id="confirm-upload" class="btn-confirm">Confirmar</button>
+          <button id="cancel-upload" class="btn-cancel">Cancelar</button>
+        </div>
       </div>
+
     </div>
+    <div id="image-editor" style="display: none;">
+      <canvas id="imageCanvas"></canvas>
+      <div class="editor-tools">
+        <button id="rotateButton">Rotacionar</button>
+        <button id="addTextButton">Adicionar Texto</button>
+        <button id="saveImageButton">Salvar</button>
+        <button id="cancelEditButton">Cancelar</button>
+      </div>
   </div>
 
-  <script>
-    document.addEventListener("DOMContentLoaded", () => {
-      const uploadButton = document.querySelector(".upload-button");
-      const toolbar = document.querySelector(".toolbar");
-      const uploadContent = document.querySelector(".upload-toolbar-content");
-      const galleryContainer = document.getElementById("upload-gallery");
-      const fileInput = document.getElementById("file-input");
-      const popup = document.getElementById("popup");
-      const previewImage = document.getElementById("preview-image");
-      const confirmButton = document.getElementById("confirm-upload");
-      const cancelButton = document.getElementById("cancel-upload");
-  
-      let selectedFile = null;
-  
-      // Abre o popup ao selecionar o arquivo
-      fileInput.addEventListener("change", (event) => {
-        const file = event.target.files[0];
-        if (file) {
-          selectedFile = file;
-          const reader = new FileReader();
-          reader.onload = (e) => {
-            previewImage.src = e.target.result;
-            popup.classList.remove("hidden");
-          };
-          reader.readAsDataURL(file);
-        }
-      });
-  
-      // Confirmar o upload
-      confirmButton.addEventListener("click", async () => {
-        if (selectedFile) {
-          const formData = new FormData();
-          formData.append("file", selectedFile);
-  
-          const response = await fetch("/upload/design", {
-            method: "POST",
-            body: formData,
-          });
-  
-          const data = await response.json();
-          if (data.success) {
-            popup.classList.add("hidden");
-            selectedFile = null;
-  
-            // Atualizar a galeria
-            await loadUserDesignImages(data.image_url);
-          } else {
-            alert("Erro ao fazer upload: " + data.error);
-          }
-        }
-      });
-  
-      // Cancelar o upload
-      cancelButton.addEventListener("click", () => {
-        popup.classList.add("hidden");
-        selectedFile = null;
-      });
-  
-      async function loadUserDesignImages(newImageUrl = null) {
-    let images = [];
+<script>
+document.addEventListener("DOMContentLoaded", () => {
+  const toolbar = document.querySelector(".toolbar");
+  const editButton = document.querySelector(".edit-button");
+  const uploadButton = document.querySelector(".upload-button");
+  const editContent = document.querySelector(".edit-toolbar-content");
+  const uploadContent = document.querySelector(".upload-toolbar-content");
+  const editNameInput = document.getElementById("edit-name-toolbar");
+  const saveNameButton = document.getElementById("save-name-toolbar");
+  const editNameButton = document.getElementById("edit-name-button");
+  const nameDisplay = document.getElementById("name-display");
+  const editInputContainer = document.getElementById("edit-input-container");
+  const fileInput = document.getElementById("file-input");
+  const popup = document.getElementById("popup");
+  const confirmButton = document.getElementById("confirm-upload");
+  const cancelButton = document.getElementById("cancel-upload");
+  const previewImage = document.getElementById("preview-image");
+  const galleryContainer = document.getElementById("upload-gallery");
+  const cancelEditButton = document.getElementById("cancelEditButton");
+  const saveImageButton = document.getElementById("saveImageButton");
+  const defaultViewer = document.getElementById("model-viewer");
+  const imageEditor = document.getElementById("image-editor");
 
-    // Fetch das imagens existentes do servidor
+
+  if (!galleryContainer) {
+    console.error("Elemento upload-gallery não encontrado.");
+    return;
+  }
+  let fabricCanvas;
+
+  let currentlyExpandedContent = null; // Rastreamento do conteúdo expandido atual
+  let activeButton = null;
+
+  if (!toolbar || !editButton || !uploadButton || !editContent || !uploadContent) {
+    console.error("Alguns elementos não foram encontrados no DOM.");
+    return;
+  }
+
+
+  document.querySelectorAll(".gallery-item img").forEach((img) => {
+  img.addEventListener("click", () => {
+    openImageInViewer(img.src);
+  });
+});
+
+galleryContainer.addEventListener("click", (e) => {
+  const img = e.target.closest(".gallery-item img");
+  if (img) {
+    openImageInViewer(img.src);
+  }
+});
+
+function openImageInViewer(imageUrl) {
+    defaultViewer.style.display = "none"; // Oculta o visualizador padrão
+    imageEditor.style.display = "block"; // Mostra o editor
+
+    if (!fabricCanvas) {
+      fabricCanvas = new fabric.Canvas("imageCanvas");
+    } else {
+      fabricCanvas.clear();
+    }
+
+    fabric.Image.fromURL(imageUrl, (img) => {
+      fabricCanvas.setWidth(img.width);
+      fabricCanvas.setHeight(img.height);
+      fabricCanvas.add(img);
+      img.center();
+      img.setCoords();
+    });
+  }
+
+  // Lidar com cliques na galeria
+  if (galleryContainer) {
+    galleryContainer.addEventListener("click", (event) => {
+      const img = event.target.closest(".gallery-item img");
+      if (img) {
+        openImageInViewer(img.src);
+      }
+    });
+  }
+
+function loadImageOnCanvas(imageUrl) {
+  if (fabricCanvas) {
+    fabricCanvas.clear(); // Limpa o canvas existente
+  } else {
+    const canvasElement = document.getElementById("imageCanvas");
+    fabricCanvas = new fabric.Canvas(canvasElement);
+  }
+
+  fabric.Image.fromURL(imageUrl, (img) => {
+    fabricCanvas.setWidth(img.width);
+    fabricCanvas.setHeight(img.height);
+    fabricCanvas.add(img);
+    img.center(); // Centraliza a imagem no canvas
+    img.setCoords();
+  });
+}
+async function saveEditedImage() {
+  const dataUrl = fabricCanvas.toDataURL({ format: "png" });
+  const blob = await (await fetch(dataUrl)).blob();
+  const formData = new FormData();
+  formData.append("image", blob, "edited-image.png");
+
+  const response = await fetch("/save-edited-image", {
+    method: "POST",
+    body: formData,
+  });
+
+  const result = await response.json();
+  if (result.success) {
+    alert("Imagem salva com sucesso!");
+    closeEditor();
+    // Atualiza a galeria
+    const galleryItem = createGalleryItem(result.filepath);
+    galleryContainer.prepend(galleryItem);
+  } else {
+    alert("Erro ao salvar a imagem.");
+  }
+}
+
+
+  // Salvar imagem editada
+  saveImageButton.addEventListener("click", async () => {
+    const dataUrl = fabricCanvas.toDataURL({ format: "png" });
+    const blob = await (await fetch(dataUrl)).blob();
+    const formData = new FormData();
+    formData.append("image", blob, "edited-image.png");
+
+    try {
+      const response = await fetch("/save-edited-image", {
+        method: "POST",
+        body: formData,
+      });
+
+      const result = await response.json();
+      if (result.success) {
+        alert("Imagem salva com sucesso!");
+        closeEditor();
+      } else {
+        alert("Erro ao salvar a imagem.");
+      }
+    } catch (error) {
+      console.error("Erro ao salvar a imagem:", error);
+    }
+  });
+
+  // Fechar o editor
+  cancelEditButton.addEventListener("click", () => {
+    closeEditor();
+  });
+
+  function closeEditor() {
+    if (fabricCanvas) fabricCanvas.clear();
+    imageEditor.style.display = "none";
+    defaultViewer.style.display = "block";
+  }
+
+// Adiciona eventos para as ferramentas de edição
+document.getElementById("rotateButton").addEventListener("click", () => {
+  const activeObject = fabricCanvas.getActiveObject();
+  if (activeObject) {
+    activeObject.rotate((activeObject.angle || 0) + 45); // Rotaciona 45 graus
+    fabricCanvas.renderAll();
+  }
+});
+
+document.getElementById("addTextButton").addEventListener("click", () => {
+  const text = new fabric.Text("Texto Exemplo", {
+    left: 50,
+    top: 50,
+    fill: "red",
+  });
+  fabricCanvas.add(text);
+});
+
+
+  // Função para expandir e retrair o conteúdo da toolbar
+  function toggleToolbar(contentToExpand) {
+    if (currentlyExpandedContent === contentToExpand) {
+      retractContent(); // Fecha se já estiver expandido
+    } else {
+      if (currentlyExpandedContent) {
+        retractContent(() => expandContent(contentToExpand));
+      } else {
+        expandContent(contentToExpand);
+      }
+    }
+  }
+
+  function expandContent(content) {
+    toolbar.classList.add("expanded");
+    content.style.display = "flex";
+    setTimeout(() => {
+      content.style.opacity = "1";
+    }, 0);
+    currentlyExpandedContent = content;
+  }
+
+  function retractContent(callback = null) {
+    if (currentlyExpandedContent) {
+      currentlyExpandedContent.style.opacity = "0";
+      setTimeout(() => {
+        currentlyExpandedContent.style.display = "none";
+        currentlyExpandedContent = null;
+        toolbar.classList.remove("expanded");
+        if (callback) callback();
+      }, 300);
+    }
+  }
+
+  // Eventos para os botões da toolbar
+  editButton.addEventListener("click", () => toggleToolbar(editContent));
+  uploadButton.addEventListener("click", () => toggleToolbar(uploadContent));
+
+
+  // Carregar as imagens somente se a barra estiver expandida
+
+
+  // Lógica de edição do nome
+  editNameButton.addEventListener("click", () => {
+    nameDisplay.style.display = "none";
+    editNameButton.style.display = "none";
+    editInputContainer.style.display = "flex";
+    editNameInput.focus();
+  });
+
+  // Salvar o nome editado
+  saveNameButton.addEventListener("click", () => {
+    const newName = editNameInput.value.trim();
+    if (newName) {
+      fetch("/editar-design", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ novo_nome: newName }),
+      })
+        .then((response) => response.json())
+        .then((data) => {
+          if (data.success) {
+            nameDisplay.textContent = newName;
+            nameDisplay.style.display = "inline";
+            editNameButton.style.display = "inline";
+            editInputContainer.style.display = "none";
+          } else {
+            alert(data.message || "Erro ao salvar o nome.");
+          }
+        });
+    } else {
+      alert("O nome não pode estar vazio.");
+    }
+  });
+
+  fileInput.addEventListener("change", (event) => {
+  const file = event.target.files[0];
+  if (file) {
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      previewImage.src = e.target.result;
+      popup.classList.remove("hidden");
+    };
+    reader.readAsDataURL(file);
+  } else {
+    alert("Nenhum arquivo selecionado.");
+  }
+});
+
+
+  confirmButton.addEventListener("click", async () => {
+    const file = fileInput.files[0];
+    if (!file) {
+      alert("Nenhum arquivo selecionado.");
+      return;
+    }
+
+    const formData = new FormData();
+    formData.append("file", file);
+
+    try {
+      const response = await fetch("/upload/design", {
+        method: "POST",
+        body: formData,
+      });
+
+      const data = await response.json();
+
+      if (data.success) {
+        popup.classList.add("hidden");
+        fileInput.value = "";
+        await loadGalleryImages(data.image_url);
+      } else {
+        alert("Erro ao fazer upload: " + data.error);
+      }
+    } catch (error) {
+      console.error("Erro no upload:", error);
+      alert("Erro ao fazer upload. Tente novamente.");
+    }
+  });
+
+
+  document.getElementById("cancelEditButton").addEventListener("click", () => {
+  closeEditor();
+});
+
+
+  // Função para carregar imagens do servidor
+
+
+  function createGalleryItem(imageUrl) {
+  const imgElement = document.createElement("img");
+  imgElement.src = imageUrl;
+  imgElement.alt = "Imagem carregada";
+
+  const itemDiv = document.createElement("div");
+  itemDiv.classList.add("gallery-item");
+  itemDiv.appendChild(imgElement);
+
+  return itemDiv;
+}
+
+
+  // Função para reordenar a galeria
+  function reorderGallery() {
+    const items = Array.from(document.querySelectorAll(".gallery-item"));
+    const tempContainer = document.createElement("div");
+
+    // Recria a galeria com base na ordem desejada
+    items.forEach((item) => {
+      tempContainer.appendChild(item);
+    });
+
+    galleryContainer.innerHTML = "";
+    galleryContainer.append(...tempContainer.children);
+  }
+
+
+  async function loadGalleryImages(newImageUrl = null) {
+  try {
     const response = await fetch("/upload-img-data/design");
     const data = await response.json();
 
-    if (data.success === false) {
-        console.error("Erro ao carregar imagens:", data.error);
-        return;
+    if (!data.images || data.images.length === 0) {
+      galleryContainer.innerHTML = "<p>Nenhuma imagem encontrada.</p>";
+      return;
     }
 
-    // Adiciona as imagens existentes ao array
-    images = data.images;
+    // Verifica se há uma nova imagem para adicionar ao início da lista
+    const images = newImageUrl ? [newImageUrl, ...data.images] : data.images;
 
-    // Se uma nova imagem for adicionada, insira-a no final
-    if (newImageUrl) {
-        images.push(newImageUrl); // Adiciona como a última imagem
-    }
+    // Remove duplicações usando Set
+    const uniqueImages = [...new Set(images)];
 
-    // Limpa a galeria antes de renderizar
+    // Limpa a galeria antes de adicionar os itens
     galleryContainer.innerHTML = "";
 
-    // Renderiza as imagens na ordem correta
-    images.reverse().forEach((image) => { // Reverse para exibir a mais recente primeiro
-        const galleryItem = createGalleryItem(image);
-        galleryContainer.appendChild(galleryItem);
+    // Adiciona cada imagem única à galeria
+    uniqueImages.forEach((imageUrl) => {
+      const galleryItem = createGalleryItem(imageUrl);
+      galleryContainer.appendChild(galleryItem);
     });
+  } catch (error) {
+    console.error("Erro ao carregar a galeria:", error);
+    galleryContainer.innerHTML = "<p>Erro ao carregar imagens.</p>";
+  }
 }
 
 
+});
 
 
 
-function createGalleryItem(imageUrl) {
-    const imgElement = document.createElement("img");
-    imgElement.src = imageUrl;
-    imgElement.alt = "Imagem carregada";
 
-    const itemDiv = document.createElement("div");
-    itemDiv.classList.add("gallery-item");
-    itemDiv.appendChild(imgElement);
-
-    return itemDiv;
-}
-
-
-function reorderGallery() {
-  const items = Array.from(document.querySelectorAll(".gallery-item"));
-  const tempContainer = document.createElement("div");
-
-  // Recria a galeria com base na ordem desejada
-  items.forEach((item, index) => {
-    tempContainer.appendChild(item);
-  });
-
-  galleryContainer.innerHTML = "";
-  galleryContainer.append(...tempContainer.children);
-}
-
-      uploadButton.addEventListener("click", async () => {
-        const isExpanded = toolbar.classList.toggle("expanded");
-        uploadButton.classList.toggle("selected", isExpanded);
-        uploadContent.style.display = isExpanded ? "flex" : "none";
-        if (isExpanded) {
-          await loadUserDesignImages();
-        }
-      });
-  
-      const editButton = document.getElementById("edit-button");
-      const saveButton = document.getElementById("save-button");
-      const designName = document.getElementById("design-name");
-      const editNameInput = document.getElementById("edit-name");
-  
-      editButton.addEventListener("click", () => {
-        editNameInput.style.display = "inline-block";
-        saveButton.style.display = "inline-block";
-        editButton.style.display = "none";
-        designName.style.display = "none";
-        editNameInput.focus();
-      });
-  
-      saveButton.addEventListener("click", () => {
-        const newName = editNameInput.value.trim();
-        if (newName) {
-          designName.textContent = newName;
-          editNameInput.style.display = "none";
-          saveButton.style.display = "none";
-          editButton.style.display = "inline-block";
-          designName.style.display = "inline-block";
-        } else {
-          alert("O nome não pode estar vazio.");
-        }
-      });
-    });
   </script>
   {% endblock %}
 </body>
+
 </html>

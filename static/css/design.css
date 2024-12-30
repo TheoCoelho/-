@@ -1,4 +1,5 @@
-html, body {
+html,
+body {
   margin: 0;
   padding: 0;
   overflow: hidden;
@@ -33,22 +34,21 @@ html, body {
   display: flex;
   flex-direction: column;
   justify-content: space-around;
-  align-items: self-start; /* Alinha os ícones à esquerda */
+  align-items: self-start;
   background-color: orange;
   padding: 20px;
   width: 70px;
-  height: 80%; /* Altura total */
+  height: 80%;
   box-shadow: inset 0 0 50px rgba(255, 255, 255, 0.05);
   z-index: 2;
   transition: width 0.5s ease-in-out;
-  position: relative; /* Necessário para posicionar o conteúdo extra */
+  position: relative;
 }
 
 .toolbar.expanded {
   width: 400px;
 }
 
-/* Botões da toolbar */
 .toolbar-button {
   background: none;
   border: none;
@@ -56,9 +56,7 @@ html, body {
   font-size: 3rem;
   cursor: pointer;
   transition: color 0.3s ease-in-out;
-  margin-bottom: 20px; /* Espaçamento entre os ícones */
 }
-
 .toolbar-button:hover {
   color: #ff6347;
 }
@@ -66,17 +64,20 @@ html, body {
 .upload-button.selected {
   color: #ff6347;
 }
-/* Conteúdo extra na barra lateral */
+
 .upload-toolbar-content {
   position: absolute;
-  top: 20px; /* Alinha ao topo da toolbar */
-  left: 100px; /* Espaço suficiente para ficar ao lado direito dos ícones */
+  top: 20px;
+  left: 100px;
   display: none; /* Inicialmente oculto */
   flex-direction: column;
-  gap: 10px; /* Espaçamento entre os elementos */
+  gap: 10px;
   color: #fff;
   padding: 10px;
 }
+
+
+
 /* Contêiner do visualizador */
 /* Viewer-Container */
 .viewer-container {
@@ -87,16 +88,16 @@ html, body {
   background-color: #804545;
   padding: 20px;
   height: 80%;
-  flex-grow: 1; /* Ocupa o espaço restante */
-  transition: margin-left 0.5s ease-in-out; /* Animação suave para o deslocamento */
+  flex-grow: 1;
+  /* Ocupa o espaço restante */
+  transition: margin-left 0.5s ease-in-out;
+  /* Animação suave para o deslocamento */
 }
 
-.toolbar.expanded .upload-toolbar-content {
-  display: flex;
-}
 
 .viewer-container.reduced {
-  margin-left: 0px; /* Deslocamento proporcional à expansão */
+  margin-left: 0px;
+  /* Deslocamento proporcional à expansão */
 }
 
 /* Nome da peça e botão de edição */
@@ -113,13 +114,6 @@ html, body {
   color: #fff;
 }
 
-.icon-button {
-  background: none;
-  border: none;
-  color: #fff;
-  font-size: 1.5rem;
-  cursor: pointer;
-}
 
 .icon-button:hover {
   color: #ff6347;
@@ -133,34 +127,34 @@ html, body {
   border: 1px solid #ccc;
   margin-top: 10px;
 }
+
 .gallery {
   display: grid;
-  grid-template-columns: repeat(2, 1fr); /* Sempre duas colunas */
+  grid-template-columns: repeat(2, 1fr); /* Define duas colunas fixas */
   gap: 10px;
   padding: 10px;
-  width: 100%;
-  max-height: 600px;
+  max-height: 400px;
   overflow-y: auto;
+}
+
+.gallery-item img {
+  width: 100%; /* Ajusta a largura da imagem ao tamanho do item */
+  height: auto;
+  object-fit: cover;
 }
 
 
 
 .gallery-item {
-  aspect-ratio: 1; /* Torna os itens quadrados */
-  width: 100%; /* Ajusta ao tamanho da coluna */
-  border: 1px solid #ccc;
-  border-radius: 5px;
   display: flex;
   align-items: center;
   justify-content: center;
-  overflow: hidden; /* Garante que a imagem não ultrapasse o item */
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  overflow: hidden;
 }
 
-.gallery-item img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover; /* Mantém a proporção e preenche o espaço */
-}
+
 
 
 /* Botão estilizado */
@@ -214,9 +208,9 @@ html, body {
 }
 
 .popup-content img {
-  max-width: 100%;
+  max-width: 90%;
   max-height: 300px;
-  margin-bottom: 15px;
+  object-fit: contain;
 }
 
 .popup-actions {
@@ -249,4 +243,111 @@ html, body {
 
 .btn-cancel:hover {
   background: #c82333;
+}
+
+.edit-toolbar-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 100%;
+  text-align: center;
+}
+
+.edit-title {
+  font-size: 1.5rem;
+  margin-bottom: 10px;
+  color: #fff;
+}
+
+.edit-container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+}
+
+#name-display {
+  font-size: 1.2rem;
+  color: #fff;
+}
+
+.icon-button {
+  background: none;
+  border: none;
+  color: #fff;
+  cursor: pointer;
+  font-size: 1.5rem;
+}
+
+.icon-button:hover {
+  color: #ff6347;
+}
+
+#edit-input-container {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-top: 10px;
+}
+
+.edit-input {
+  padding: 5px;
+  font-size: 1rem;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+}
+
+.save-button {
+  padding: 5px 10px;
+  background-color: #28a745;
+  color: #fff;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+.save-button:hover {
+  background-color: #218838;
+}
+.toolbar.expanded .upload-toolbar-content {
+  display: flex; /* Mostra o conteúdo */
+  flex-direction: column;
+  gap: 10px;
+  opacity: 1; /* Garante que esteja visível */
+  transition: opacity 0.3s ease-in-out;
+}
+
+
+.toolbar.expanded .edit-toolbar-content,
+.toolbar.expanded .upload-toolbar-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+/* Transições e animações */
+.toolbar-content {
+  display: none;
+  opacity: 0;
+  transition: opacity 0.3s ease, display 0s ease 0.3s;
+}
+
+.toolbar.expanded .toolbar-content {
+  display: flex;
+  opacity: 1;
+  transition: opacity 0.3s ease;
+}
+
+
+.toolbar-content.flex {
+  opacity: 1;
+  display: flex; /* Visível quando expandido */
+}
+
+
+/* Estilo do botão ativo */
+.toolbar-button.active {
+  color: #ff6347; /* Destaque para o botão ativo */
 }
