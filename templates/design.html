@@ -82,10 +82,13 @@
         <h3>Pré-visualização da Imagem</h3>
         <img id="preview-image" src="" alt="Pré-visualização">
         <div class="popup-actions">
+          <label for="image-name-input">Nome da imagem:</label>
+          <input id="image-name-input" type="text" value="" placeholder="Digite o nome da imagem">
           <button id="confirm-upload" class="btn-confirm">Confirmar</button>
           <button id="cancel-upload" class="btn-cancel">Cancelar</button>
         </div>
       </div>
+    </div>
 
     </div>
     <div id="image-editor" style="display: none;">
@@ -204,9 +207,10 @@ document.querySelectorAll(".tab").forEach((tab) => {
     switchTab(tabId);
   });
 });
+
+
    // Função para adicionar uma nova guia
-     // Função para adicionar uma nova guia
-     function addTab(imageUrl, imageName) {
+   function addTab(imageUrl, imageName) {
   // Verifica se já existe uma aba para esta imagem
   const existingTab = Array.from(tabsContainer.children).find(
     (tab) => tab.dataset.url === imageUrl
@@ -250,6 +254,10 @@ document.querySelectorAll(".tab").forEach((tab) => {
   newTab.addEventListener("click", () => switchTab(tabId));
 }
 
+cancelButton.addEventListener("click", () => {
+  popup.classList.add("hidden"); // Fecha o popup
+  fileInput.value = ""; // Reseta o campo de arquivo
+});
 
    // Função para remover uma guia
    function removeTab(tabId) {
@@ -467,6 +475,7 @@ document.getElementById("addTextButton").addEventListener("click", () => {
     const reader = new FileReader();
     reader.onload = (e) => {
       previewImage.src = e.target.result;
+      document.getElementById("image-name-input").value = file.name.split('.')[0]; // Nome sem extensão
       popup.classList.remove("hidden");
     };
     reader.readAsDataURL(file);
@@ -476,36 +485,50 @@ document.getElementById("addTextButton").addEventListener("click", () => {
 });
 
 
-  confirmButton.addEventListener("click", async () => {
+// Evento do botão Confirmar
+confirmButton.addEventListener("click", async () => {
     const file = fileInput.files[0];
+    const imageName = document.getElementById("image-name-input").value.trim();
+
     if (!file) {
-      alert("Nenhum arquivo selecionado.");
-      return;
+        alert("Nenhum arquivo selecionado.");
+        return;
+    }
+    if (!imageName) {
+        alert("Por favor, insira um nome para a imagem.");
+        return;
     }
 
     const formData = new FormData();
     formData.append("file", file);
+    formData.append("image_name", imageName);
 
     try {
-      const response = await fetch("/upload/design", {
-        method: "POST",
-        body: formData,
-      });
+        const response = await fetch("/upload/design", {
+            method: "POST",
+            body: formData,
+        });
 
-      const data = await response.json();
+        const data = await response.json();
+        console.log("Resposta recebida do servidor:", data);
 
-      if (data.success) {
-        popup.classList.add("hidden");
-        fileInput.value = "";
-        await loadGalleryImages(data.image_url);
-      } else {
-        alert("Erro ao fazer upload: " + data.error);
-      }
+        if (data.success && data.image_url) {
+            const galleryItem = createGalleryItem(data.image_url, imageName);
+            galleryContainer.prepend(galleryItem);
+            await addTab(data.image_url, imageName);
+            popup.classList.add("hidden");
+            fileInput.value = ""; // Limpa o campo de arquivo
+        } else {
+            alert(data.error || "Erro ao processar upload.");
+        }
     } catch (error) {
-      console.error("Erro no upload:", error);
-      alert("Erro ao fazer upload. Tente novamente.");
+        console.error("Erro no upload:", error);
+        alert("Erro ao fazer upload. Tente novamente.");
     }
-  });
+});
+
+
+
 
 
   document.getElementById("cancelEditButton").addEventListener("click", () => {
@@ -516,17 +539,28 @@ document.getElementById("addTextButton").addEventListener("click", () => {
   // Função para carregar imagens do servidor
 
 
-  function createGalleryItem(imageUrl) {
-  const imgElement = document.createElement("img");
-  imgElement.src = imageUrl;
-  imgElement.alt = "Imagem carregada";
+  function createGalleryItem(imageUrl, imageName = "Imagem carregada") {
+    if (!imageUrl) {
+        console.error("URL inválida para a imagem:", imageUrl);
+        return null;
+    }
 
-  const itemDiv = document.createElement("div");
-  itemDiv.classList.add("gallery-item");
-  itemDiv.appendChild(imgElement);
+    const imgElement = document.createElement("img");
+    imgElement.src = imageUrl;
+    imgElement.alt = imageName;
 
-  return itemDiv;
+    const itemDiv = document.createElement("div");
+    itemDiv.classList.add("gallery-item");
+    itemDiv.appendChild(imgElement);
+
+    imgElement.addEventListener("click", () => {
+        addTab(imageUrl, imageName);
+    });
+
+    return itemDiv;
 }
+
+
 
 
   // Função para reordenar a galeria
@@ -545,34 +579,35 @@ document.getElementById("addTextButton").addEventListener("click", () => {
 
 
   async function loadGalleryImages(newImageUrl = null) {
-    try {
-        const response = await fetch("/upload-img-data/design");
-        const data = await response.json();
+  try {
+    const response = await fetch("/upload-img-data/design");
+    const data = await response.json();
 
-        if (!data.images || data.images.length === 0) {
-            galleryContainer.innerHTML = "<p>Nenhuma imagem encontrada.</p>";
-            return;
-        }
-
-        // Verifica se há uma nova imagem para adicionar ao início da lista
-        const images = newImageUrl ? [newImageUrl, ...data.images] : data.images;
-
-        // Remove duplicações usando Set
-        const uniqueImages = [...new Set(images)];
-
-        // Limpa a galeria antes de adicionar os itens
-        galleryContainer.innerHTML = "";
-
-        // Adiciona cada imagem única à galeria
-        uniqueImages.forEach((imageUrl) => {
-            const galleryItem = createGalleryItem(imageUrl);
-            galleryContainer.appendChild(galleryItem);
-        });
-    } catch (error) {
-        console.error("Erro ao carregar a galeria:", error);
-        galleryContainer.innerHTML = "<p>Erro ao carregar imagens.</p>";
+    if (!data.images || data.images.length === 0) {
+      galleryContainer.innerHTML = "<p>Nenhuma imagem encontrada.</p>";
+      return;
     }
+
+    // Adiciona uma nova imagem se fornecida
+    const images = newImageUrl ? [newImageUrl, ...data.images] : data.images;
+
+    // Remove duplicações usando Set
+    const uniqueImages = [...new Set(images)];
+
+    // Limpa a galeria antes de adicionar os itens
+    galleryContainer.innerHTML = "";
+
+    // Adiciona cada imagem única à galeria
+    uniqueImages.forEach((imageUrl) => {
+      const galleryItem = createGalleryItem(imageUrl);
+      galleryContainer.appendChild(galleryItem);
+    });
+  } catch (error) {
+    console.error("Erro ao carregar a galeria:", error);
+    galleryContainer.innerHTML = "<p>Erro ao carregar imagens.</p>";
+  }
 }
+
 
 
 
