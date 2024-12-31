@@ -62,10 +62,19 @@
     <div class="vertical-line"></div>
 
     <!-- Contêiner do visualizador -->
-    <div class="viewer-container">
+    <div class="viewer-container" id ="viewer-container">
+      <div class="tab-container">
+        <div id="tabs" class="tabs">
+          <div class="tab active" data-tab="piece">
+            <span id="piece-tab-name">{{ selecao['modelo'] or 'Peça' }}</span>
+          </div>
+        </div>
+        </div>
       <!-- Imagem do modelo -->
       <div id="model-viewer">
-        <img src="{{ url_for('static', filename='models/' + imagem) }}" alt="{{ selecao['modelo'] or 'Peça' }}" class="viewer-image">
+          <div id="piece" class="viewer active">
+            <img src="{{ url_for('static', filename='models/' + imagem) }}" alt="{{ selecao['modelo'] or 'Peça' }}" class="viewer-image">
+          </div>
       </div>
     </div>
     <div id="popup" class="popup hidden">
@@ -111,14 +120,17 @@ document.addEventListener("DOMContentLoaded", () => {
   const saveImageButton = document.getElementById("saveImageButton");
   const defaultViewer = document.getElementById("model-viewer");
   const imageEditor = document.getElementById("image-editor");
-
+  const tabsContainer = document.getElementById("tabs");
+  const viewerContainer = document.getElementById("viewer-container");
+  switchTab("piece"); // Ativa a guia principal no início
+  loadGalleryImages(); // Carrega as imagens da galeria
 
   if (!galleryContainer) {
     console.error("Elemento upload-gallery não encontrado.");
     return;
   }
   let fabricCanvas;
-
+  let isEditorActive = false;
   let currentlyExpandedContent = null; // Rastreamento do conteúdo expandido atual
   let activeButton = null;
 
@@ -134,12 +146,109 @@ document.addEventListener("DOMContentLoaded", () => {
   });
 });
 
-galleryContainer.addEventListener("click", (e) => {
-  const img = e.target.closest(".gallery-item img");
+galleryContainer.addEventListener("click", (event) => {
+  const img = event.target.closest(".gallery-item img");
   if (img) {
-    openImageInViewer(img.src);
+    const imageUrl = img.src;
+    const imageName = img.alt || "Imagem";
+    addTab(imageUrl, imageName);
   }
 });
+
+function openEditor(imageUrl) {
+  isEditorActive = true;
+  switchTab("image-editor");
+  loadImageOnCanvas(imageUrl);
+}
+
+function closeEditor() {
+  isEditorActive = false;
+  imageEditor.style.display = "none";
+  switchTab("piece"); // Volta para a guia principal
+}
+  // Função para alternar entre guias
+  function switchTab(tabId) {
+  // Oculta todos os viewers
+  document.querySelectorAll(".viewer").forEach((viewer) => {
+    viewer.style.display = "none";
+  });
+
+  // Exibe apenas o viewer correspondente
+  const activeViewer = document.getElementById(tabId);
+  if (activeViewer) {
+    activeViewer.style.display = "block";
+  }
+
+  // Atualiza o estado das abas
+  document.querySelectorAll(".tab").forEach((tab) => {
+    tab.classList.toggle("active", tab.dataset.tab === tabId);
+  });
+}
+
+
+   // Função para adicionar uma nova guia
+     // Função para adicionar uma nova guia
+     function addTab(imageUrl, imageName) {
+  // Verifica se já existe uma aba para esta imagem
+  const existingTab = Array.from(tabsContainer.children).find(
+    (tab) => tab.dataset.url === imageUrl
+  );
+  if (existingTab) {
+    switchTab(existingTab.dataset.tab); // Alterna para a aba existente
+    return; // Evita duplicar a aba
+  }
+
+  const tabId = `tab-${Date.now()}`; // ID único para a aba
+
+  // Cria a aba
+  const newTab = document.createElement("div");
+  newTab.className = "tab";
+  newTab.dataset.tab = tabId;
+  newTab.dataset.url = imageUrl;
+  newTab.innerHTML = `
+    <span>${imageName}</span>
+    <span class="close-tab" data-tab="${tabId}">&times;</span>
+  `;
+  tabsContainer.appendChild(newTab);
+
+  // Cria o viewer correspondente
+  const newViewer = document.createElement("div");
+  newViewer.id = tabId;
+  newViewer.className = "viewer";
+  newViewer.style.display = "none"; // Inicialmente oculto
+  newViewer.innerHTML = `<img src="${imageUrl}" alt="${imageName}" class="viewer-image">`;
+  viewerContainer.appendChild(newViewer);
+
+  // Alterna para a nova aba
+  switchTab(tabId);
+
+  // Evento para fechar a aba
+  newTab.querySelector(".close-tab").addEventListener("click", (e) => {
+    e.stopPropagation();
+    removeTab(tabId);
+  });
+
+  // Evento para alternar ao clicar na aba
+  newTab.addEventListener("click", () => switchTab(tabId));
+}
+
+
+   // Função para remover uma guia
+   function removeTab(tabId) {
+  const tab = document.querySelector(`.tab[data-tab="${tabId}"]`);
+  const viewer = document.getElementById(tabId);
+
+  if (tab) tab.remove();
+  if (viewer) viewer.remove();
+
+  // Retorna para a guia principal se não houver mais guias ativas
+  if (!document.querySelector(".tab.active")) {
+    switchTab("piece");
+  }
+}
+
+
+
 
 function openImageInViewer(imageUrl) {
     defaultViewer.style.display = "none"; // Oculta o visualizador padrão
@@ -160,15 +269,7 @@ function openImageInViewer(imageUrl) {
     });
   }
 
-  // Lidar com cliques na galeria
-  if (galleryContainer) {
-    galleryContainer.addEventListener("click", (event) => {
-      const img = event.target.closest(".gallery-item img");
-      if (img) {
-        openImageInViewer(img.src);
-      }
-    });
-  }
+
 
 function loadImageOnCanvas(imageUrl) {
   if (fabricCanvas) {
@@ -426,34 +527,35 @@ document.getElementById("addTextButton").addEventListener("click", () => {
 
 
   async function loadGalleryImages(newImageUrl = null) {
-  try {
-    const response = await fetch("/upload-img-data/design");
-    const data = await response.json();
+    try {
+        const response = await fetch("/upload-img-data/design");
+        const data = await response.json();
 
-    if (!data.images || data.images.length === 0) {
-      galleryContainer.innerHTML = "<p>Nenhuma imagem encontrada.</p>";
-      return;
+        if (!data.images || data.images.length === 0) {
+            galleryContainer.innerHTML = "<p>Nenhuma imagem encontrada.</p>";
+            return;
+        }
+
+        // Verifica se há uma nova imagem para adicionar ao início da lista
+        const images = newImageUrl ? [newImageUrl, ...data.images] : data.images;
+
+        // Remove duplicações usando Set
+        const uniqueImages = [...new Set(images)];
+
+        // Limpa a galeria antes de adicionar os itens
+        galleryContainer.innerHTML = "";
+
+        // Adiciona cada imagem única à galeria
+        uniqueImages.forEach((imageUrl) => {
+            const galleryItem = createGalleryItem(imageUrl);
+            galleryContainer.appendChild(galleryItem);
+        });
+    } catch (error) {
+        console.error("Erro ao carregar a galeria:", error);
+        galleryContainer.innerHTML = "<p>Erro ao carregar imagens.</p>";
     }
-
-    // Verifica se há uma nova imagem para adicionar ao início da lista
-    const images = newImageUrl ? [newImageUrl, ...data.images] : data.images;
-
-    // Remove duplicações usando Set
-    const uniqueImages = [...new Set(images)];
-
-    // Limpa a galeria antes de adicionar os itens
-    galleryContainer.innerHTML = "";
-
-    // Adiciona cada imagem única à galeria
-    uniqueImages.forEach((imageUrl) => {
-      const galleryItem = createGalleryItem(imageUrl);
-      galleryContainer.appendChild(galleryItem);
-    });
-  } catch (error) {
-    console.error("Erro ao carregar a galeria:", error);
-    galleryContainer.innerHTML = "<p>Erro ao carregar imagens.</p>";
-  }
 }
+
 
 
 });
