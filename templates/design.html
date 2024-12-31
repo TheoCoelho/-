@@ -65,14 +65,14 @@
     <div class="viewer-container" id ="viewer-container">
       <div class="tab-container">
         <div id="tabs" class="tabs">
-          <div class="tab active" data-tab="piece">
+          <div class="tab" data-tab="piece">
             <span id="piece-tab-name">{{ selecao['modelo'] or 'Peça' }}</span>
           </div>
         </div>
         </div>
       <!-- Imagem do modelo -->
       <div id="model-viewer">
-          <div id="piece" class="viewer active">
+          <div id="piece" class="viewer">
             <img src="{{ url_for('static', filename='models/' + imagem) }}" alt="{{ selecao['modelo'] or 'Peça' }}" class="viewer-image">
           </div>
       </div>
@@ -168,24 +168,42 @@ function closeEditor() {
 }
   // Função para alternar entre guias
   function switchTab(tabId) {
-  // Oculta todos os viewers
-  document.querySelectorAll(".viewer").forEach((viewer) => {
-    viewer.style.display = "none";
+  // Localiza a aba correspondente
+  const tab = document.querySelector(`.tab[data-tab="${tabId}"]`);
+  if (!tab) {
+    console.warn(`Aba com ID "${tabId}" não encontrada.`);
+    return;
+  }
+
+  // Localiza o viewer correspondente
+  const viewer = document.getElementById(tabId);
+  if (!viewer) {
+    console.warn(`Viewer com ID "${tabId}" não encontrado.`);
+    return;
+  }
+
+  // Ativa apenas a aba clicada
+  document.querySelectorAll(".tab").forEach((tabElement) => {
+    tabElement.classList.toggle("active", tabElement.dataset.tab === tabId);
   });
 
   // Exibe apenas o viewer correspondente
-  const activeViewer = document.getElementById(tabId);
-  if (activeViewer) {
-    activeViewer.style.display = "block";
-  }
-
-  // Atualiza o estado das abas
-  document.querySelectorAll(".tab").forEach((tab) => {
-    tab.classList.toggle("active", tab.dataset.tab === tabId);
+  document.querySelectorAll(".viewer").forEach((viewerElement) => {
+    viewerElement.style.display = viewerElement.id === tabId ? "flex" : "none";
   });
 }
 
+// Chame a função ao carregar a página
+document.addEventListener("DOMContentLoaded", () => {
+  switchTab("piece"); // Define "piece" como aba ativa inicial
+});
 
+document.querySelectorAll(".tab").forEach((tab) => {
+  tab.addEventListener("click", () => {
+    const tabId = tab.dataset.tab;
+    switchTab(tabId);
+  });
+});
    // Função para adicionar uma nova guia
      // Função para adicionar uma nova guia
      function addTab(imageUrl, imageName) {
