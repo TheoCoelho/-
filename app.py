@@ -63,21 +63,20 @@ def upload_design_file():
 
     file = request.files['file']
     if file and allowed_file(file.filename):
-        file.seek(0)
-        if len(file.read()) > 5 * 1024 * 1024:
-            return jsonify({"success": False, "error": "Arquivo muito grande."}), 400
-        file.seek(0)
-
         # Garante nome único para o arquivo
         extension = file.filename.rsplit('.', 1)[1].lower()
+        original_name = os.path.splitext(file.filename)[0]  # Nome sem extensão
         unique_filename = f"{uuid.uuid4().hex}.{extension}"
         filepath = os.path.join(user_folder, unique_filename)
         file.save(filepath)
 
-        image_url = url_for('static', filename=f'uploads/design/{username}/{unique_filename}')
-        return jsonify({"success": True, "image_url": image_url}), 200
+        # Gera a URL para a imagem
+        image_url = url_for('static', filename=f'uploads/design/{username}/{unique_filename}', _external=False)
+        return jsonify({"success": True, "image_url": image_url, "image_name": original_name}), 200
 
     return jsonify({"success": False, "error": "Arquivo inválido"}), 400
+
+
 
 @app.route('/upload-img-data/design')
 def upload_img_data_design():
@@ -90,16 +89,16 @@ def upload_img_data_design():
     if not os.path.exists(user_folder):
         return jsonify({"images": []})
 
-    # Lista os arquivos do diretório sem duplicatas
-    images = sorted(
-        set(os.listdir(user_folder)),  # Garante que os nomes sejam únicos
-        key=lambda x: os.path.getctime(os.path.join(user_folder, x)),
-        reverse=True
-    )
-
-    # Retorna URLs completas
-    image_urls = [url_for('static', filename=f'uploads/design/{username}/{img}') for img in images]
-    return jsonify({"images": image_urls})
+    # Lista os arquivos do diretório
+    images = os.listdir(user_folder)
+    image_data = [
+        {
+            "url": url_for('static', filename=f'uploads/design/{username}/{img}', _external=False),
+            "name": os.path.splitext(img)[0]
+        }
+        for img in images
+    ]
+    return jsonify({"images": image_data})
 
 
 @app.route('/save-edited-image', methods=['POST'])

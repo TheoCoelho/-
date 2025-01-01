@@ -154,7 +154,16 @@ galleryContainer.addEventListener("click", (event) => {
     if (img) {
         const imageUrl = img.src;
         const imageName = img.alt || "Imagem";
-        addTab(imageUrl, imageName);
+
+        // Verifica se a aba já existe
+        const existingTab = Array.from(tabsContainer.querySelectorAll(".tab")).find(
+            (tab) => tab.dataset.url === imageUrl
+        );
+        if (existingTab) {
+            switchTab(existingTab.dataset.tab); // Alterna para a aba existente
+        } else {
+            addTab(imageUrl, imageName); // Cria uma nova aba
+        }
     }
 });
 
@@ -222,29 +231,20 @@ document.querySelectorAll(".tab").forEach((tab) => {
 const openTabs = new Set();
 
 function addTab(imageUrl, imageName) {
-    // Verifica se a aba já está sendo processada
-    if (openTabs.has(imageUrl)) {
-        console.log(`Aba já está sendo processada: ${imageUrl}`);
-        return;
-    }
-
-    openTabs.add(imageUrl); // Adiciona a URL ao conjunto
-
-    // Lógica de criação de aba
+    // Verifica se a aba já existe
     const existingTab = Array.from(tabsContainer.querySelectorAll(".tab")).find(
         (tab) => tab.dataset.url === imageUrl
     );
 
     if (existingTab) {
         console.log(`Aba já existe: ${existingTab.dataset.url}`);
-        switchTab(existingTab.dataset.tab);
-        openTabs.delete(imageUrl); // Remove do conjunto
-        return;
+        switchTab(existingTab.dataset.tab); // Alterna para a aba existente
+        return; // Evita criar uma nova aba
     }
 
     const tabId = `tab-${Date.now()}`;
-    console.log(`Criando nova aba: ${tabId}, URL: ${imageUrl}`);
 
+    // Cria a aba
     const newTab = document.createElement("div");
     newTab.className = "tab";
     newTab.dataset.tab = tabId;
@@ -255,6 +255,7 @@ function addTab(imageUrl, imageName) {
     `;
     tabsContainer.appendChild(newTab);
 
+    // Cria o viewer correspondente
     const newViewer = document.createElement("div");
     newViewer.id = tabId;
     newViewer.className = "viewer";
@@ -262,18 +263,17 @@ function addTab(imageUrl, imageName) {
     newViewer.innerHTML = `<img src="${imageUrl}" alt="${imageName}" class="viewer-image">`;
     viewerContainer.appendChild(newViewer);
 
+    // Alterna para a nova aba
     switchTab(tabId);
 
+    // Evento para fechar a aba
     newTab.querySelector(".close-tab").addEventListener("click", (e) => {
         e.stopPropagation();
         removeTab(tabId);
-        openTabs.delete(imageUrl); // Remove do conjunto ao fechar
     });
 
+    // Evento para alternar ao clicar na aba
     newTab.addEventListener("click", () => switchTab(tabId));
-
-    // Remova a URL do conjunto após um curto atraso
-    setTimeout(() => openTabs.delete(imageUrl), 500);
 }
 
 
@@ -528,12 +528,11 @@ confirmButton.addEventListener("click", async () => {
         });
 
         const data = await response.json();
-        console.log("Resposta recebida do servidor:", data);
-
         if (data.success && data.image_url) {
-            const galleryItem = createGalleryItem(data.image_url, imageName);
+            const galleryItem = createGalleryItem(data.image_url, data.image_name);
             galleryContainer.prepend(galleryItem);
-            await addTab(data.image_url, imageName);
+
+            // Fecha o popup
             popup.classList.add("hidden");
             fileInput.value = ""; // Limpa o campo de arquivo
         } else {
@@ -548,7 +547,6 @@ confirmButton.addEventListener("click", async () => {
 
 
 
-
   document.getElementById("cancelEditButton").addEventListener("click", () => {
   closeEditor();
 });
@@ -556,15 +554,31 @@ confirmButton.addEventListener("click", async () => {
 
   // Função para carregar imagens do servidor
 
-  function createGalleryItem(imageUrl, imageName = "Imagem carregada") {
-    // Verifica se a imagem já existe na galeria
-    const existingItem = Array.from(galleryContainer.children).find(
-        (item) => item.querySelector("img").src === imageUrl
-    );
-    if (existingItem) {
-        return existingItem; // Retorna o item existente para evitar duplicação
-    }
+  async function loadGalleryImages() {
+    try {
+        const response = await fetch("/upload-img-data/design");
+        const data = await response.json();
 
+        if (!data.images || data.images.length === 0) {
+            galleryContainer.innerHTML = "<p>Nenhuma imagem encontrada.</p>";
+            return;
+        }
+
+        // Limpa a galeria antes de adicionar novos itens
+        galleryContainer.innerHTML = "";
+
+        // Adiciona imagens com nomes
+        data.images.forEach(({ url, name }) => {
+            const galleryItem = createGalleryItem(url, name);
+            galleryContainer.appendChild(galleryItem);
+        });
+    } catch (error) {
+        console.error("Erro ao carregar a galeria:", error);
+        galleryContainer.innerHTML = "<p>Erro ao carregar imagens.</p>";
+    }
+}
+
+function createGalleryItem(imageUrl, imageName = "Imagem carregada") {
     const imgElement = document.createElement("img");
     imgElement.src = imageUrl;
     imgElement.alt = imageName;
@@ -573,8 +587,15 @@ confirmButton.addEventListener("click", async () => {
     itemDiv.classList.add("gallery-item");
     itemDiv.appendChild(imgElement);
 
-    return itemDiv; // Removido o `onclick`
+    const caption = document.createElement("span");
+    caption.textContent = imageName;
+    caption.classList.add("gallery-item-caption");
+
+    itemDiv.appendChild(caption);
+
+    return itemDiv;
 }
+
 
 
 
@@ -607,10 +628,10 @@ confirmButton.addEventListener("click", async () => {
         // Limpa a galeria antes de adicionar novos itens
         galleryContainer.innerHTML = "";
 
-        // Adiciona imagens únicas
+        // Adiciona imagens únicas com nomes
         const uniqueImages = [...new Set(data.images)];
-        uniqueImages.forEach((imageUrl) => {
-            const galleryItem = createGalleryItem(imageUrl);
+        uniqueImages.forEach(({ url, name }) => {
+            const galleryItem = createGalleryItem(url, name);
             galleryContainer.appendChild(galleryItem);
         });
     } catch (error) {

@@ -122,31 +122,39 @@ body {
 }
 
 .gallery {
-  display: grid;
-  grid-template-columns: repeat(2, 1fr); /* Define duas colunas fixas */
+  display: flex;
+  flex-wrap: wrap;
   gap: 10px;
-  padding: 10px;
-  max-height: 400px;
   overflow-y: auto;
+  max-height: 400px; /* Limite para rolagem */
 }
-
-.gallery-item img {
-  width: 100%; /* Ajusta a largura da imagem ao tamanho do item */
-  height: auto;
-  object-fit: cover;
-}
-
-
 
 .gallery-item {
   display: flex;
+  flex-direction: column;
   align-items: center;
   justify-content: center;
-  border: 1px solid #ccc;
+  width: 120px; /* Largura fixa para cada item */
+  background-color: #ffb400; /* Cor de fundo para destacar */
+  padding: 10px;
   border-radius: 5px;
-  overflow: hidden;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+  text-align: center;
 }
 
+.gallery-item img {
+  max-width: 100%;
+  max-height: 100px; /* Limita a altura */
+  object-fit: contain; /* Mantém proporção da imagem */
+  margin-bottom: 5px;
+}
+
+.gallery-item-caption {
+  font-size: 12px; /* Tamanho da fonte ajustado */
+  color: #000;
+  word-break: break-word; /* Evita que o texto ultrapasse os limites */
+  text-align: center;
+}
 
 
 
