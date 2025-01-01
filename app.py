@@ -1,4 +1,6 @@
 import json
+import uuid
+
 from flask import Flask, render_template, request, redirect, session, url_for, jsonify, g
 import os
 from werkzeug.utils import secure_filename
@@ -61,17 +63,18 @@ def upload_design_file():
 
     file = request.files['file']
     if file and allowed_file(file.filename):
-        # Verifica o tamanho máximo do arquivo (exemplo: 5 MB)
+        file.seek(0)
         if len(file.read()) > 5 * 1024 * 1024:
             return jsonify({"success": False, "error": "Arquivo muito grande."}), 400
-        
-        # Resetando o ponteiro do arquivo após verificar o tamanho
         file.seek(0)
 
-        filename = secure_filename(file.filename)
-        filepath = os.path.join(user_folder, filename)
+        # Garante nome único para o arquivo
+        extension = file.filename.rsplit('.', 1)[1].lower()
+        unique_filename = f"{uuid.uuid4().hex}.{extension}"
+        filepath = os.path.join(user_folder, unique_filename)
         file.save(filepath)
-        image_url = url_for('static', filename=f'uploads/design/{username}/{filename}')
+
+        image_url = url_for('static', filename=f'uploads/design/{username}/{unique_filename}')
         return jsonify({"success": True, "image_url": image_url}), 200
 
     return jsonify({"success": False, "error": "Arquivo inválido"}), 400
@@ -87,16 +90,17 @@ def upload_img_data_design():
     if not os.path.exists(user_folder):
         return jsonify({"images": []})
 
-    # Lista os arquivos do diretório
+    # Lista os arquivos do diretório sem duplicatas
     images = sorted(
-        os.listdir(user_folder),
+        set(os.listdir(user_folder)),  # Garante que os nomes sejam únicos
         key=lambda x: os.path.getctime(os.path.join(user_folder, x)),
         reverse=True
     )
 
-    # Retorna os URLs completos
-    image_urls = [f'/static/uploads/design/{username}/{img}' for img in images]
+    # Retorna URLs completas
+    image_urls = [url_for('static', filename=f'uploads/design/{username}/{img}') for img in images]
     return jsonify({"images": image_urls})
+
 
 @app.route('/save-edited-image', methods=['POST'])
 def save_edited_image():

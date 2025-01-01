@@ -150,13 +150,14 @@ document.addEventListener("DOMContentLoaded", () => {
 });
 
 galleryContainer.addEventListener("click", (event) => {
-  const img = event.target.closest(".gallery-item img");
-  if (img) {
-    const imageUrl = img.src;
-    const imageName = img.alt || "Imagem";
-    addTab(imageUrl, imageName);
-  }
+    const img = event.target.closest("img");
+    if (img) {
+        const imageUrl = img.src;
+        const imageName = img.alt || "Imagem";
+        addTab(imageUrl, imageName);
+    }
 });
+
 
 function openEditor(imageUrl) {
   isEditorActive = true;
@@ -171,29 +172,38 @@ function closeEditor() {
 }
   // Função para alternar entre guias
   function switchTab(tabId) {
-  // Localiza a aba correspondente
-  const tab = document.querySelector(`.tab[data-tab="${tabId}"]`);
-  if (!tab) {
-    console.warn(`Aba com ID "${tabId}" não encontrada.`);
-    return;
-  }
+    const tab = document.querySelector(`.tab[data-tab="${tabId}"]`);
+    if (!tab) {
+        console.warn(`Aba com ID "${tabId}" não encontrada.`);
+        return;
+    }
 
-  // Localiza o viewer correspondente
-  const viewer = document.getElementById(tabId);
-  if (!viewer) {
-    console.warn(`Viewer com ID "${tabId}" não encontrado.`);
-    return;
-  }
+    const viewer = document.getElementById(tabId);
+    if (!viewer) {
+        console.warn(`Viewer com ID "${tabId}" não encontrado.`);
+        return;
+    }
 
-  // Ativa apenas a aba clicada
-  document.querySelectorAll(".tab").forEach((tabElement) => {
-    tabElement.classList.toggle("active", tabElement.dataset.tab === tabId);
-  });
+    // Remove a classe "active" de todas as abas
+    document.querySelectorAll(".tab").forEach((tabElement) => {
+        tabElement.classList.remove("active");
+    });
 
-  // Exibe apenas o viewer correspondente
-  document.querySelectorAll(".viewer").forEach((viewerElement) => {
-    viewerElement.style.display = viewerElement.id === tabId ? "flex" : "none";
-  });
+    // Oculta todos os viewers
+    document.querySelectorAll(".viewer").forEach((viewerElement) => {
+        viewerElement.style.display = "none";
+    });
+
+    // Ativa a aba e o viewer correspondentes
+    tab.classList.add("active");
+    viewer.style.display = "flex";
+}
+
+function debugTabs() {
+    console.log("Estado atual das abas:");
+    Array.from(tabsContainer.children).forEach((tab) => {
+        console.log(`Aba: ${tab.dataset.tab}, URL: ${tab.dataset.url}`);
+    });
 }
 
 // Chame a função ao carregar a página
@@ -209,71 +219,79 @@ document.querySelectorAll(".tab").forEach((tab) => {
 });
 
 
-   // Função para adicionar uma nova guia
-   function addTab(imageUrl, imageName) {
-  // Verifica se já existe uma aba para esta imagem
-  const existingTab = Array.from(tabsContainer.children).find(
-    (tab) => tab.dataset.url === imageUrl
-  );
-  if (existingTab) {
-    switchTab(existingTab.dataset.tab); // Alterna para a aba existente
-    return; // Evita duplicar a aba
-  }
+const openTabs = new Set();
 
-  const tabId = `tab-${Date.now()}`; // ID único para a aba
+function addTab(imageUrl, imageName) {
+    // Verifica se a aba já está sendo processada
+    if (openTabs.has(imageUrl)) {
+        console.log(`Aba já está sendo processada: ${imageUrl}`);
+        return;
+    }
 
-  // Cria a aba
-  const newTab = document.createElement("div");
-  newTab.className = "tab";
-  newTab.dataset.tab = tabId;
-  newTab.dataset.url = imageUrl;
-  newTab.innerHTML = `
-    <span>${imageName}</span>
-    <span class="close-tab" data-tab="${tabId}">&times;</span>
-  `;
-  tabsContainer.appendChild(newTab);
+    openTabs.add(imageUrl); // Adiciona a URL ao conjunto
 
-  // Cria o viewer correspondente
-  const newViewer = document.createElement("div");
-  newViewer.id = tabId;
-  newViewer.className = "viewer";
-  newViewer.style.display = "none"; // Inicialmente oculto
-  newViewer.innerHTML = `<img src="${imageUrl}" alt="${imageName}" class="viewer-image">`;
-  viewerContainer.appendChild(newViewer);
+    // Lógica de criação de aba
+    const existingTab = Array.from(tabsContainer.querySelectorAll(".tab")).find(
+        (tab) => tab.dataset.url === imageUrl
+    );
 
-  // Alterna para a nova aba
-  switchTab(tabId);
+    if (existingTab) {
+        console.log(`Aba já existe: ${existingTab.dataset.url}`);
+        switchTab(existingTab.dataset.tab);
+        openTabs.delete(imageUrl); // Remove do conjunto
+        return;
+    }
 
-  // Evento para fechar a aba
-  newTab.querySelector(".close-tab").addEventListener("click", (e) => {
-    e.stopPropagation();
-    removeTab(tabId);
-  });
+    const tabId = `tab-${Date.now()}`;
+    console.log(`Criando nova aba: ${tabId}, URL: ${imageUrl}`);
 
-  // Evento para alternar ao clicar na aba
-  newTab.addEventListener("click", () => switchTab(tabId));
-}
+    const newTab = document.createElement("div");
+    newTab.className = "tab";
+    newTab.dataset.tab = tabId;
+    newTab.dataset.url = imageUrl;
+    newTab.innerHTML = `
+        <span>${imageName}</span>
+        <span class="close-tab" data-tab="${tabId}">&times;</span>
+    `;
+    tabsContainer.appendChild(newTab);
 
-cancelButton.addEventListener("click", () => {
-  popup.classList.add("hidden"); // Fecha o popup
-  fileInput.value = ""; // Reseta o campo de arquivo
-});
+    const newViewer = document.createElement("div");
+    newViewer.id = tabId;
+    newViewer.className = "viewer";
+    newViewer.style.display = "none";
+    newViewer.innerHTML = `<img src="${imageUrl}" alt="${imageName}" class="viewer-image">`;
+    viewerContainer.appendChild(newViewer);
 
-   // Função para remover uma guia
-   function removeTab(tabId) {
-  const tab = document.querySelector(`.tab[data-tab="${tabId}"]`);
-  const viewer = document.getElementById(tabId);
+    switchTab(tabId);
 
-  if (tab) tab.remove();
-  if (viewer) viewer.remove();
+    newTab.querySelector(".close-tab").addEventListener("click", (e) => {
+        e.stopPropagation();
+        removeTab(tabId);
+        openTabs.delete(imageUrl); // Remove do conjunto ao fechar
+    });
 
-  // Retorna para a guia principal se não houver mais guias ativas
-  if (!document.querySelector(".tab.active")) {
-    switchTab("piece");
-  }
+    newTab.addEventListener("click", () => switchTab(tabId));
+
+    // Remova a URL do conjunto após um curto atraso
+    setTimeout(() => openTabs.delete(imageUrl), 500);
 }
 
 
+
+
+
+function removeTab(tabId) {
+    const tab = document.querySelector(`.tab[data-tab="${tabId}"]`);
+    const viewer = document.getElementById(tabId);
+
+    if (tab) tab.remove();
+    if (viewer) viewer.remove();
+
+    // Alterna para a aba principal se nenhuma outra estiver ativa
+    if (!document.querySelector(".tab.active")) {
+        switchTab("piece");
+    }
+}
 
 
 function openImageInViewer(imageUrl) {
@@ -538,11 +556,13 @@ confirmButton.addEventListener("click", async () => {
 
   // Função para carregar imagens do servidor
 
-
   function createGalleryItem(imageUrl, imageName = "Imagem carregada") {
-    if (!imageUrl) {
-        console.error("URL inválida para a imagem:", imageUrl);
-        return null;
+    // Verifica se a imagem já existe na galeria
+    const existingItem = Array.from(galleryContainer.children).find(
+        (item) => item.querySelector("img").src === imageUrl
+    );
+    if (existingItem) {
+        return existingItem; // Retorna o item existente para evitar duplicação
     }
 
     const imgElement = document.createElement("img");
@@ -553,11 +573,7 @@ confirmButton.addEventListener("click", async () => {
     itemDiv.classList.add("gallery-item");
     itemDiv.appendChild(imgElement);
 
-    imgElement.addEventListener("click", () => {
-        addTab(imageUrl, imageName);
-    });
-
-    return itemDiv;
+    return itemDiv; // Removido o `onclick`
 }
 
 
@@ -578,35 +594,31 @@ confirmButton.addEventListener("click", async () => {
   }
 
 
-  async function loadGalleryImages(newImageUrl = null) {
-  try {
-    const response = await fetch("/upload-img-data/design");
-    const data = await response.json();
+  async function loadGalleryImages() {
+    try {
+        const response = await fetch("/upload-img-data/design");
+        const data = await response.json();
 
-    if (!data.images || data.images.length === 0) {
-      galleryContainer.innerHTML = "<p>Nenhuma imagem encontrada.</p>";
-      return;
+        if (!data.images || data.images.length === 0) {
+            galleryContainer.innerHTML = "<p>Nenhuma imagem encontrada.</p>";
+            return;
+        }
+
+        // Limpa a galeria antes de adicionar novos itens
+        galleryContainer.innerHTML = "";
+
+        // Adiciona imagens únicas
+        const uniqueImages = [...new Set(data.images)];
+        uniqueImages.forEach((imageUrl) => {
+            const galleryItem = createGalleryItem(imageUrl);
+            galleryContainer.appendChild(galleryItem);
+        });
+    } catch (error) {
+        console.error("Erro ao carregar a galeria:", error);
+        galleryContainer.innerHTML = "<p>Erro ao carregar imagens.</p>";
     }
-
-    // Adiciona uma nova imagem se fornecida
-    const images = newImageUrl ? [newImageUrl, ...data.images] : data.images;
-
-    // Remove duplicações usando Set
-    const uniqueImages = [...new Set(images)];
-
-    // Limpa a galeria antes de adicionar os itens
-    galleryContainer.innerHTML = "";
-
-    // Adiciona cada imagem única à galeria
-    uniqueImages.forEach((imageUrl) => {
-      const galleryItem = createGalleryItem(imageUrl);
-      galleryContainer.appendChild(galleryItem);
-    });
-  } catch (error) {
-    console.error("Erro ao carregar a galeria:", error);
-    galleryContainer.innerHTML = "<p>Erro ao carregar imagens.</p>";
-  }
 }
+
 
 
 
