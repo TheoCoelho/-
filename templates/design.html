@@ -544,10 +544,6 @@ confirmButton.addEventListener("click", async () => {
     }
 });
 
-
-
-
-
   document.getElementById("cancelEditButton").addEventListener("click", () => {
   closeEditor();
 });
@@ -598,9 +594,6 @@ function createGalleryItem(imageUrl, imageName = "Imagem carregada") {
 }
 
 
-
-
-
   // Função para reordenar a galeria
   function reorderGallery() {
     const items = Array.from(document.querySelectorAll(".gallery-item"));
@@ -629,9 +622,8 @@ function createGalleryItem(imageUrl, imageName = "Imagem carregada") {
         // Limpa a galeria antes de adicionar novos itens
         galleryContainer.innerHTML = "";
 
-        // Adiciona imagens únicas com nomes
-        const uniqueImages = [...new Set(data.images)];
-        uniqueImages.forEach(({ url, name }) => {
+        // Adiciona imagens na ordem fornecida pelo backend
+        data.images.forEach(({ url, name }) => {
             const galleryItem = createGalleryItem(url, name);
             galleryContainer.appendChild(galleryItem);
         });
@@ -640,6 +632,7 @@ function createGalleryItem(imageUrl, imageName = "Imagem carregada") {
         galleryContainer.innerHTML = "<p>Erro ao carregar imagens.</p>";
     }
 }
+
 
 
 

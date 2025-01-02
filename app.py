@@ -63,20 +63,24 @@ def upload_design_file():
     if not file or not allowed_file(file.filename):
         return jsonify({"success": False, "error": "Arquivo inválido"}), 400
 
-    # Usar o nome personalizado, se fornecido, ou o nome original
+    # Garante extensão correta
     extension = file.filename.rsplit('.', 1)[1].lower()
+    
+    # Usa o nome personalizado (ou o nome original se não fornecido)
     if custom_name:
         filename = f"{secure_filename(custom_name)}.{extension}"
     else:
         filename = secure_filename(file.filename)
-
-    unique_filename = f"{uuid.uuid4().hex}_{filename}"  # Garante um nome único
+    
+    # Renomeia o arquivo para garantir exclusividade
+    unique_filename = f"{uuid.uuid4().hex}_{filename}"
     filepath = os.path.join(user_folder, unique_filename)
     file.save(filepath)
 
-    # Gera a URL para a imagem
+    # Gera a URL para exibir a imagem
     image_url = url_for('static', filename=f'uploads/design/{username}/{unique_filename}', _external=False)
-    return jsonify({"success": True, "image_url": image_url, "image_name": custom_name or file.filename}), 200
+    
+    return jsonify({"success": True, "image_url": image_url, "image_name": custom_name or filename}), 200
 
 
 
@@ -89,19 +93,34 @@ def upload_img_data_design():
     username = session['username']
     user_folder = os.path.join(app.config['UPLOAD_FOLDER'], 'design', username)
 
+    # Cria a pasta do usuário caso não exista
     if not os.path.exists(user_folder):
+        os.makedirs(user_folder)
         return jsonify({"images": []})
 
-    # Lista os arquivos do diretório
-    images = os.listdir(user_folder)
+    # Lista os arquivos do diretório com timestamps de criação
+    images = [
+        {
+            "path": os.path.join(user_folder, img),
+            "filename": img,
+            "created_time": os.path.getctime(os.path.join(user_folder, img))
+        }
+        for img in os.listdir(user_folder)
+    ]
+
+    # Ordena por data de criação (mais recente primeiro)
+    images.sort(key=lambda x: x["created_time"], reverse=True)
+
+    # Retorna os dados ordenados
     image_data = [
         {
-            "url": url_for('static', filename=f'uploads/design/{username}/{img}', _external=False),
-            "name": os.path.splitext(img)[0]
+            "url": url_for('static', filename=f'uploads/design/{username}/{img["filename"]}', _external=False),
+            "name": "_".join(os.path.splitext(img["filename"])[0].split("_")[1:]),
         }
         for img in images
     ]
     return jsonify({"images": image_data})
+
 
 
 @app.route('/save-edited-image', methods=['POST'])
