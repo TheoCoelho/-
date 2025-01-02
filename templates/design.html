@@ -519,7 +519,7 @@ confirmButton.addEventListener("click", async () => {
 
     const formData = new FormData();
     formData.append("file", file);
-    formData.append("image_name", imageName);
+    formData.append("image_name", imageName); // Envia o nome personalizado
 
     try {
         const response = await fetch("/upload/design", {
@@ -543,6 +543,7 @@ confirmButton.addEventListener("click", async () => {
         alert("Erro ao fazer upload. Tente novamente.");
     }
 });
+
 
 
 

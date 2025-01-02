@@ -48,7 +48,6 @@ def upload_file():
 
     return jsonify({"success": False, "error": "Arquivo inválido"}), 400
 
-
 @app.route('/upload/design', methods=['POST'])
 def upload_design_file():
     if 'username' not in session:
@@ -58,23 +57,27 @@ def upload_design_file():
     user_folder = os.path.join(app.config['UPLOAD_FOLDER'], 'design', username)
     os.makedirs(user_folder, exist_ok=True)
 
-    if 'file' not in request.files:
-        return jsonify({"success": False, "error": "Nenhum arquivo enviado"}), 400
+    file = request.files.get('file')
+    custom_name = request.form.get('image_name', '').strip()
 
-    file = request.files['file']
-    if file and allowed_file(file.filename):
-        # Garante nome único para o arquivo
-        extension = file.filename.rsplit('.', 1)[1].lower()
-        original_name = os.path.splitext(file.filename)[0]  # Nome sem extensão
-        unique_filename = f"{uuid.uuid4().hex}.{extension}"
-        filepath = os.path.join(user_folder, unique_filename)
-        file.save(filepath)
+    if not file or not allowed_file(file.filename):
+        return jsonify({"success": False, "error": "Arquivo inválido"}), 400
 
-        # Gera a URL para a imagem
-        image_url = url_for('static', filename=f'uploads/design/{username}/{unique_filename}', _external=False)
-        return jsonify({"success": True, "image_url": image_url, "image_name": original_name}), 200
+    # Usar o nome personalizado, se fornecido, ou o nome original
+    extension = file.filename.rsplit('.', 1)[1].lower()
+    if custom_name:
+        filename = f"{secure_filename(custom_name)}.{extension}"
+    else:
+        filename = secure_filename(file.filename)
 
-    return jsonify({"success": False, "error": "Arquivo inválido"}), 400
+    unique_filename = f"{uuid.uuid4().hex}_{filename}"  # Garante um nome único
+    filepath = os.path.join(user_folder, unique_filename)
+    file.save(filepath)
+
+    # Gera a URL para a imagem
+    image_url = url_for('static', filename=f'uploads/design/{username}/{unique_filename}', _external=False)
+    return jsonify({"success": True, "image_url": image_url, "image_name": custom_name or file.filename}), 200
+
 
 
 
