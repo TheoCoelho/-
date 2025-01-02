@@ -9,8 +9,7 @@
   <link rel="stylesheet" href="{{ url_for('static', filename='css/design.css') }}">
   <link rel="stylesheet" href="{{ url_for('static', filename='css/base.css') }}">
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css">
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/fabric.js/4.6.0/fabric.min.js"></script>
-
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/fabric.js/451/fabric.min.js" integrity="sha512-qeu8RcLnpzoRnEotT3r1CxB17JtHrBqlfSTOm4MQzb7efBdkcL03t343gyRmI6OTUW6iI+hShiysszISQ/IahA==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
 </head>
 
 <body class="design-page">
@@ -51,32 +50,42 @@
         <div id="upload-gallery" class="gallery"></div>
       </div>
     
-      <!-- Botões adicionais -->
-      <button class="toolbar-button">
+      <button class="toolbar-button palette-button">
         <i class="bi bi-palette"></i>
       </button>
-      <button class="toolbar-button">
-        <i class="bi bi-type"></i>
-      </button>
+      <div class="palette-toolbar-content toolbar-content" style="display: none;">
+        <h3>Edição de Imagem</h3>
+        <button id="rotate-image" class="edit-option">Rotacionar</button>
+        <button id="addTextButton" class="edit-option">Adicionar Texto</button>
+        <button id="apply-filter" class="edit-option">Aplicar Filtro</button>
+        <button id="saveImageButton">Salvar Imagem</button>
+        <button id="cancelEditButton">cancelar edição </button>
+
+        <canvas id="imageCanvas" width="800" height="600"></canvas>
+      </div>
+        <button class="toolbar-button">
+          <i class="bi bi-type"></i>
+        </button>
     </div>
+
     <div class="vertical-line"></div>
 
     <!-- Contêiner do visualizador -->
-    <div class="viewer-container" id ="viewer-container">
+    <div class="viewer-container" id="viewer-container">
       <div class="tab-container">
         <div id="tabs" class="tabs">
           <div class="tab" data-tab="piece">
             <span id="piece-tab-name">{{ selecao['modelo'] or 'Peça' }}</span>
           </div>
         </div>
-        </div>
-      <!-- Imagem do modelo -->
+      </div>
       <div id="model-viewer">
-          <div id="piece" class="viewer">
-            <img src="{{ url_for('static', filename='models/' + imagem) }}" alt="{{ selecao['modelo'] or 'Peça' }}" class="viewer-image">
-          </div>
+        <div id="piece" class="viewer">
+          <img src="{{ url_for('static', filename='models/' + imagem) }}" alt="{{ selecao['modelo'] or 'Peça' }}" class="viewer-image">
+        </div>
       </div>
     </div>
+    
     <div id="popup" class="popup hidden">
       <div class="popup-content">
         <h3>Pré-visualização da Imagem</h3>
@@ -91,14 +100,7 @@
     </div>
 
     </div>
-    <div id="image-editor" style="display: none;">
-      <canvas id="imageCanvas"></canvas>
-      <div class="editor-tools">
-        <button id="rotateButton">Rotacionar</button>
-        <button id="addTextButton">Adicionar Texto</button>
-        <button id="saveImageButton">Salvar</button>
-        <button id="cancelEditButton">Cancelar</button>
-      </div>
+
   </div>
 
 <script>
@@ -120,19 +122,95 @@ document.addEventListener("DOMContentLoaded", () => {
   const previewImage = document.getElementById("preview-image");
   const galleryContainer = document.getElementById("upload-gallery");
   const cancelEditButton = document.getElementById("cancelEditButton");
-  const saveImageButton = document.getElementById("saveImageButton");
   const defaultViewer = document.getElementById("model-viewer");
   const imageEditor = document.getElementById("image-editor");
   const tabsContainer = document.getElementById("tabs");
   const viewerContainer = document.getElementById("viewer-container");
+  const paletteButton = document.querySelector(".palette-button");
+    const paletteContent = document.querySelector(".palette-toolbar-content");
+
+
+    let fabricCanvas = null;
+    const canvasElement = document.getElementById("imageCanvas");
+
   switchTab("piece"); // Ativa a guia principal no início
   loadGalleryImages(); // Carrega as imagens da galeria
+ 
+  if (canvasElement) {
+  fabricCanvas = new fabric.Canvas(canvasElement); // Use 'fabricCanvas' já definido anteriormente
+  console.log("Fabric.js carregado com sucesso!");
+} else {
+  console.error("Elemento 'imageCanvas' não encontrado.");
+}
+
+const rotateButton = document.getElementById("rotate-image");
+  const addTextButton = document.getElementById("add-text");
+  const applyFilterButton = document.getElementById("apply-filter");
+  const saveImageButton = document.getElementById("saveImageButton");
+
+  if (rotateButton) {
+    rotateButton.addEventListener("click", () => {
+        if (fabricCanvas) {
+            const activeObject = fabricCanvas.getActiveObject();
+            if (activeObject) {
+                activeObject.rotate((activeObject.angle || 0) + 45);
+                fabricCanvas.renderAll();
+            } else {
+                console.warn("Nenhum objeto ativo encontrado no canvas.");
+            }
+        } else {
+            console.error("Canvas não foi inicializado.");
+        }
+    });
+} else {
+    console.error("Botão 'rotate-image' não encontrado no DOM.");
+}
+  if (!saveImageButton) {
+    console.error("O elemento saveImageButton não foi encontrado no DOM.");
+} else {
+    console.log("Elemento saveImageButton encontrado.");
+}
+
+
+
+  if (addTextButton) {
+    addTextButton.addEventListener("click", () => {
+      if (fabricCanvas) {
+        const text = new fabric.Text("Texto Exemplo", {
+          left: 50,
+          top: 50,
+          fill: "red",
+        });
+        fabricCanvas.add(text);
+      }
+    });
+  } else {
+    console.warn("Botão para adicionar texto não encontrado.");
+  }
+
+  if (applyFilterButton) {
+    applyFilterButton.addEventListener("click", () => {
+      if (fabricCanvas) {
+        const activeObject = fabricCanvas.getActiveObject();
+        if (activeObject) {
+          const grayscaleFilter = new fabric.Image.filters.Grayscale();
+          activeObject.filters.push(grayscaleFilter);
+          activeObject.applyFilters();
+          fabricCanvas.renderAll();
+        } else {
+          console.warn("Nenhum objeto ativo encontrado no canvas.");
+        }
+      }
+    });
+  } else {
+    console.warn("Botão de filtro não encontrado.");
+  }
 
   if (!galleryContainer) {
     console.error("Elemento upload-gallery não encontrado.");
     return;
   }
-  let fabricCanvas;
+
   let isEditorActive = false;
   let currentlyExpandedContent = null; // Rastreamento do conteúdo expandido atual
   let activeButton = null;
@@ -182,31 +260,20 @@ function closeEditor() {
   // Função para alternar entre guias
   function switchTab(tabId) {
     const tab = document.querySelector(`.tab[data-tab="${tabId}"]`);
-    if (!tab) {
-        console.warn(`Aba com ID "${tabId}" não encontrada.`);
-        return;
-    }
-
     const viewer = document.getElementById(tabId);
-    if (!viewer) {
-        console.warn(`Viewer com ID "${tabId}" não encontrado.`);
+
+    if (!tab || !viewer) {
+        console.warn(`Aba ou viewer com ID "${tabId}" não encontrado.`);
         return;
     }
 
-    // Remove a classe "active" de todas as abas
-    document.querySelectorAll(".tab").forEach((tabElement) => {
-        tabElement.classList.remove("active");
-    });
+    document.querySelectorAll(".tab").forEach((tabElement) => tabElement.classList.remove("active"));
+    document.querySelectorAll(".viewer").forEach((viewerElement) => viewerElement.style.display = "none");
 
-    // Oculta todos os viewers
-    document.querySelectorAll(".viewer").forEach((viewerElement) => {
-        viewerElement.style.display = "none";
-    });
-
-    // Ativa a aba e o viewer correspondentes
     tab.classList.add("active");
     viewer.style.display = "flex";
 }
+
 
 function debugTabs() {
     console.log("Estado atual das abas:");
@@ -392,7 +459,7 @@ async function saveEditedImage() {
   }
 
 // Adiciona eventos para as ferramentas de edição
-document.getElementById("rotateButton").addEventListener("click", () => {
+document.getElementById("rotate-image").addEventListener("click", () => {
   const activeObject = fabricCanvas.getActiveObject();
   if (activeObject) {
     activeObject.rotate((activeObject.angle || 0) + 45); // Rotaciona 45 graus
@@ -400,50 +467,43 @@ document.getElementById("rotateButton").addEventListener("click", () => {
   }
 });
 
-document.getElementById("addTextButton").addEventListener("click", () => {
-  const text = new fabric.Text("Texto Exemplo", {
-    left: 50,
-    top: 50,
-    fill: "red",
-  });
-  fabricCanvas.add(text);
-});
-
 
   // Função para expandir e retrair o conteúdo da toolbar
   function toggleToolbar(contentToExpand) {
-    if (currentlyExpandedContent === contentToExpand) {
-      retractContent(); // Fecha se já estiver expandido
-    } else {
-      if (currentlyExpandedContent) {
-        retractContent(() => expandContent(contentToExpand));
+      if (currentlyExpandedContent === contentToExpand) {
+        retractContent();
       } else {
-        expandContent(contentToExpand);
+        if (currentlyExpandedContent) {
+          retractContent(() => expandContent(contentToExpand));
+        } else {
+          expandContent(contentToExpand);
+        }
       }
     }
-  }
 
-  function expandContent(content) {
-    toolbar.classList.add("expanded");
-    content.style.display = "flex";
-    setTimeout(() => {
-      content.style.opacity = "1";
-    }, 0);
-    currentlyExpandedContent = content;
-  }
-
-  function retractContent(callback = null) {
-    if (currentlyExpandedContent) {
-      currentlyExpandedContent.style.opacity = "0";
+    function expandContent(content) {
+      toolbar.classList.add("expanded");
+      content.style.display = "flex";
       setTimeout(() => {
-        currentlyExpandedContent.style.display = "none";
-        currentlyExpandedContent = null;
-        toolbar.classList.remove("expanded");
-        if (callback) callback();
-      }, 300);
+        content.style.opacity = "1";
+      }, 0);
+      currentlyExpandedContent = content;
     }
-  }
 
+    function retractContent(callback = null) {
+      if (currentlyExpandedContent) {
+        currentlyExpandedContent.style.opacity = "0";
+        setTimeout(() => {
+          currentlyExpandedContent.style.display = "none";
+          currentlyExpandedContent = null;
+          toolbar.classList.remove("expanded");
+          if (callback) callback();
+        }, 300);
+      }
+    }
+
+    // Eventos para os botões da toolbar
+    paletteButton.addEventListener("click", () => toggleToolbar(paletteContent));
   // Eventos para os botões da toolbar
   editButton.addEventListener("click", () => toggleToolbar(editContent));
   uploadButton.addEventListener("click", () => toggleToolbar(uploadContent));
@@ -633,6 +693,16 @@ function createGalleryItem(imageUrl, imageName = "Imagem carregada") {
     }
 }
 
+
+    applyFilterButton.addEventListener("click", () => {
+      const activeObject = fabricCanvas.getActiveObject();
+      if (activeObject && activeObject.filters) {
+        const grayscaleFilter = new fabric.Image.filters.Grayscale();
+        activeObject.filters.push(grayscaleFilter);
+        activeObject.applyFilters();
+        fabricCanvas.renderAll();
+      }
+    });
 
 
 

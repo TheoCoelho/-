@@ -342,15 +342,12 @@ import json
 @app.route('/design')
 def design_route():
     selecao = session.get('design_atual', {})
-    modelo = selecao.get('modelo', 'default').lower()  # Modelo selecionado ou 'default'
+    modelo = selecao.get('modelo', 'default').lower()
 
-    # Carrega as opções do arquivo JSON
     with open('static/carrossel_opcoes.json') as f:
         data = json.load(f)
 
-    # Busca a imagem associada ao modelo ou usa a imagem padrão
     imagem = data['pecas'].get(modelo, {}).get('imagem', 'default.png')
-
     return render_template('design.html', selecao=selecao, imagem=imagem)
 
 
