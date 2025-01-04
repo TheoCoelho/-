@@ -2,7 +2,7 @@ html,
 body {
   margin: 0;
   padding: 0;
-  overflow: hidden;
+  overflow: visible;
   height: 100%;
 }
 
@@ -33,7 +33,7 @@ body {
   display: flex;
   flex-direction: column;
   justify-content: space-around;
-  align-items: self-start;
+  align-items: flex-start;
   background-color: orange;
   padding: 20px;
   width: 70px;
@@ -42,6 +42,7 @@ body {
   z-index: 2;
   transition: width 0.5s ease-in-out;
   position: relative;
+  overflow: hidden;
 }
 
 .toolbar.expanded {
@@ -58,6 +59,8 @@ body {
 }
 .toolbar-button:hover {
   color: #ff6347;
+  transform: scale(1.1); /* Aumenta levemente o botão ao passar o mouse */
+
 }
 
 .upload-button.selected {
@@ -326,10 +329,12 @@ body {
   justify-content: center;
 }
 /* Transições e animações */
+
 .toolbar-content {
   display: none;
+  flex-direction: column;
   opacity: 0;
-  transition: opacity 0.3s ease, display 0s ease 0.3s;
+  transition: opacity 0.3s ease-in-out;
 }
 
 .toolbar.expanded .toolbar-content {
@@ -410,4 +415,47 @@ body {
   outline: none;
   border-color: #007bff;
   box-shadow: 0 0 5px rgba(0, 123, 255, 0.5);
+}
+.editor-tools {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 15px; /* Espaço consistente entre botões */
+  flex-wrap: wrap;
+  margin-top: 20px;
+}
+
+.editor-tool-button {
+  background-color: #ffb400;
+  color: #000;
+  border: none;
+  border-radius: 5px;
+  padding: 10px 20px;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: background-color 0.3s ease, transform 0.2s;
+}
+
+.editor-tool-button:hover {
+  background-color: #ff8c00;
+  transform: scale(1.05); /* Efeito de zoom ao passar o mouse */
+}
+.toolbar.expanded .palette-toolbar-content {
+  display: flex; /* Mostra o conteúdo */
+  flex-direction: column;
+  gap: 10px;
+  opacity: 1;
+  transition: opacity 0.3s ease-in-out;
+}
+.palette-toolbar-content {
+  display: none; /* Inicialmente escondido */
+  flex-direction: column; /* Garantir layout vertical */
+  gap: 10px; /* Espaçamento entre os botões */
+  opacity: 0; /* Invisível até a expansão */
+  transition: opacity 0.3s ease-in-out;
+  position: absolute; /* Para evitar sobreposição indesejada */
+  top: 50%; /* Alinhamento vertical */
+  left: 100px; /* Ajuste para posição lateral */
+  transform: translateY(-50%);
+  z-index: 10; /* Para evitar que fique abaixo de outros elementos */
 }

@@ -53,16 +53,18 @@
       <button class="toolbar-button palette-button">
         <i class="bi bi-palette"></i>
       </button>
-      <div class="palette-toolbar-content toolbar-content" style="display: none;">
-        <h3>Edição de Imagem</h3>
-        <button id="rotate-image" class="edit-option">Rotacionar</button>
-        <button id="addTextButton" class="edit-option">Adicionar Texto</button>
-        <button id="apply-filter" class="edit-option">Aplicar Filtro</button>
-        <button id="saveImageButton">Salvar Imagem</button>
-        <button id="cancelEditButton">cancelar edição </button>
+    
+        <!-- Conteúdo da paleta -->
+        <div class="palette-toolbar-content toolbar-content" style="display: none; opacity: 0;">
+          <div class="editor-tools">
+            <button id="rotate-image" class="editor-tool-button">Rotacionar</button>
+            <button id="add-text" class="editor-tool-button">Adicionar Texto</button>
+            <button id="apply-filter" class="editor-tool-button">Aplicar Filtro</button>
+            <button id="save-image" class="editor-tool-button">Salvar Imagem</button>
+            <button id="cancelEditButton" class="editor-tool-button">Cancelar Edição</button>
+          </div>
+        </div>
 
-        <canvas id="imageCanvas" width="800" height="600"></canvas>
-      </div>
         <button class="toolbar-button">
           <i class="bi bi-type"></i>
         </button>
@@ -78,6 +80,9 @@
             <span id="piece-tab-name">{{ selecao['modelo'] or 'Peça' }}</span>
           </div>
         </div>
+      </div>
+      <div class="palette-toolbar-content toolbar-content">
+        <canvas id="imageCanvas" width="800" height="600"></canvas>
       </div>
       <div id="model-viewer">
         <div id="piece" class="viewer">
@@ -106,10 +111,15 @@
 <script>
 document.addEventListener("DOMContentLoaded", () => {
   const toolbar = document.querySelector(".toolbar");
-  const editButton = document.querySelector(".edit-button");
-  const uploadButton = document.querySelector(".upload-button");
-  const editContent = document.querySelector(".edit-toolbar-content");
-  const uploadContent = document.querySelector(".upload-toolbar-content");
+  const buttons = document.querySelectorAll(".toolbar-button");
+
+    const editButton = document.querySelector(".edit-button");
+    const uploadButton = document.querySelector(".upload-button");
+    const paletteButton = document.querySelector(".palette-button");
+
+    const editContent = document.querySelector(".edit-toolbar-content");
+    const uploadContent = document.querySelector(".upload-toolbar-content");
+    const paletteContent = document.querySelector(".palette-toolbar-content");
   const editNameInput = document.getElementById("edit-name-toolbar");
   const saveNameButton = document.getElementById("save-name-toolbar");
   const editNameButton = document.getElementById("edit-name-button");
@@ -126,10 +136,15 @@ document.addEventListener("DOMContentLoaded", () => {
   const imageEditor = document.getElementById("image-editor");
   const tabsContainer = document.getElementById("tabs");
   const viewerContainer = document.getElementById("viewer-container");
-  const paletteButton = document.querySelector(".palette-button");
-    const paletteContent = document.querySelector(".palette-toolbar-content");
+    const rotateButton = document.getElementById("rotate-image");
+  const addTextButton = document.getElementById("add-text");
+  const applyFilterButton = document.getElementById("apply-filter");
+  const saveImageButton = document.getElementById("save-image");
 
 
+  let isEditorActive = false;
+  let currentlyExpandedContent = null; // Rastreamento do conteúdo expandido atual
+  let activeButton = null;
     let fabricCanvas = null;
     const canvasElement = document.getElementById("imageCanvas");
 
@@ -143,10 +158,7 @@ document.addEventListener("DOMContentLoaded", () => {
   console.error("Elemento 'imageCanvas' não encontrado.");
 }
 
-const rotateButton = document.getElementById("rotate-image");
-  const addTextButton = document.getElementById("add-text");
-  const applyFilterButton = document.getElementById("apply-filter");
-  const saveImageButton = document.getElementById("saveImageButton");
+
 
   if (rotateButton) {
     rotateButton.addEventListener("click", () => {
@@ -211,9 +223,7 @@ const rotateButton = document.getElementById("rotate-image");
     return;
   }
 
-  let isEditorActive = false;
-  let currentlyExpandedContent = null; // Rastreamento do conteúdo expandido atual
-  let activeButton = null;
+
 
   if (!toolbar || !editButton || !uploadButton || !editContent || !uploadContent) {
     console.error("Alguns elementos não foram encontrados no DOM.");
@@ -420,7 +430,38 @@ async function saveEditedImage() {
     alert("Erro ao salvar a imagem.");
   }
 }
+if (saveImageButton) {
+  saveImageButton.addEventListener("click", async () => {
+    if (!fabricCanvas) {
+      console.error("Canvas não inicializado.");
+      return;
+    }
 
+    const dataUrl = fabricCanvas.toDataURL({ format: "png" });
+    const blob = await (await fetch(dataUrl)).blob();
+    const formData = new FormData();
+    formData.append("image", blob, "edited-image.png");
+
+    try {
+      const response = await fetch("/save-edited-image", {
+        method: "POST",
+        body: formData,
+      });
+
+      const result = await response.json();
+      if (result.success) {
+        alert("Imagem salva com sucesso!");
+        closeEditor();
+      } else {
+        alert("Erro ao salvar a imagem.");
+      }
+    } catch (error) {
+      console.error("Erro ao salvar a imagem:", error);
+    }
+  });
+} else {
+  console.warn("Botão 'save-image' não encontrado no DOM.");
+}
 
   // Salvar imagem editada
   saveImageButton.addEventListener("click", async () => {
@@ -466,47 +507,93 @@ document.getElementById("rotate-image").addEventListener("click", () => {
     fabricCanvas.renderAll();
   }
 });
+function toggleToolbar(content, button) {
+    if (!content) {
+        console.warn("Elemento 'content' é nulo. Não é possível expandir ou retrair.");
+        return;
+    }
 
-
-  // Função para expandir e retrair o conteúdo da toolbar
-  function toggleToolbar(contentToExpand) {
-      if (currentlyExpandedContent === contentToExpand) {
-        retractContent();
-      } else {
+    if (currentlyExpandedContent === content && button.classList.contains("active")) {
+        retractToolbar(content, button);
+    } else {
+        // Recolher o conteúdo anterior, se existir
         if (currentlyExpandedContent) {
-          retractContent(() => expandContent(contentToExpand));
+            const activeButton = document.querySelector(".toolbar-button.active");
+            retractToolbar(currentlyExpandedContent, activeButton, () => {
+                expandToolbar(content, button);
+            });
         } else {
-          expandContent(contentToExpand);
+            expandToolbar(content, button);
         }
-      }
     }
+}
 
-    function expandContent(content) {
-      toolbar.classList.add("expanded");
-      content.style.display = "flex";
-      setTimeout(() => {
+function expandToolbar(content, button) {
+    toolbar.classList.add("expanded");
+    content.style.display = "flex";
+    setTimeout(() => {
         content.style.opacity = "1";
-      }, 0);
-      currentlyExpandedContent = content;
+    }, 10); // Aguarda o próximo ciclo de renderização
+    currentlyExpandedContent = content;
+
+    // Marca o botão como ativo
+    buttons.forEach((btn) => btn.classList.remove("active"));
+    button.classList.add("active");
+}
+
+function retractToolbar(content, button, callback = null) {
+    if (!content) {
+        console.warn("Elemento 'content' é nulo. Não é possível retraí-lo.");
+        if (callback) callback();
+        return;
     }
 
-    function retractContent(callback = null) {
-      if (currentlyExpandedContent) {
-        currentlyExpandedContent.style.opacity = "0";
-        setTimeout(() => {
-          currentlyExpandedContent.style.display = "none";
-          currentlyExpandedContent = null;
-          toolbar.classList.remove("expanded");
-          if (callback) callback();
-        }, 300);
-      }
-    }
+    content.style.opacity = "0";
+    setTimeout(() => {
+        content.style.display = "none";
+        toolbar.classList.remove("expanded");
+        currentlyExpandedContent = null;
 
-    // Eventos para os botões da toolbar
+        if (button) {
+            button.classList.remove("active");
+        }
+
+        if (callback) callback();
+    }, 300); // Tempo para animação de opacidade
+}
+// Eventos para os botões
+buttons.forEach((button) => {
+    const targetContentSelector = button.classList.contains("edit-button")
+        ? ".edit-toolbar-content"
+        : button.classList.contains("upload-button")
+        ? ".upload-toolbar-content"
+        : button.classList.contains("palette-button")
+        ? ".palette-toolbar-content"
+        : null;
+
+    if (targetContentSelector) {
+        const targetContent = document.querySelector(targetContentSelector);
+
+        if (targetContent) {
+            button.addEventListener("click", () => {
+                toggleToolbar(targetContent, button);
+            });
+        } else {
+            console.warn(`Elemento ${targetContentSelector} não encontrado.`);
+        }
+    }
+});
+
+
+retractToolbar(currentlyExpandedContent, activeButton, () => {
+  expandToolbar(content, button);
+});
+    // Eventos para os botões
+    editButton.addEventListener("click", () => toggleToolbar(editContent));
+    uploadButton.addEventListener("click", () => toggleToolbar(uploadContent));
     paletteButton.addEventListener("click", () => toggleToolbar(paletteContent));
-  // Eventos para os botões da toolbar
-  editButton.addEventListener("click", () => toggleToolbar(editContent));
-  uploadButton.addEventListener("click", () => toggleToolbar(uploadContent));
+
+
 
 
   // Carregar as imagens somente se a barra estiver expandida
