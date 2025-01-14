@@ -150,6 +150,8 @@ document.addEventListener("DOMContentLoaded", () => {
   const applyFilterButton = document.getElementById("apply-filter");
   const saveImageButton = document.getElementById("save-image");
 
+  
+
   if (targetContent) {
     retractToolbar(targetContent, activeButton, () => {
         expandToolbar(targetContent, activeButton);
@@ -538,84 +540,86 @@ document.getElementById("rotate-image").addEventListener("click", () => {
 
 function toggleToolbar(targetContent, button) {
     if (!targetContent) {
-      console.warn("Elemento de conteúdo não encontrado. Não é possível expandir ou retrair.");
-      return;
+        console.warn("Elemento de conteúdo não encontrado. Não é possível expandir ou retrair.");
+        return;
     }
 
+    // Verifica se o conteúdo atual já está expandido
     if (currentlyExpandedContent === targetContent) {
-      retractToolbar(targetContent, button);
-      currentlyExpandedContent = null;
-      activeButton = null;
-    } else {
-      if (currentlyExpandedContent) {
-        retractToolbar(currentlyExpandedContent, activeButton, () => {
-          expandToolbar(targetContent, button);
-        });
-      } else {
-        expandToolbar(targetContent, button);
-      }
-      currentlyExpandedContent = targetContent;
-      activeButton = button;
+        // Retrai o conteúdo ativo
+        retractToolbar(targetContent, button);
+        currentlyExpandedContent = null;
+        activeButton = null;
+        return;
     }
-  }
+
+    // Retrai o conteúdo anterior, se existir
+    if (currentlyExpandedContent) {
+        retractToolbar(currentlyExpandedContent, activeButton, () => {
+            expandToolbar(targetContent, button);
+        });
+    } else {
+        expandToolbar(targetContent, button);
+    }
+
+    currentlyExpandedContent = targetContent;
+    activeButton = button;
+}
 
 function expandToolbar(content, button) {
-    if (!content) return; // Verifica se o conteúdo existe
+    if (!content) return;
+
+    // Fecha todos os conteúdos antes de expandir o novo
+    document.querySelectorAll(".toolbar-content").forEach((el) => {
+        el.style.display = "none";
+        el.style.opacity = "0";
+    });
+
     toolbar.classList.add("expanded");
-    content.style.display = "flex";
+    content.style.display = "flex"; // Exibe o conteúdo
     setTimeout(() => {
-      content.style.opacity = "1";
+        content.style.opacity = "1"; // Adiciona a transição de opacidade
     }, 10);
-    // Marca o botão como ativo
+
+    // Atualiza o estado dos botões
     buttons.forEach((btn) => btn.classList.remove("active"));
     button.classList.add("active");
-  }
+}
 
-  function retractToolbar(content, button, callback = null) {
-    if (!content) {
-      console.warn("Elemento 'content' é nulo ou indefinido. Não é possível retraí-lo.");
-      if (callback) callback();
-      return;
-    }
+function retractToolbar(content, button, callback = null) {
+    if (!content) return;
 
-    content.style.opacity = "0";
+    content.style.opacity = "0"; // Oculta com transição
     setTimeout(() => {
-      content.style.display = "none";
-      toolbar.classList.remove("expanded");
-      if (button) button.classList.remove("active");
-      if (callback) callback();
-    }, 300);
-  }
+        content.style.display = "none"; // Esconde completamente
+        toolbar.classList.remove("expanded");
 
+        // Remove a classe ativa do botão
+        if (button) button.classList.remove("active");
 
-  function toggleToolbar(targetContent, button) {
+        if (callback) callback();
+    }, 300); // Tempo para transição de opacidade
+}
+  
+buttons.forEach((button) => {
+    const targetContentSelector = button.dataset.target;
+
+    if (!targetContentSelector) {
+        console.warn("Botão sem conteúdo associado:", button);
+        return;
+    }
+
+    const targetContent = document.querySelector(targetContentSelector);
     if (!targetContent) {
-      console.warn("Elemento de conteúdo não encontrado. Não é possível expandir ou retrair.");
-      return;
+        console.warn(`Nenhum conteúdo encontrado para '${targetContentSelector}'`);
+        return;
     }
 
-    if (currentlyExpandedContent === targetContent) {
-      retractToolbar(targetContent, button);
-      currentlyExpandedContent = null;
-      activeButton = null;
-    } else {
-      if (currentlyExpandedContent) {
-        retractToolbar(currentlyExpandedContent, activeButton, () => {
-          expandToolbar(targetContent, button);
-        });
-      } else {
-        expandToolbar(targetContent, button);
-      }
-      currentlyExpandedContent = targetContent;
-      activeButton = button;
-    }
-  }
-
-
+    button.addEventListener("click", () => {
+        toggleToolbar(targetContent, button);
+    });
+});
     // Eventos para os botões
-    editButton.addEventListener("click", () => toggleToolbar(editContent));
-    uploadButton.addEventListener("click", () => toggleToolbar(uploadContent));
-    paletteButton.addEventListener("click", () => toggleToolbar(paletteContent));
 
 
 
