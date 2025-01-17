@@ -25,7 +25,7 @@
       <button class="toolbar-button edit-button" data-target=".edit-toolbar-content">
         <i class="bi bi-tools"></i>
       </button>
-      <div class="edit-toolbar-content toolbar-content" style="display: none; opacity: 0;">
+      <div class="edit-toolbar-content toolbar-content" style="display: none;" >
         <div class="edit-container">
           <span id="name-display">{{ selecao['modelo'] or '(nome da peça)' }}</span>
           <button id="edit-name-button" class="icon-button">
@@ -41,7 +41,7 @@
       <button class="toolbar-button upload-button" data-target=".upload-toolbar-content">
         <i class="bi bi-cloud-arrow-up"></i>
       </button>
-      <div class="upload-toolbar-content toolbar-content" style="display: none;">
+      <div class="upload-toolbar-content toolbar-content" style="display: none;" >
         <h3>Upload de Imagem</h3>
         <label class="custom-file-upload">
           <input type="file" id="file-input" accept="image/*">
@@ -55,7 +55,7 @@
       </button>
     
         <!-- Conteúdo da paleta -->
-        <div class="palette-toolbar-content toolbar-content" style="display: none; opacity: 0;">
+        <div class="palette-toolbar-content toolbar-content" style="display: none;" >
           <div class="editor-tools">
             <button id="rotate-image" class="editor-tool-button">Rotacionar</button>
             <button id="add-text" class="editor-tool-button">Adicionar Texto</button>
@@ -113,724 +113,657 @@
 
   </div>
 
-<script>
-document.addEventListener("DOMContentLoaded", () => {
-  let currentlyExpandedContent = null; // Declaração antes do uso
-
-  const targetContent = null;
-
-  const toolbar = document.querySelector(".toolbar");
-  const buttons = document.querySelectorAll(".toolbar-button");
-
-    const editButton = document.querySelector(".edit-button");
-    const uploadButton = document.querySelector(".upload-button");
-    const paletteButton = document.querySelector(".palette-button");
-
-    const editContent = document.querySelector(".edit-toolbar-content");
-    const uploadContent = document.querySelector(".upload-toolbar-content");
-    const paletteContent = document.querySelector(".palette-toolbar-content");
-  const editNameInput = document.getElementById("edit-name-toolbar");
-  const saveNameButton = document.getElementById("save-name-toolbar");
-  const editNameButton = document.getElementById("edit-name-button");
-  const nameDisplay = document.getElementById("name-display");
-  const editInputContainer = document.getElementById("edit-input-container");
-  const fileInput = document.getElementById("file-input");
-  const popup = document.getElementById("popup");
-  const confirmButton = document.getElementById("confirm-upload");
-  const cancelButton = document.getElementById("cancel-upload");
-  const previewImage = document.getElementById("preview-image");
-  const galleryContainer = document.getElementById("upload-gallery");
-  const cancelEditButton = document.getElementById("cancelEditButton");
-  const defaultViewer = document.getElementById("model-viewer");
-  const imageEditor = document.getElementById("image-editor");
-  const tabsContainer = document.getElementById("tabs");
-  const viewerContainer = document.getElementById("viewer-container");
-    const rotateButton = document.getElementById("rotate-image");
-  const addTextButton = document.getElementById("add-text");
-  const applyFilterButton = document.getElementById("apply-filter");
-  const saveImageButton = document.getElementById("save-image");
-
-  
-
-  if (targetContent) {
-    retractToolbar(targetContent, activeButton, () => {
-        expandToolbar(targetContent, activeButton);
-    });
-} else {
-    console.warn("Nenhum conteúdo ativo para retrair ou expandir.");
-}
-  let isEditorActive = false;
-  let activeButton = null;
+  <script>
+    // Variáveis globais para o Fabric.js e controle de estado
     let fabricCanvas = null;
-    const canvasElement = document.getElementById("imageCanvas");
-
-  switchTab("piece"); // Ativa a guia principal no início
-  loadGalleryImages(); // Carrega as imagens da galeria
- 
-  if (canvasElement) {
-    fabricCanvas = new fabric.Canvas(canvasElement);
-    console.log("Fabric.js carregado com sucesso!");
-} else {
-    console.warn("Elemento 'imageCanvas' não encontrado. Algumas funcionalidades podem não funcionar.");
-}
-document.addEventListener("DOMContentLoaded", () => {
-    if (!toolbar || !editButton || !uploadButton || !editContent || !uploadContent) {
-        console.error("Alguns elementos essenciais não foram encontrados no DOM.");
-        return;
+    let currentlyExpandedContent = null;
+    let activeButton = null;
+    
+    
+    // Objeto para armazenar referências ao DOM
+    const DOMElements = {
+        canvasElement: null,
+        galleryContainer: null,
+        rotateButton: null,
+        addTextButton: null,
+        applyFilterButton: null,
+        buttons: null,
+        editNameInput: null,
+        saveNameButton: null,
+        editNameButton: null,
+        nameDisplay: null,
+        editInputContainer: null,
+        fileInput: null,
+        popup: null,
+        confirmButton: null,
+        cancelButton: null,
+        previewImage: null,
+        tabsContainer: null,
+        viewerContainer: null,
+        saveImageButton: null,
+    };
+    
+    
+    function captureDOMElements() {
+        DOMElements.canvasElement = document.getElementById("imageCanvas");
+        DOMElements.galleryContainer = document.getElementById("upload-gallery");
+        DOMElements.rotateButton = document.getElementById("rotate-image");
+        DOMElements.addTextButton = document.getElementById("add-text");
+        DOMElements.applyFilterButton = document.getElementById("apply-filter");
+        DOMElements.buttons = document.querySelectorAll(".toolbar-button");
+        DOMElements.editNameInput = document.getElementById("edit-name-toolbar");
+        DOMElements.saveNameButton = document.getElementById("save-name-toolbar");
+        DOMElements.editNameButton = document.getElementById("edit-name-button");
+        DOMElements.nameDisplay = document.getElementById("name-display");
+        DOMElements.editInputContainer = document.getElementById("edit-input-container");
+        DOMElements.fileInput = document.getElementById("file-input");
+        DOMElements.popup = document.getElementById("popup");
+        DOMElements.confirmButton = document.getElementById("confirm-upload");
+        DOMElements.cancelButton = document.getElementById("cancel-upload");
+        DOMElements.previewImage = document.getElementById("preview-image");
+        DOMElements.tabsContainer = document.getElementById("tabs");
+        DOMElements.viewerContainer = document.getElementById("viewer-container");
+        DOMElements.saveImageButton = document.getElementById("save-image");
     }
-
-    switchTab("piece"); // Aba inicial
-    loadGalleryImages(); // Carrega imagens da galeria
-});
-
-
-  if (rotateButton) {
-    rotateButton.addEventListener("click", () => {
-        if (fabricCanvas) {
-            const activeObject = fabricCanvas.getActiveObject();
-            if (activeObject) {
-                activeObject.rotate((activeObject.angle || 0) + 45);
-                fabricCanvas.renderAll();
-            } else {
-                console.warn("Nenhum objeto ativo encontrado no canvas.");
-            }
-        } else {
-            console.error("Canvas não foi inicializado.");
-        }
-    });
-} else {
-    console.error("Botão 'rotate-image' não encontrado no DOM.");
-}
-  if (!saveImageButton) {
-    console.error("O elemento saveImageButton não foi encontrado no DOM.");
-} else {
-    console.log("Elemento saveImageButton encontrado.");
-}
-
-
-
-  if (addTextButton) {
-    addTextButton.addEventListener("click", () => {
-      if (fabricCanvas) {
-        const text = new fabric.Text("Texto Exemplo", {
-          left: 50,
-          top: 50,
-          fill: "red",
-        });
-        fabricCanvas.add(text);
-      }
-    });
-  } else {
-    console.warn("Botão para adicionar texto não encontrado.");
-  }
-
-  if (applyFilterButton) {
-    applyFilterButton.addEventListener("click", () => {
-      if (fabricCanvas) {
-        const activeObject = fabricCanvas.getActiveObject();
-        if (activeObject) {
-          const grayscaleFilter = new fabric.Image.filters.Grayscale();
-          activeObject.filters.push(grayscaleFilter);
-          activeObject.applyFilters();
-          fabricCanvas.renderAll();
-        } else {
-          console.warn("Nenhum objeto ativo encontrado no canvas.");
-        }
-      }
-    });
-  } else {
-    console.warn("Botão de filtro não encontrado.");
-  }
-
-  if (!galleryContainer) {
-    console.error("Elemento upload-gallery não encontrado.");
-    return;
-  }
-
-
-
-  if (!toolbar || !editButton || !uploadButton || !editContent || !uploadContent) {
-    console.error("Alguns elementos não foram encontrados no DOM.");
-    return;
-  }
-
-
-  document.querySelectorAll(".gallery-item img").forEach((img) => {
-  img.addEventListener("click", () => {
-    openImageInViewer(img.src);
-  });
-});
-
-galleryContainer.addEventListener("click", (event) => {
-    const img = event.target.closest("img");
-    if (!img) {
-        console.warn("Nenhuma imagem encontrada no evento de clique.");
-        return;
-    }
-
-    const imageUrl = img.src;
-    const imageName = img.alt || "Imagem";
-
-    const existingTab = Array.from(tabsContainer.querySelectorAll(".tab")).find(
-        (tab) => tab.dataset.url === imageUrl
-    );
-
-    if (existingTab) {
-        switchTab(existingTab.dataset.tab);
-    } else {
-        addTab(imageUrl, imageName);
-    }
-});
-
-
-
-function openEditor(imageUrl) {
-  isEditorActive = true;
-  switchTab("image-editor");
-  loadImageOnCanvas(imageUrl);
-}
-
-function closeEditor() {
-  isEditorActive = false;
-  imageEditor.style.display = "none";
-  switchTab("piece"); // Volta para a guia principal
-}
-  // Função para alternar entre guias
-  function switchTab(tabId) {
-    const tab = document.querySelector(`.tab[data-tab="${tabId}"]`);
-    const viewer = document.getElementById(tabId);
-
-    if (!tab || !viewer) {
-        console.warn(`Aba ou viewer com ID "${tabId}" não encontrado.`);
-        return;
-    }
-
-    document.querySelectorAll(".tab").forEach((tabElement) => tabElement.classList.remove("active"));
-    document.querySelectorAll(".viewer").forEach((viewerElement) => (viewerElement.style.display = "none"));
-
-    tab.classList.add("active");
-    viewer.style.display = "flex";
-}
-
-
-
-function debugTabs() {
-    console.log("Estado atual das abas:");
-    Array.from(tabsContainer.children).forEach((tab) => {
-        console.log(`Aba: ${tab.dataset.tab}, URL: ${tab.dataset.url}`);
-    });
-}
-
-// Chame a função ao carregar a página
-document.addEventListener("DOMContentLoaded", () => {
-  switchTab("piece"); // Define "piece" como aba ativa inicial
-});
-
-document.querySelectorAll(".tab").forEach((tab) => {
-  tab.addEventListener("click", () => {
-    const tabId = tab.dataset.tab;
-    switchTab(tabId);
-  });
-});
-
-
-const openTabs = new Set();
-
-function addTab(imageUrl, imageName) {
-    const existingTab = Array.from(tabsContainer.querySelectorAll(".tab")).find(
-        (tab) => tab.dataset.url === imageUrl
-    );
-
-    if (existingTab) {
-        console.log(`Aba já existe: ${existingTab.dataset.url}`);
-        switchTab(existingTab.dataset.tab);
-        return; // Não cria uma nova aba
-    }
-
-    const tabId = `tab-${Date.now()}`;
-
-    const newTab = document.createElement("div");
-    newTab.className = "tab";
-    newTab.dataset.tab = tabId;
-    newTab.dataset.url = imageUrl;
-    newTab.innerHTML = `
-        <span>${imageName}</span>
-        <span class="close-tab" data-tab="${tabId}">&times;</span>
-    `;
-
-    tabsContainer.appendChild(newTab);
-
-    const newViewer = document.createElement("div");
-    newViewer.id = tabId;
-    newViewer.className = "viewer";
-    newViewer.style.display = "none";
-    newViewer.innerHTML = `<img src="${imageUrl}" alt="${imageName}" class="viewer-image">`;
-
-    viewerContainer.appendChild(newViewer);
-    switchTab(tabId);
-
-    newTab.querySelector(".close-tab").addEventListener("click", (e) => {
-        e.stopPropagation();
-        removeTab(tabId);
-    });
-
-    newTab.addEventListener("click", () => switchTab(tabId));
-}
-
-
-
-
-
-function removeTab(tabId) {
-    const tab = document.querySelector(`.tab[data-tab="${tabId}"]`);
-    const viewer = document.getElementById(tabId);
-
-    if (tab) tab.remove();
-    if (viewer) viewer.remove();
-
-    // Alterna para a aba principal se nenhuma outra estiver ativa
-    if (!document.querySelector(".tab.active")) {
+    
+    
+    function initializeApp() {
+        // Capturar os elementos do DOM
+        captureDOMElements();
+    
+        // Inicializar o Fabric.js Canvas
+        initializeFabricCanvas();
+    
+        // Configurar a Toolbar
+        setupToolbar();
+    
+        // Configurar a Galeria
+        setupGallery();
+    
+        // Inicializar ferramentas do Canvas
+        setupCanvasTools();
+        setupCanvasFilters();
+    
+        // Carregar as imagens da galeria
+        loadGalleryImages();
+    
+        setupCanvasRotation();
+    
+    
+        setupSaveCanvas();
+    
+    
+        setupTabs();
+    
+        setupGalleryClick();
+    
+    
+        setupGalleryReorder();
+    
+        initializeEditName();
+    
+        // Definir a aba inicial
         switchTab("piece");
     }
-}
-
-
-function openImageInViewer(imageUrl) {
-    if (!imageUrl) {
-        console.warn("URL da imagem não fornecida.");
-        return;
+    
+    document.addEventListener("DOMContentLoaded", initializeApp);
+    
+    function initializeFabricCanvas() {
+        const { canvasElement } = DOMElements;
+    
+        if (canvasElement) {
+            fabricCanvas = new fabric.Canvas(canvasElement);
+            console.log("Fabric.js Canvas inicializado com sucesso.");
+    
+            // Evento para capturar cliques no canvas
+            fabricCanvas.on("mouse:down", (event) => {
+                if (event.target) {
+                    console.log("Objeto selecionado no canvas:", event.target);
+                } else {
+                    console.log("Nenhum objeto selecionado.");
+                }
+            });
+        } else {
+            console.error("Elemento 'imageCanvas' não encontrado no DOM.");
+        }
     }
+    
+    const buttons = document.querySelectorAll(".toolbar-button");
+    console.log("Botões encontrados:", buttons);
 
-    defaultViewer.style.display = "none"; // Oculta o visualizador padrão
-    imageEditor.style.display = "block"; // Mostra o editor
+    buttons.forEach((button) => {
+        console.log("Registrando evento para o botão:", button);
 
-    if (!fabricCanvas) {
-        fabricCanvas = new fabric.Canvas("imageCanvas");
-    } else {
-        fabricCanvas.clear();
-    }
-
-    fabric.Image.fromURL(imageUrl, (img) => {
-        fabricCanvas.setWidth(img.width);
-        fabricCanvas.setHeight(img.height);
-        fabricCanvas.add(img);
-        img.center();
-        img.setCoords();
+        button.addEventListener("click", () => {
+            console.log("Botão clicado:", button);
+        });
     });
-}
 
+    buttons.forEach((button) => {
+        const targetContentSelector = button.dataset.target; // Obtém o seletor do conteúdo
+        const targetContent = document.querySelector(targetContentSelector); // Seleciona o conteúdo correspondente
 
-function loadImageOnCanvas(imageUrl) {
-  if (fabricCanvas) {
-    fabricCanvas.clear(); // Limpa o canvas existente
-  } else {
-    const canvasElement = document.getElementById("imageCanvas");
-    fabricCanvas = new fabric.Canvas(canvasElement);
-  }
-
-  fabric.Image.fromURL(imageUrl, (img) => {
-    fabricCanvas.setWidth(img.width);
-    fabricCanvas.setHeight(img.height);
-    fabricCanvas.add(img);
-    img.center(); // Centraliza a imagem no canvas
-    img.setCoords();
-  });
-}
-async function saveEditedImage() {
-  const dataUrl = fabricCanvas.toDataURL({ format: "png" });
-  const blob = await (await fetch(dataUrl)).blob();
-  const formData = new FormData();
-  formData.append("image", blob, "edited-image.png");
-
-  const response = await fetch("/save-edited-image", {
-    method: "POST",
-    body: formData,
-  });
-
-  const result = await response.json();
-  if (result.success) {
-    alert("Imagem salva com sucesso!");
-    closeEditor();
-    // Atualiza a galeria
-    const galleryItem = createGalleryItem(result.filepath);
-    galleryContainer.prepend(galleryItem);
-  } else {
-    alert("Erro ao salvar a imagem.");
-  }
-}
-if (saveImageButton) {
-    saveImageButton.addEventListener("click", async () => {
-        if (!fabricCanvas) {
-            console.error("Canvas não inicializado.");
+        if (!targetContent) {
+            console.warn(`Conteúdo não encontrado para o botão: ${button}`);
             return;
         }
 
-        const dataUrl = fabricCanvas.toDataURL({ format: "png" });
-        const blob = await (await fetch(dataUrl)).blob();
-        const formData = new FormData();
-        formData.append("image", blob, "edited-image.png");
-
-        try {
-            const response = await fetch("/save-edited-image", {
-                method: "POST",
-                body: formData,
-            });
-
-            const result = await response.json();
-            if (result.success) {
-                alert("Imagem salva com sucesso!");
-                closeEditor();
-            } else {
-                alert("Erro ao salvar a imagem.");
-            }
-        } catch (error) {
-            console.error("Erro ao salvar a imagem:", error);
-        }
+        // Adiciona evento de clique ao botão
+        button.addEventListener("click", () => {
+            toggleToolbar(targetContent, button);
+        });
     });
-} else {
-    console.warn("Botão 'save-image' não encontrado no DOM.");
+
+    function setupToolbar() {
+ 
+
+    buttons.forEach((button) => {
+        const targetContentSelector = button.dataset.target;
+        const targetContent = document.querySelector(targetContentSelector);
+
+        if (!targetContent) {
+            console.warn(`Nenhum conteúdo encontrado para o botão: ${button}`);
+            return;
+        }
+
+        button.addEventListener("click", () => {
+            toggleToolbar(targetContent, button);
+        });
+    });
+    console.log("Botões da toolbar configurados:");
+buttons.forEach((button) => {
+    console.log(button);
+});
 }
 
 
-
-  // Salvar imagem editada
-  saveImageButton.addEventListener("click", async () => {
-    const dataUrl = fabricCanvas.toDataURL({ format: "png" });
-    const blob = await (await fetch(dataUrl)).blob();
-    const formData = new FormData();
-    formData.append("image", blob, "edited-image.png");
-
-    try {
-      const response = await fetch("/save-edited-image", {
-        method: "POST",
-        body: formData,
-      });
-
-      const result = await response.json();
-      if (result.success) {
-        alert("Imagem salva com sucesso!");
-        closeEditor();
-      } else {
-        alert("Erro ao salvar a imagem.");
-      }
-    } catch (error) {
-      console.error("Erro ao salvar a imagem:", error);
-    }
-  });
-
-  // Fechar o editor
-  cancelEditButton.addEventListener("click", () => {
-    closeEditor();
-  });
-
-  function closeEditor() {
-    if (fabricCanvas) fabricCanvas.clear();
-    imageEditor.style.display = "none";
-    defaultViewer.style.display = "block";
-  }
-
-// Adiciona eventos para as ferramentas de edição
-document.getElementById("rotate-image").addEventListener("click", () => {
-  const activeObject = fabricCanvas.getActiveObject();
-  if (activeObject) {
-    activeObject.rotate((activeObject.angle || 0) + 45); // Rotaciona 45 graus
-    fabricCanvas.renderAll();
-  }
+document.addEventListener("DOMContentLoaded", () => {
+    setupToolbar();
 });
 
+    
 function toggleToolbar(targetContent, button) {
     if (!targetContent) {
-        console.warn("Elemento de conteúdo não encontrado. Não é possível expandir ou retrair.");
+        console.warn("Elemento de conteúdo não encontrado.");
         return;
     }
 
-    // Verifica se o conteúdo atual já está expandido
-    if (currentlyExpandedContent === targetContent) {
-        // Retrai o conteúdo ativo
-        retractToolbar(targetContent, button);
-        currentlyExpandedContent = null;
-        activeButton = null;
-        return;
-    }
+    const toolbar = document.querySelector(".toolbar");
+    const isCurrentlyVisible = targetContent.classList.contains("active");
 
-    // Retrai o conteúdo anterior, se existir
-    if (currentlyExpandedContent) {
-        retractToolbar(currentlyExpandedContent, activeButton, () => {
-            expandToolbar(targetContent, button);
-        });
-    } else {
-        expandToolbar(targetContent, button);
-    }
-
-    currentlyExpandedContent = targetContent;
-    activeButton = button;
-}
-
-function expandToolbar(content, button) {
-    if (!content) return;
-
-    // Fecha todos os conteúdos antes de expandir o novo
-    document.querySelectorAll(".toolbar-content").forEach((el) => {
-        el.style.display = "none";
-        el.style.opacity = "0";
+    // Fecha todos os conteúdos e desativa todos os botões
+    document.querySelectorAll(".toolbar-content").forEach((content) => {
+        content.style.display = "none";
+        content.classList.remove("active");
     });
 
-    toolbar.classList.add("expanded");
-    content.style.display = "flex"; // Exibe o conteúdo
-    setTimeout(() => {
-        content.style.opacity = "1"; // Adiciona a transição de opacidade
-    }, 10);
+    document.querySelectorAll(".toolbar-button").forEach((btn) => {
+        btn.classList.remove("active");
+    });
 
-    // Atualiza o estado dos botões
-    buttons.forEach((btn) => btn.classList.remove("active"));
-    button.classList.add("active");
-}
-
-function retractToolbar(content, button, callback = null) {
-    if (!content) return;
-
-    content.style.opacity = "0"; // Oculta com transição
-    setTimeout(() => {
-        content.style.display = "none"; // Esconde completamente
+    // Alternar a visibilidade do conteúdo atual
+    if (!isCurrentlyVisible) {
+        targetContent.style.display = "flex";
+        targetContent.classList.add("active");
+        button.classList.add("active");
+        toolbar.classList.add("expanded");
+    } else {
+        // Retratar se o conteúdo já estava visível
         toolbar.classList.remove("expanded");
-
-        // Remove a classe ativa do botão
-        if (button) button.classList.remove("active");
-
-        if (callback) callback();
-    }, 300); // Tempo para transição de opacidade
+    }
 }
-  
-buttons.forEach((button) => {
-    const targetContentSelector = button.dataset.target;
-
-    if (!targetContentSelector) {
-        console.warn("Botão sem conteúdo associado:", button);
-        return;
-    }
-
-    const targetContent = document.querySelector(targetContentSelector);
-    if (!targetContent) {
-        console.warn(`Nenhum conteúdo encontrado para '${targetContentSelector}'`);
-        return;
-    }
-
-    button.addEventListener("click", () => {
-        toggleToolbar(targetContent, button);
-    });
-});
-    // Eventos para os botões
 
 
+    function expandToolbar(content, button) {
+        if (!content) return;
 
-
-  // Carregar as imagens somente se a barra estiver expandida
-
-
-  // Lógica de edição do nome
-  editNameButton.addEventListener("click", () => {
-    nameDisplay.style.display = "none";
-    editNameButton.style.display = "none";
-    editInputContainer.style.display = "flex";
-    editNameInput.focus();
-  });
-
-  // Salvar o nome editado
-  saveNameButton.addEventListener("click", () => {
-    const newName = editNameInput.value.trim();
-    if (newName) {
-      fetch("/editar-design", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ novo_nome: newName }),
-      })
-        .then((response) => response.json())
-        .then((data) => {
-          if (data.success) {
-            nameDisplay.textContent = newName;
-            nameDisplay.style.display = "inline";
-            editNameButton.style.display = "inline";
-            editInputContainer.style.display = "none";
-          } else {
-            alert(data.message || "Erro ao salvar o nome.");
-          }
+        // Fecha todos os outros conteúdos antes de expandir o novo
+        document.querySelectorAll(".toolbar-content").forEach((el) => {
+            el.style.display = "none";
+            el.style.opacity = "0";
         });
-    } else {
-      alert("O nome não pode estar vazio.");
+
+        content.style.display = "flex"; // Exibe o conteúdo
+        setTimeout(() => {
+            content.style.opacity = "1"; // Adiciona transição de opacidade
+        }, 10);
+
+        // Atualiza o estado dos botões
+        buttons.forEach((btn) => btn.classList.remove("active"));
+        button.classList.add("active");
     }
-  });
 
-  fileInput.addEventListener("change", (event) => {
-  const file = event.target.files[0];
-  if (file) {
-    const reader = new FileReader();
-    reader.onload = (e) => {
-      previewImage.src = e.target.result;
-      document.getElementById("image-name-input").value = file.name.split('.')[0]; // Nome sem extensão
-      popup.classList.remove("hidden");
-    };
-    reader.readAsDataURL(file);
-  } else {
-    alert("Nenhum arquivo selecionado.");
-  }
-});
+    // Função para retrair o conteúdo
+    function retractToolbar(content, button, callback = null) {
+        if (!content) return;
 
+        content.style.opacity = "0"; // Adiciona transição de opacidade
+        setTimeout(() => {
+            content.style.display = "none"; // Esconde completamente
+            if (callback) callback();
+        }, 300); // Tempo para a transição
 
-
-
-confirmButton.addEventListener("click", async () => {
-  const file = fileInput.files[0];
-  const imageName = document.getElementById("image-name-input").value.trim();
-
-  if (!file) {
-    alert("Nenhum arquivo selecionado.");
-    return;
-  }
-  if (!imageName) {
-    alert("Por favor, insira um nome para a imagem.");
-    return;
-  }
-
-  const formData = new FormData();
-  formData.append("file", file);
-  formData.append("image_name", imageName);
-
-  try {
-    const response = await fetch("/upload/design", {
-      method: "POST",
-      body: formData,
-    });
-
-    const data = await response.json();
-    if (data.success && data.image_url) {
-      const galleryItem = createGalleryItem(data.image_url, data.image_name);
-      galleryContainer.prepend(galleryItem);
-
-      popup.classList.add("hidden");
-      fileInput.value = ""; // Limpa o campo
-    } else {
-      alert(data.error || "Erro ao processar upload.");
+        button.classList.remove("active"); // Remove o estado ativo do botão
     }
-  } catch (error) {
-    console.error("Erro no upload:", error);
-    alert("Erro ao fazer upload. Tente novamente.");
-  }
+    document.getElementById("confirm-upload").addEventListener("click", async () => {
+    const fileInput = document.getElementById("file-input");
+    const imageNameInput = document.getElementById("image-name-input");
+    const popup = document.getElementById("popup");
+    const galleryContainer = document.getElementById("upload-gallery");
+
+    const file = fileInput.files[0];
+    const imageName = imageNameInput.value.trim();
+
+    if (!file) {
+        alert("Nenhum arquivo selecionado.");
+        return;
+    }
+
+    if (!imageName) {
+        alert("Por favor, insira um nome para a imagem.");
+        return;
+    }
+
+    const formData = new FormData();
+    formData.append("file", file);
+    formData.append("image_name", imageName);
+
+    try {
+        const response = await fetch("/upload/design", {
+            method: "POST",
+            body: formData,
+        });
+
+        const data = await response.json();
+        if (data.success && data.image_url) {
+            const galleryItem = createGalleryItem(data.image_url, data.image_name);
+            galleryContainer.insertAdjacentHTML("afterbegin", galleryItem);
+
+            // Fechar o popup e limpar os campos
+            popup.classList.add("hidden");
+            fileInput.value = "";
+            imageNameInput.value = "";
+        } else {
+            alert(data.error || "Erro ao processar upload.");
+        }
+    } catch (error) {
+        console.error("Erro no upload:", error);
+        alert("Erro ao fazer upload. Tente novamente.");
+    }
 });
+    
+    function setupGallery() {
+        const { fileInput, popup, previewImage, confirmButton, cancelButton } = DOMElements;
+    
+        fileInput.addEventListener("change", (event) => {
+            const file = event.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    previewImage.src = e.target.result;
+                    popup.classList.remove("hidden"); // Exibe a pré-visualização
+                };
+                reader.readAsDataURL(file);
+            } else {
+                alert("Nenhum arquivo selecionado.");
+            }
+        });
+    
+        confirmButton.addEventListener("click", () => {
+            const file = fileInput.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    fabric.Image.fromURL(e.target.result, (img) => {
+                        img.scaleToWidth(400);
+                        fabricCanvas.add(img);
+                        img.center();
+                        img.setCoords();
+                        fabricCanvas.renderAll();
+                    });
+                };
+                reader.readAsDataURL(file);
+                popup.classList.add("hidden"); // Fecha o popup
+                fileInput.value = ""; // Limpa o campo
+            }
+        });
+    
+        cancelButton.addEventListener("click", () => {
+            popup.classList.add("hidden");
+            fileInput.value = ""; // Limpa o campo
+        });
+    }
+    
+    function setupCanvasTools() {
+        const { addTextButton } = DOMElements;
+    
+        if (addTextButton) {
+            addTextButton.addEventListener("click", () => {
+                const text = new fabric.Textbox("Texto Exemplo", {
+                    left: 50,
+                    top: 50,
+                    fill: "black",
+                    fontSize: 24,
+                    editable: true,
+                });
+                fabricCanvas.add(text);
+                fabricCanvas.setActiveObject(text);
+                fabricCanvas.renderAll();
+            });
+        } else {
+            console.warn("Botão 'Adicionar Texto' não encontrado.");
+        }
+    }
+    
+    function setupCanvasFilters() {
+        const { applyFilterButton } = DOMElements;
+    
+        if (applyFilterButton) {
+            applyFilterButton.addEventListener("click", () => {
+                const activeObject = fabricCanvas.getActiveObject();
+                if (activeObject && activeObject.type === "image" && activeObject.filters) {
+                    const grayscaleFilter = new fabric.Image.filters.Grayscale();
+                    activeObject.filters = [grayscaleFilter];
+                    activeObject.applyFilters();
+                    fabricCanvas.renderAll();
+                } else {
+                    alert("Selecione uma imagem válida para aplicar o filtro.");
+                }
+            });
+        } else {
+            console.warn("Botão 'Aplicar Filtro' não encontrado.");
+        }
+    }
 
+    function createGalleryItem(imageUrl, imageName) {
+    return `
+        <div class="gallery-item">
+            <img src="${imageUrl}" alt="${imageName}" onclick="openImageInViewer('${imageUrl}')">
+            <span class="gallery-item-caption">${imageName}</span>
+        </div>
+    `;
+}
 
-  document.getElementById("cancelEditButton").addEventListener("click", () => {
-  closeEditor();
-});
+    function setupGallery() {
+        const { fileInput, popup, previewImage, confirmButton, cancelButton } = DOMElements;
+    
+        fileInput.addEventListener("change", (event) => {
+            const file = event.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    previewImage.src = e.target.result;
+                    popup.classList.remove("hidden"); // Exibe a pré-visualização
+                };
+                reader.readAsDataURL(file);
+            } else {
+                alert("Nenhum arquivo selecionado.");
+            }
+        });
+    
+        confirmButton.addEventListener("click", () => {
+            const file = fileInput.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    fabric.Image.fromURL(e.target.result, (img) => {
+                        img.crossOrigin = "anonymous"; // Compatibilidade CORS
+                        img.scaleToWidth(400);
+                        fabricCanvas.add(img);
+                        img.center();
+                        img.setCoords();
+                        fabricCanvas.renderAll();
+                    });
+                };
+                reader.readAsDataURL(file);
+                popup.classList.add("hidden"); // Fecha o popup
+                fileInput.value = ""; // Limpa o campo
+            }
+        });
+    
+        cancelButton.addEventListener("click", () => {
+            popup.classList.add("hidden");
+            fileInput.value = ""; // Limpa o campo
+        });
+    }
+    
+    function setupCanvasRotation() {
+        const { rotateButton } = DOMElements;
+    
+        if (rotateButton) {
+            rotateButton.addEventListener("click", () => {
+                const activeObject = fabricCanvas.getActiveObject();
+                if (activeObject) {
+                    activeObject.rotate((activeObject.angle || 0) + 45); // Incrementa 45 graus
+                    fabricCanvas.renderAll();
+                } else {
+                    alert("Nenhum objeto selecionado para rotacionar.");
+                }
+            });
+        } else {
+            console.warn("Botão 'Rotacionar' não encontrado.");
+        }
+    }
+    
+    function setupSaveCanvas() {
+        const { saveImageButton } = DOMElements;
+    
+        if (saveImageButton) {
+            saveImageButton.addEventListener("click", async () => {
+                if (fabricCanvas) {
+                    const dataUrl = fabricCanvas.toDataURL({ format: "png" });
+                    const blob = await (await fetch(dataUrl)).blob();
+                    const formData = new FormData();
+                    formData.append("image", blob, "edited-image.png");
+    
+                    try {
+                        const response = await fetch("/save-edited-image", {
+                            method: "POST",
+                            body: formData,
+                        });
+    
+                        const result = await response.json();
+                        if (result.success) {
+                            alert("Imagem salva com sucesso!");
+                        } else {
+                            alert("Erro ao salvar a imagem.");
+                        }
+                    } catch (error) {
+                        console.error("Erro ao salvar a imagem:", error);
+                    }
+                } else {
+                    console.error("Canvas não inicializado.");
+                }
+            });
+        } else {
+            console.warn("Botão 'Salvar Imagem' não encontrado.");
+        }
+    }
+    
+    
+    function setupTabs() {
+        const { tabsContainer } = DOMElements;
+    
+        if (tabsContainer) {
+            tabsContainer.addEventListener("click", (event) => {
+                const tab = event.target.closest(".tab");
+                if (tab) {
+                    const tabId = tab.dataset.tab;
+                    switchTab(tabId);
+                }
+            });
+        } else {
+            console.warn("Contêiner de abas não encontrado.");
+        }
+    }
+    
+    function switchTab(tabId) {
+        const { tabsContainer, viewerContainer } = DOMElements;
+    
+        if (tabsContainer && viewerContainer) {
+            tabsContainer.querySelectorAll(".tab").forEach((tab) => {
+                tab.classList.remove("active");
+            });
+            viewerContainer.querySelectorAll(".viewer").forEach((viewer) => {
+                viewer.style.display = "none";
+            });
+    
+            const activeTab = tabsContainer.querySelector(`.tab[data-tab="${tabId}"]`);
+            const activeViewer = viewerContainer.querySelector(`#${tabId}`);
+            if (activeTab && activeViewer) {
+                activeTab.classList.add("active");
+                activeViewer.style.display = "block";
+            } else {
+                console.warn(`Aba ou visualizador com ID '${tabId}' não encontrado.`);
+            }
+        }
+    }
+    
+   async function loadGalleryImages() {
+    const galleryContainer = document.getElementById("upload-gallery");
 
-cancelButton.addEventListener("click", () => {
-  popup.classList.add("hidden");
-  fileInput.value = ""; // Limpa o campo de arquivo
-});
-  // Função para carregar imagens do servidor
-
-  async function loadGalleryImages() {
     try {
         const response = await fetch("/upload-img-data/design");
         const data = await response.json();
 
-        if (!data.images || data.images.length === 0) {
+        if (data.images && data.images.length > 0) {
+            galleryContainer.innerHTML = data.images
+                .map(({ url, name }) => createGalleryItem(url, name))
+                .join("");
+        } else {
             galleryContainer.innerHTML = "<p>Nenhuma imagem encontrada.</p>";
-            return;
         }
-
-        galleryContainer.innerHTML = "";
-        data.images.forEach(({ url, name }) => {
-            const galleryItem = createGalleryItem(url, name);
-            galleryContainer.appendChild(galleryItem);
-        });
     } catch (error) {
-        console.error("Erro ao carregar a galeria:", error);
-        galleryContainer.innerHTML = "<p>Erro ao carregar imagens.</p>";
+        console.error("Erro ao carregar imagens da galeria:", error);
     }
 }
 
 
-function createGalleryItem(imageUrl, imageName) {
-  const imgElement = document.createElement("img");
-  imgElement.src = imageUrl;
-  imgElement.alt = imageName;
-
-  const itemDiv = document.createElement("div");
-  itemDiv.classList.add("gallery-item");
-  itemDiv.appendChild(imgElement);
-
-  const caption = document.createElement("span");
-  caption.textContent = imageName;
-  caption.classList.add("gallery-item-caption");
-
-  itemDiv.appendChild(caption);
-  return itemDiv;
-}
-
-
-
-  // Função para reordenar a galeria
-  function reorderGallery() {
-    const items = Array.from(document.querySelectorAll(".gallery-item"));
-    const tempContainer = document.createElement("div");
-
-    // Recria a galeria com base na ordem desejada
-    items.forEach((item) => {
-      tempContainer.appendChild(item);
-    });
-
-    galleryContainer.innerHTML = "";
-    galleryContainer.append(...tempContainer.children);
-  }
-
-
-  async function loadGalleryImages() {
-    try {
-        const response = await fetch("/upload-img-data/design");
-        const data = await response.json();
-
-        if (!data.images || data.images.length === 0) {
-            galleryContainer.innerHTML = "<p>Nenhuma imagem encontrada.</p>";
-            return;
+    function setupGalleryClick() {
+        const { galleryContainer } = DOMElements;
+    
+        if (galleryContainer) {
+            galleryContainer.addEventListener("click", (event) => {
+                const img = event.target.closest("img");
+                if (img) {
+                    const imageUrl = img.src;
+                    openImageInViewer(imageUrl);
+                }
+            });
+        } else {
+            console.warn("Contêiner da galeria não encontrado.");
         }
-
-        // Limpa a galeria antes de adicionar novos itens
-        galleryContainer.innerHTML = "";
-
-        // Adiciona imagens na ordem fornecida pelo backend
-        data.images.forEach(({ url, name }) => {
-            const galleryItem = createGalleryItem(url, name);
-            galleryContainer.appendChild(galleryItem);
-        });
-    } catch (error) {
-        console.error("Erro ao carregar a galeria:", error);
-        galleryContainer.innerHTML = "<p>Erro ao carregar imagens.</p>";
     }
-}
-
-
-    applyFilterButton.addEventListener("click", () => {
-      const activeObject = fabricCanvas.getActiveObject();
-      if (activeObject && activeObject.filters) {
-        const grayscaleFilter = new fabric.Image.filters.Grayscale();
-        activeObject.filters.push(grayscaleFilter);
-        activeObject.applyFilters();
-        fabricCanvas.renderAll();
-      }
-    });
-
-
-
-
-
-});
-
-
-
-
-  </script>
+    function loadImageOnCanvas(imageUrl) {
+        if (fabricCanvas) {
+            fabricCanvas.clear(); // Limpa o canvas
+            fabric.Image.fromURL(imageUrl, (img) => {
+                img.crossOrigin = "anonymous"; // Compatibilidade CORS
+                img.scaleToWidth(400); // Ajusta largura
+                fabricCanvas.add(img);
+                img.center(); // Centraliza a imagem
+                img.setCoords();
+                fabricCanvas.renderAll();
+            });
+        } else {
+            console.error("Canvas não inicializado.");
+        }
+    }
+    
+    
+    function setupGalleryReorder() {
+        const { galleryContainer } = DOMElements;
+    
+        if (galleryContainer) {
+            galleryContainer.addEventListener("dragstart", (event) => {
+                event.dataTransfer.setData("text/plain", event.target.dataset.index);
+            });
+    
+            galleryContainer.addEventListener("dragover", (event) => {
+                event.preventDefault();
+            });
+    
+            galleryContainer.addEventListener("drop", (event) => {
+                event.preventDefault();
+                const fromIndex = event.dataTransfer.getData("text");
+                const toElement = event.target.closest(".gallery-item");
+                if (toElement) {
+                    const toIndex = Array.from(galleryContainer.children).indexOf(toElement);
+                    reorderGallery(fromIndex, toIndex);
+                }
+            });
+        }
+    }
+    
+    
+    function reorderGallery(fromIndex, toIndex) {
+        const { galleryContainer } = DOMElements;
+    
+        const items = Array.from(galleryContainer.children);
+        const [movedItem] = items.splice(fromIndex, 1);
+        items.splice(toIndex, 0, movedItem);
+    
+        galleryContainer.innerHTML = ""; // Limpa a galeria
+        items.forEach((item) => galleryContainer.appendChild(item)); // Adiciona na nova ordem
+    }
+    
+    function openImageInViewer(imageUrl) {
+        if (fabricCanvas) {
+            fabricCanvas.clear();
+            fabric.Image.fromURL(imageUrl, (img) => {
+                img.scaleToWidth(400);
+                fabricCanvas.add(img);
+                img.center();
+                img.setCoords();
+                fabricCanvas.renderAll();
+            }, { crossOrigin: "anonymous" });
+        }
+        switchTab("image-editor"); // Garante que a aba correspondente seja ativada
+    }
+    
+    
+    function initializeEditName() {
+        const { editNameButton, nameDisplay, editInputContainer, saveNameButton, editNameInput } = DOMElements;
+    
+        if (editNameButton && nameDisplay && editInputContainer && saveNameButton && editNameInput) {
+            editNameButton.addEventListener("click", () => {
+                nameDisplay.style.display = "none";
+                editNameButton.style.display = "none";
+                editInputContainer.style.display = "flex";
+                editNameInput.focus();
+            });
+    
+            saveNameButton.addEventListener("click", () => {
+                const newName = editNameInput.value.trim();
+                if (newName) {
+                    fetch("/editar-design", {
+                        method: "POST",
+                        headers: {
+                            "Content-Type": "application/json",
+                        },
+                        body: JSON.stringify({ novo_nome: newName }),
+                    })
+                        .then((response) => response.json())
+                        .then((data) => {
+                            if (data.success) {
+                                nameDisplay.textContent = newName;
+                                nameDisplay.style.display = "inline";
+                                editNameButton.style.display = "inline";
+                                editInputContainer.style.display = "none";
+                            } else {
+                                alert(data.message || "Erro ao salvar o nome.");
+                            }
+                        });
+                } else {
+                    alert("O nome não pode estar vazio.");
+                }
+            });
+        } else {
+            console.warn("Elementos de edição de nome não encontrados.");
+        }
+    }
+    
+      </script>
   {% endblock %}
 </body>
 

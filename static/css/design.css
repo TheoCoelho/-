@@ -332,11 +332,22 @@ body {
 
 .toolbar-content {
   display: none;
-  flex-direction: column;
   opacity: 0;
   transition: opacity 0.3s ease-in-out;
 }
+.toolbar-content.active {
+  display: flex;
+  opacity: 1;
+}
 
+.toolbar-content.visible {
+  display: flex; /* Mostra o conteúdo */
+  opacity: 1; /* Torna visível */
+}
+.toolbar-button.active {
+  background-color: #ffb400;
+  color: #fff;
+}
 .toolbar.expanded .toolbar-content {
   display: flex;
   opacity: 1;

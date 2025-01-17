@@ -71,7 +71,6 @@ def upload_design_file():
     image_url = url_for('static', filename=f'uploads/design/{username}/{filename}', _external=False)
     return jsonify({"success": True, "image_url": image_url, "image_name": custom_name or filename}), 200
 
-
 @app.route('/upload-img-data/design')
 def upload_img_data_design():
     if 'username' not in session:
