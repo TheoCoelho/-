@@ -598,26 +598,26 @@ function toggleToolbar(targetContent, button) {
     }
     
     function switchTab(tabId) {
-        const { tabsContainer, viewerContainer } = DOMElements;
-    
-        if (tabsContainer && viewerContainer) {
-            tabsContainer.querySelectorAll(".tab").forEach((tab) => {
-                tab.classList.remove("active");
-            });
-            viewerContainer.querySelectorAll(".viewer").forEach((viewer) => {
-                viewer.style.display = "none";
-            });
-    
-            const activeTab = tabsContainer.querySelector(`.tab[data-tab="${tabId}"]`);
-            const activeViewer = viewerContainer.querySelector(`#${tabId}`);
-            if (activeTab && activeViewer) {
-                activeTab.classList.add("active");
-                activeViewer.style.display = "block";
-            } else {
-                console.warn(`Aba ou visualizador com ID '${tabId}' não encontrado.`);
-            }
-        }
+    const { tabsContainer, viewerContainer } = DOMElements;
+
+    // Desativa todas as abas e viewers
+    tabsContainer.querySelectorAll(".tab").forEach((tab) => tab.classList.remove("active"));
+    viewerContainer.querySelectorAll(".viewer").forEach((viewer) => {
+        viewer.style.display = "none";
+    });
+
+    // Ativa a aba e o viewer correspondentes
+    const activeTab = tabsContainer.querySelector(`.tab[data-tab="${tabId}"]`);
+    const activeViewer = viewerContainer.querySelector(`#${tabId}`);
+
+    if (activeTab && activeViewer) {
+        activeTab.classList.add("active");
+        activeViewer.style.display = "flex";
+    } else {
+        console.warn(`Aba ou viewer com ID '${tabId}' não encontrado.`);
     }
+}
+
     
    async function loadGalleryImages() {
     const galleryContainer = document.getElementById("upload-gallery");
@@ -708,20 +708,76 @@ function toggleToolbar(targetContent, button) {
     }
     
     function openImageInViewer(imageUrl) {
-        if (fabricCanvas) {
-            fabricCanvas.clear();
-            fabric.Image.fromURL(imageUrl, (img) => {
-                img.scaleToWidth(400);
-                fabricCanvas.add(img);
-                img.center();
-                img.setCoords();
-                fabricCanvas.renderAll();
-            }, { crossOrigin: "anonymous" });
-        }
-        switchTab("image-editor"); // Garante que a aba correspondente seja ativada
+    const { tabsContainer, viewerContainer } = DOMElements;
+
+    // Normaliza a URL para evitar inconsistências
+    const normalizedUrl = new URL(imageUrl, window.location.origin).href;
+
+    // Verifica se já existe uma aba para essa imagem
+    let existingTab = Array.from(tabsContainer.children).find(
+        (tab) => tab.dataset.url === normalizedUrl
+    );
+
+    let tabId;
+
+    if (!existingTab) {
+        // Gera um ID único para a aba
+        tabId = `tab-${Date.now()}`;
+
+        // Obtém o nome da imagem a partir da URL
+        const imageName = normalizedUrl.split('/').pop().split('.')[0];
+
+        // Cria uma nova aba
+        const newTab = document.createElement("div");
+        newTab.className = "tab";
+        newTab.dataset.tab = tabId;
+        newTab.dataset.url = normalizedUrl;
+        newTab.innerHTML = `
+            <span>${imageName}</span>
+            <span class="close-tab" data-tab="${tabId}">&times;</span>
+        `;
+        tabsContainer.appendChild(newTab);
+
+        // Cria um novo viewer
+        const newViewer = document.createElement("div");
+        newViewer.id = tabId;
+        newViewer.className = "viewer";
+        newViewer.style.display = "none";
+        newViewer.innerHTML = `<img src="${normalizedUrl}" alt="${imageName}" class="viewer-image">`;
+        viewerContainer.appendChild(newViewer);
+
+        // Adiciona evento para fechar a aba
+        newTab.querySelector(".close-tab").addEventListener("click", (event) => {
+            event.stopPropagation();
+            removeTab(tabId);
+        });
+
+        // Adiciona evento para ativar a aba
+        newTab.addEventListener("click", () => switchTab(tabId));
+    } else {
+        // Usa o ID existente
+        tabId = existingTab.dataset.tab;
     }
-    
-    
+
+    // Ativa a aba correspondente
+    switchTab(tabId);
+}
+function removeTab(tabId) {
+    const { tabsContainer, viewerContainer } = DOMElements;
+
+    // Remove a aba e o viewer correspondentes
+    const tab = tabsContainer.querySelector(`.tab[data-tab="${tabId}"]`);
+    const viewer = viewerContainer.querySelector(`#${tabId}`);
+
+    if (tab) tab.remove();
+    if (viewer) viewer.remove();
+
+    // Alterna para a aba principal se nenhuma outra estiver ativa
+    if (!tabsContainer.querySelector(".tab.active")) {
+        switchTab("piece");
+    }
+}
+
     function initializeEditName() {
         const { editNameButton, nameDisplay, editInputContainer, saveNameButton, editNameInput } = DOMElements;
     
