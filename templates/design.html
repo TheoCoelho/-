@@ -87,12 +87,14 @@
         </div>
       </div>
       <div class="palette-toolbar-content toolbar-content">
-        <canvas id="imageCanvas" width="800" height="600"></canvas>
+        <div class="canvas-container">
+            <canvas id="imageCanvas" ></canvas>
+        </div>
       </div>
       <div id="model-viewer">
         <div id="piece" class="viewer">
-          <img src="{{ url_for('static', filename='models/' + imagem) }}" alt="{{ selecao['modelo'] or 'Peça' }}" class="viewer-image">
-        </div>
+            <img src="{{ url_for('static', filename='models/' + imagem) }}" alt="{{ selecao['modelo'] or 'Peça' }}" class="viewer-image">
+          </div>
       </div>
     </div>
     
@@ -209,24 +211,56 @@
     document.addEventListener("DOMContentLoaded", initializeApp);
     
     function initializeFabricCanvas() {
-        const { canvasElement } = DOMElements;
-    
-        if (canvasElement) {
-            fabricCanvas = new fabric.Canvas(canvasElement);
-            console.log("Fabric.js Canvas inicializado com sucesso.");
-    
-            // Evento para capturar cliques no canvas
-            fabricCanvas.on("mouse:down", (event) => {
-                if (event.target) {
-                    console.log("Objeto selecionado no canvas:", event.target);
-                } else {
-                    console.log("Nenhum objeto selecionado.");
-                }
-            });
-        } else {
-            console.error("Elemento 'imageCanvas' não encontrado no DOM.");
-        }
+    const { canvasElement } = DOMElements;
+
+    if (canvasElement) {
+        const parentElement = canvasElement.parentElement;
+
+        // Remover estilos padrão que Fabric.js pode estar aplicando
+        parentElement.style.width = "100%";
+        parentElement.style.height = "100%";
+
+        // Ajustar tamanho do canvas
+        canvasElement.width = parentElement.clientWidth;
+        canvasElement.height = parentElement.clientHeight;
+
+        // Criar o Canvas com Fabric.js
+        fabricCanvas = new fabric.Canvas(canvasElement, {
+            preserveObjectStacking: true,
+            imageSmoothingEnabled: true
+        });
+
+        // Redimensionar o canvas ao redimensionar a janela
+        window.addEventListener("resize", () => {
+            canvasElement.width = parentElement.clientWidth;
+            canvasElement.height = parentElement.clientHeight;
+            fabricCanvas.setWidth(parentElement.clientWidth);
+            fabricCanvas.setHeight(parentElement.clientHeight);
+            fabricCanvas.renderAll();
+        });
+
+        // Ajustar imagens carregadas para que fiquem do tamanho correto
+        fabricCanvas.on("object:added", (e) => {
+            if (e.target.type === "image") {
+                const img = e.target;
+                const scaleX = fabricCanvas.width / img.width;
+                const scaleY = fabricCanvas.height / img.height;
+                const scale = Math.min(scaleX, scaleY);
+
+                img.scale(scale);
+                img.set({
+                    left: fabricCanvas.width / 2,
+                    top: fabricCanvas.height / 2,
+                    originX: "center",
+                    originY: "center"
+                });
+
+                fabricCanvas.renderAll();
+            }
+        });
     }
+}
+
     
     const buttons = document.querySelectorAll(".toolbar-button");
     console.log("Botões encontrados:", buttons);
@@ -456,24 +490,27 @@ function toggleToolbar(targetContent, button) {
     }
     
     function setupCanvasFilters() {
-        const { applyFilterButton } = DOMElements;
-    
-        if (applyFilterButton) {
-            applyFilterButton.addEventListener("click", () => {
-                const activeObject = fabricCanvas.getActiveObject();
-                if (activeObject && activeObject.type === "image" && activeObject.filters) {
-                    const grayscaleFilter = new fabric.Image.filters.Grayscale();
-                    activeObject.filters = [grayscaleFilter];
-                    activeObject.applyFilters();
-                    fabricCanvas.renderAll();
-                } else {
-                    alert("Selecione uma imagem válida para aplicar o filtro.");
-                }
-            });
-        } else {
-            console.warn("Botão 'Aplicar Filtro' não encontrado.");
-        }
+    const { applyFilterButton } = DOMElements;
+
+    if (applyFilterButton) {
+        applyFilterButton.addEventListener("click", () => {
+            const activeObject = fabricCanvas.getActiveObject();
+
+            // Verifica se há um objeto ativo e se é do tipo 'image'
+            if (activeObject && activeObject.type === "image") {
+                // Aplica o filtro de grayscale
+                const grayscaleFilter = new fabric.Image.filters.Grayscale();
+                activeObject.filters = [grayscaleFilter];
+                activeObject.applyFilters();
+                fabricCanvas.renderAll(); // Atualiza o canvas
+            } else {
+                alert("Selecione uma imagem válida para aplicar o filtro.");
+            }
+        });
+    } else {
+        console.warn("Botão 'Aplicar Filtro' não encontrado.");
     }
+}
 
     function createGalleryItem(imageUrl, imageName) {
     return `
@@ -483,6 +520,8 @@ function toggleToolbar(targetContent, button) {
         </div>
     `;
 }
+
+
 
     function setupGallery() {
         const { fileInput, popup, previewImage, confirmButton, cancelButton } = DOMElements;
@@ -528,23 +567,24 @@ function toggleToolbar(targetContent, button) {
     }
     
     function setupCanvasRotation() {
-        const { rotateButton } = DOMElements;
-    
-        if (rotateButton) {
-            rotateButton.addEventListener("click", () => {
-                const activeObject = fabricCanvas.getActiveObject();
-                if (activeObject) {
-                    activeObject.rotate((activeObject.angle || 0) + 45); // Incrementa 45 graus
-                    fabricCanvas.renderAll();
-                } else {
-                    alert("Nenhum objeto selecionado para rotacionar.");
-                }
-            });
-        } else {
-            console.warn("Botão 'Rotacionar' não encontrado.");
-        }
+    const { rotateButton } = DOMElements;
+
+    if (rotateButton) {
+        rotateButton.addEventListener("click", () => {
+            const activeObject = fabricCanvas.getActiveObject();
+            if (activeObject) {
+                activeObject.rotate((activeObject.angle || 0) + 45); // Incrementa 45 graus
+                activeObject.setCoords(); // Atualiza as coordenadas
+                fabricCanvas.renderAll(); // Re-renderiza o canvas
+            } else {
+                alert("Por favor, selecione uma imagem no canvas para rotacionar.");
+            }
+        });
+    } else {
+        console.warn("Botão 'Rotacionar' não encontrado.");
     }
-    
+}
+
     function setupSaveCanvas() {
         const { saveImageButton } = DOMElements;
     
@@ -654,22 +694,55 @@ function toggleToolbar(targetContent, button) {
             console.warn("Contêiner da galeria não encontrado.");
         }
     }
-    function loadImageOnCanvas(imageUrl) {
-        if (fabricCanvas) {
-            fabricCanvas.clear(); // Limpa o canvas
-            fabric.Image.fromURL(imageUrl, (img) => {
-                img.crossOrigin = "anonymous"; // Compatibilidade CORS
-                img.scaleToWidth(400); // Ajusta largura
-                fabricCanvas.add(img);
-                img.center(); // Centraliza a imagem
-                img.setCoords();
-                fabricCanvas.renderAll();
-            });
-        } else {
-            console.error("Canvas não inicializado.");
-        }
-    }
-    
+    function loadImageOnCanvas(imageUrl, tabId) {
+    const canvasElement = document.getElementById(`canvas-${tabId}`);
+    if (!canvasElement) return;
+
+    const fabricCanvas = new fabric.Canvas(canvasElement);
+
+    fabric.Image.fromURL(imageUrl, function (img) {
+        fabricCanvas.clear(); // Limpa o canvas antes de adicionar nova imagem
+
+        const canvasWidth = fabricCanvas.width;
+        const canvasHeight = fabricCanvas.height;
+        const imgWidth = img.width;
+        const imgHeight = img.height;
+
+        // Calcula a escala para manter a proporção da imagem
+        const scale = Math.min(canvasWidth / imgWidth, canvasHeight / imgHeight);
+
+        img.scale(scale);
+        img.set({
+            left: canvasWidth / 2,
+            top: canvasHeight / 2,
+            originX: 'center',
+            originY: 'center'
+        });
+
+        fabricCanvas.add(img);
+        fabricCanvas.renderAll();
+    });
+}
+
+
+function adjustCanvasSize(tabId) {
+    const canvasElement = document.getElementById(`canvas-${tabId}`);
+    if (!canvasElement) return;
+
+    const parentElement = canvasElement.parentElement;
+    const fabricCanvas = new fabric.Canvas(canvasElement);
+
+    // Definição de largura e altura do canvas
+    canvasElement.width = parentElement.clientWidth;
+    canvasElement.height = parentElement.clientHeight;
+    fabricCanvas.setWidth(parentElement.clientWidth);
+    fabricCanvas.setHeight(parentElement.clientHeight);
+    fabricCanvas.renderAll();
+}
+
+
+// Chame esta função na inicialização e ao redimensionar a janela
+window.addEventListener("resize", adjustCanvasSize);
     
     function setupGalleryReorder() {
         const { galleryContainer } = DOMElements;
@@ -708,12 +781,13 @@ function toggleToolbar(targetContent, button) {
     }
     
     function openImageInViewer(imageUrl) {
+    if (!imageUrl) {
+        console.warn("URL da imagem não fornecida.");
+        return;
+    }
+
     const { tabsContainer, viewerContainer } = DOMElements;
-
-    // Normaliza a URL para evitar inconsistências
     const normalizedUrl = new URL(imageUrl, window.location.origin).href;
-
-    // Verifica se já existe uma aba para essa imagem
     let existingTab = Array.from(tabsContainer.children).find(
         (tab) => tab.dataset.url === normalizedUrl
     );
@@ -721,13 +795,10 @@ function toggleToolbar(targetContent, button) {
     let tabId;
 
     if (!existingTab) {
-        // Gera um ID único para a aba
         tabId = `tab-${Date.now()}`;
 
-        // Obtém o nome da imagem a partir da URL
         const imageName = normalizedUrl.split('/').pop().split('.')[0];
 
-        // Cria uma nova aba
         const newTab = document.createElement("div");
         newTab.className = "tab";
         newTab.dataset.tab = tabId;
@@ -738,30 +809,32 @@ function toggleToolbar(targetContent, button) {
         `;
         tabsContainer.appendChild(newTab);
 
-        // Cria um novo viewer
         const newViewer = document.createElement("div");
         newViewer.id = tabId;
         newViewer.className = "viewer";
         newViewer.style.display = "none";
-        newViewer.innerHTML = `<img src="${normalizedUrl}" alt="${imageName}" class="viewer-image">`;
+        newViewer.innerHTML = `<canvas id="canvas-${tabId}" class="viewer-canvas"></canvas>`;
         viewerContainer.appendChild(newViewer);
 
-        // Adiciona evento para fechar a aba
         newTab.querySelector(".close-tab").addEventListener("click", (event) => {
             event.stopPropagation();
             removeTab(tabId);
         });
 
-        // Adiciona evento para ativar a aba
         newTab.addEventListener("click", () => switchTab(tabId));
     } else {
-        // Usa o ID existente
         tabId = existingTab.dataset.tab;
     }
 
-    // Ativa a aba correspondente
     switchTab(tabId);
+
+    setTimeout(() => {
+        adjustCanvasSize(tabId);
+        loadImageOnCanvas(normalizedUrl, tabId);
+    }, 50);
 }
+
+
 function removeTab(tabId) {
     const { tabsContainer, viewerContainer } = DOMElements;
 
@@ -818,7 +891,97 @@ function removeTab(tabId) {
             console.warn("Elementos de edição de nome não encontrados.");
         }
     }
+    async function saveEditedImage() {
+    if (!fabricCanvas) {
+        console.error("Canvas não inicializado.");
+        return;
+    }
+
+    const dataUrl = fabricCanvas.toDataURL({ format: "png" });
+    const blob = await (await fetch(dataUrl)).blob();
+    const formData = new FormData();
+    formData.append("image", blob, "edited-image.png");
+
+    try {
+        const response = await fetch("/save-edited-image", {
+            method: "POST",
+            body: formData,
+        });
+
+        const result = await response.json();
+        if (result.success) {
+            // Adiciona a nova imagem à galeria
+            const galleryItem = createGalleryItem(result.filepath, "Cópia Editada");
+            const galleryContainer = document.getElementById("upload-gallery");
+            galleryContainer.prepend(galleryItem);
+
+            alert("Imagem salva com sucesso!");
+        } else {
+            alert("Erro ao salvar a imagem.");
+        }
+    } catch (error) {
+        console.error("Erro ao salvar a imagem:", error);
+    }
+}
+
+
+function showFeedback(message, type = "success") {
+    const feedbackElement = document.createElement("div");
+    feedbackElement.className = `feedback ${type}`;
+    feedbackElement.textContent = message;
+    document.body.appendChild(feedbackElement);
+
+    setTimeout(() => feedbackElement.remove(), 3000);
+}
+function adjustCanvasSize() {
+  const canvasContainer = document.querySelector(".canvas-container");
+  const canvasElement = document.getElementById("imageCanvas");
+
+  if (canvasContainer && canvasElement) {
+    // Obtem as dimensões do contêiner pai
+    const containerWidth = canvasContainer.offsetWidth;
+    const containerHeight = canvasContainer.offsetHeight;
+
+    // Ajusta o tamanho do canvas HTML
+    canvasElement.width = containerWidth;
+    canvasElement.height = containerHeight;
+
+    // Ajusta o tamanho do canvas no Fabric.js
+    if (fabricCanvas) {
+      fabricCanvas.setWidth(containerWidth);
+      fabricCanvas.setHeight(containerHeight);
+      fabricCanvas.renderAll();
+    }
+  }
+}
+
+// Chama a função ao carregar a página e ao redimensionar a janela
+window.addEventListener("resize", () => {
+    document.querySelectorAll(".viewer-canvas").forEach((canvas) => {
+        const tabId = canvas.id.replace("canvas-", "");
+        adjustCanvasSize(tabId);
+    });
+});
+document.addEventListener("DOMContentLoaded", adjustCanvasSize);
+
+function resizeCanvasToImage(canvas, image) {
+    const ratio = image.width / image.height;
+    const container = canvas.parentElement;
     
+    // Ajuste baseado no container
+    canvas.width = container.offsetWidth;
+    canvas.height = container.offsetHeight;
+    
+    // Mantém a proporção
+    if (canvas.width / ratio < canvas.height) {
+        canvas.height = canvas.width / ratio;
+    } else {
+        canvas.width = canvas.height * ratio;
+    }
+    
+    const ctx = canvas.getContext('2d');
+    ctx.drawImage(image, 0, 0, canvas.width, canvas.height);
+}
       </script>
   {% endblock %}
 </body>

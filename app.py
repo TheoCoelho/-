@@ -124,8 +124,11 @@ def save_edited_image():
         filepath = os.path.join(user_folder, unique_filename)
         file.save(filepath)
 
-        return jsonify({'success': True, 'filepath': filepath})
+        # Retorna a URL da nova imagem
+        image_url = url_for('static', filename=f'uploads/design/{username}/{unique_filename}')
+        return jsonify({'success': True, 'filepath': image_url})
     return jsonify({'success': False, 'error': 'Nenhuma imagem enviada'}), 400
+
 
 @app.route('/upload-img-data')
 def upload_img_data():
