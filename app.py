@@ -1,6 +1,6 @@
 import json
 import uuid
-
+from PIL import Image
 from flask import Flask, render_template, request, redirect, session, url_for, jsonify, g
 import os
 from werkzeug.utils import secure_filename
@@ -129,6 +129,11 @@ def save_edited_image():
         return jsonify({'success': True, 'filepath': image_url})
     return jsonify({'success': False, 'error': 'Nenhuma imagem enviada'}), 400
 
+
+
+def save_image(image_path):
+    img = Image.open(image_path)
+    img.save(image_path, format="PNG", quality=100)  # Mantém a máxima qualidade
 
 @app.route('/upload-img-data')
 def upload_img_data():

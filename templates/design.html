@@ -216,21 +216,17 @@
     if (canvasElement) {
         const parentElement = canvasElement.parentElement;
 
-        // Remover estilos padrão que Fabric.js pode estar aplicando
-        parentElement.style.width = "100%";
-        parentElement.style.height = "100%";
-
-        // Ajustar tamanho do canvas
+        // Definir tamanho do canvas
         canvasElement.width = parentElement.clientWidth;
         canvasElement.height = parentElement.clientHeight;
 
         // Criar o Canvas com Fabric.js
         fabricCanvas = new fabric.Canvas(canvasElement, {
             preserveObjectStacking: true,
-            imageSmoothingEnabled: true
+            imageSmoothingEnabled: false, // Evita perda de qualidade ao escalar
         });
 
-        // Redimensionar o canvas ao redimensionar a janela
+        // Ajustar tamanho do canvas ao redimensionar a janela
         window.addEventListener("resize", () => {
             canvasElement.width = parentElement.clientWidth;
             canvasElement.height = parentElement.clientHeight;
@@ -239,20 +235,21 @@
             fabricCanvas.renderAll();
         });
 
-        // Ajustar imagens carregadas para que fiquem do tamanho correto
+        // Ajustar imagens carregadas para manter proporção e evitar corte
         fabricCanvas.on("object:added", (e) => {
             if (e.target.type === "image") {
                 const img = e.target;
                 const scaleX = fabricCanvas.width / img.width;
                 const scaleY = fabricCanvas.height / img.height;
-                const scale = Math.min(scaleX, scaleY);
+                const scale = Math.min(scaleX, scaleY); // Mantém proporção sem cortar
 
                 img.scale(scale);
                 img.set({
                     left: fabricCanvas.width / 2,
                     top: fabricCanvas.height / 2,
                     originX: "center",
-                    originY: "center"
+                    originY: "center",
+                    selectable: true, // Permite mover e ajustar a imagem
                 });
 
                 fabricCanvas.renderAll();
@@ -260,6 +257,7 @@
         });
     }
 }
+
 
     
     const buttons = document.querySelectorAll(".toolbar-button");
@@ -703,46 +701,52 @@ function toggleToolbar(targetContent, button) {
     fabric.Image.fromURL(imageUrl, function (img) {
         fabricCanvas.clear(); // Limpa o canvas antes de adicionar nova imagem
 
-        const canvasWidth = fabricCanvas.width;
-        const canvasHeight = fabricCanvas.height;
-        const imgWidth = img.width;
-        const imgHeight = img.height;
+        // Ajusta o canvas para o tamanho da imagem
+        fabricCanvas.setWidth(img.width);
+        fabricCanvas.setHeight(img.height);
 
-        // Calcula a escala para manter a proporção da imagem
-        const scale = Math.min(canvasWidth / imgWidth, canvasHeight / imgHeight);
-
-        img.scale(scale);
+        // Garante que a imagem seja carregada sem perder qualidade
         img.set({
-            left: canvasWidth / 2,
-            top: canvasHeight / 2,
+            left: fabricCanvas.width / 2,
+            top: fabricCanvas.height / 2,
             originX: 'center',
-            originY: 'center'
+            originY: 'center',
+            selectable: true
         });
+
+        // Evita distorção da imagem mantendo a proporção correta
+        img.scaleToWidth(fabricCanvas.width);
+        img.scaleToHeight(fabricCanvas.height);
 
         fabricCanvas.add(img);
         fabricCanvas.renderAll();
-    });
+    }, { crossOrigin: "anonymous" });
 }
 
 
-function adjustCanvasSize(tabId) {
-    const canvasElement = document.getElementById(`canvas-${tabId}`);
+
+function adjustCanvasSize() {
+    const canvasElement = document.getElementById("imageCanvas");
     if (!canvasElement) return;
 
     const parentElement = canvasElement.parentElement;
-    const fabricCanvas = new fabric.Canvas(canvasElement);
 
-    // Definição de largura e altura do canvas
+    // Define o tamanho do canvas para ocupar todo o espaço disponível
     canvasElement.width = parentElement.clientWidth;
     canvasElement.height = parentElement.clientHeight;
-    fabricCanvas.setWidth(parentElement.clientWidth);
-    fabricCanvas.setHeight(parentElement.clientHeight);
-    fabricCanvas.renderAll();
+
+    if (fabricCanvas) {
+        fabricCanvas.setWidth(canvasElement.width);
+        fabricCanvas.setHeight(canvasElement.height);
+        fabricCanvas.renderAll();
+    }
 }
 
-
-// Chame esta função na inicialização e ao redimensionar a janela
+// Redimensiona o canvas ao mudar o tamanho da janela
 window.addEventListener("resize", adjustCanvasSize);
+
+
+
     
     function setupGalleryReorder() {
         const { galleryContainer } = DOMElements;
@@ -897,7 +901,11 @@ function removeTab(tabId) {
         return;
     }
 
-    const dataUrl = fabricCanvas.toDataURL({ format: "png" });
+    const dataUrl = fabricCanvas.toDataURL({
+        format: "png",
+        quality: 1.0 // Mantém a melhor qualidade possível
+    });
+
     const blob = await (await fetch(dataUrl)).blob();
     const formData = new FormData();
     formData.append("image", blob, "edited-image.png");
@@ -910,11 +918,6 @@ function removeTab(tabId) {
 
         const result = await response.json();
         if (result.success) {
-            // Adiciona a nova imagem à galeria
-            const galleryItem = createGalleryItem(result.filepath, "Cópia Editada");
-            const galleryContainer = document.getElementById("upload-gallery");
-            galleryContainer.prepend(galleryItem);
-
             alert("Imagem salva com sucesso!");
         } else {
             alert("Erro ao salvar a imagem.");
@@ -923,6 +926,7 @@ function removeTab(tabId) {
         console.error("Erro ao salvar a imagem:", error);
     }
 }
+
 
 
 function showFeedback(message, type = "success") {
