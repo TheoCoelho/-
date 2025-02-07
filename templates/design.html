@@ -93,10 +93,9 @@
       </div>
       <div id="model-viewer">
         <div id="piece" class="viewer">
-            <img src="{{ url_for('static', filename='models/' + imagem) }}" alt="{{ selecao['modelo'] or 'Peça' }}" class="viewer-image">
-          </div>
-      </div>
-    </div>
+            <canvas id="canvas-piece" class="viewer-canvas"></canvas>
+        </div>
+    </div>    </div>
     
     <div id="popup" class="popup hidden">
       <div class="popup-content">
@@ -210,52 +209,28 @@
     
     document.addEventListener("DOMContentLoaded", initializeApp);
     
-    function initializeFabricCanvas() {
-    const { canvasElement } = DOMElements;
+    function initializeFabricCanvas(tabId) {
+    const canvasElement = document.getElementById(`canvas-${tabId}`);
+    
+    if (!canvasElement) return;
+    
+    const fabricCanvas = new fabric.Canvas(canvasElement, {
+        preserveObjectStacking: true,
+        imageSmoothingEnabled: false,
+    });
 
-    if (canvasElement) {
-        const parentElement = canvasElement.parentElement;
+    // Ajustar o tamanho do canvas conforme o container
+    const container = canvasElement.parentElement;
+    fabricCanvas.setWidth(container.clientWidth);
+    fabricCanvas.setHeight(container.clientHeight);
 
-        // Definir tamanho do canvas
-        canvasElement.width = parentElement.clientWidth;
-        canvasElement.height = parentElement.clientHeight;
+    window.addEventListener("resize", () => {
+        fabricCanvas.setWidth(container.clientWidth);
+        fabricCanvas.setHeight(container.clientHeight);
+        fabricCanvas.renderAll();
+    });
 
-        // Criar o Canvas com Fabric.js
-        fabricCanvas = new fabric.Canvas(canvasElement, {
-            preserveObjectStacking: true,
-            imageSmoothingEnabled: false, // Evita perda de qualidade ao escalar
-        });
-
-        // Ajustar tamanho do canvas ao redimensionar a janela
-        window.addEventListener("resize", () => {
-            canvasElement.width = parentElement.clientWidth;
-            canvasElement.height = parentElement.clientHeight;
-            fabricCanvas.setWidth(parentElement.clientWidth);
-            fabricCanvas.setHeight(parentElement.clientHeight);
-            fabricCanvas.renderAll();
-        });
-
-        // Ajustar imagens carregadas para manter proporção e evitar corte
-        fabricCanvas.on("object:added", (e) => {
-            if (e.target.type === "image") {
-                const img = e.target;
-                const scaleX = fabricCanvas.width / img.width;
-                const scaleY = fabricCanvas.height / img.height;
-                const scale = Math.min(scaleX, scaleY); // Mantém proporção sem cortar
-
-                img.scale(scale);
-                img.set({
-                    left: fabricCanvas.width / 2,
-                    top: fabricCanvas.height / 2,
-                    originX: "center",
-                    originY: "center",
-                    selectable: true, // Permite mover e ajustar a imagem
-                });
-
-                fabricCanvas.renderAll();
-            }
-        });
-    }
+    return fabricCanvas;
 }
 
 
@@ -447,10 +422,21 @@ function toggleToolbar(targetContent, button) {
                 const reader = new FileReader();
                 reader.onload = (e) => {
                     fabric.Image.fromURL(e.target.result, (img) => {
-                        img.scaleToWidth(400);
+                        const scaleFactor = Math.min(
+                            fabricCanvas.width / img.width,
+                            fabricCanvas.height / img.height
+                        );
+
+                        img.set({
+                            left: fabricCanvas.width / 2,
+                            top: fabricCanvas.height / 2,
+                            originX: "center",
+                            originY: "center",
+                            selectable: true
+                        });
+
+                        img.scale(scaleFactor); // Mantém proporção da imagem original
                         fabricCanvas.add(img);
-                        img.center();
-                        img.setCoords();
                         fabricCanvas.renderAll();
                     });
                 };
@@ -638,23 +624,28 @@ function toggleToolbar(targetContent, button) {
     function switchTab(tabId) {
     const { tabsContainer, viewerContainer } = DOMElements;
 
-    // Desativa todas as abas e viewers
     tabsContainer.querySelectorAll(".tab").forEach((tab) => tab.classList.remove("active"));
-    viewerContainer.querySelectorAll(".viewer").forEach((viewer) => {
-        viewer.style.display = "none";
-    });
+    viewerContainer.querySelectorAll(".viewer").forEach((viewer) => viewer.style.display = "none");
 
-    // Ativa a aba e o viewer correspondentes
     const activeTab = tabsContainer.querySelector(`.tab[data-tab="${tabId}"]`);
     const activeViewer = viewerContainer.querySelector(`#${tabId}`);
 
     if (activeTab && activeViewer) {
         activeTab.classList.add("active");
         activeViewer.style.display = "flex";
-    } else {
-        console.warn(`Aba ou viewer com ID '${tabId}' não encontrado.`);
+
+        // Criar canvas se ainda não existir
+        if (!document.getElementById(`canvas-${tabId}`)) {
+            const canvasElement = document.createElement("canvas");
+            canvasElement.id = `canvas-${tabId}`;
+            canvasElement.classList.add("viewer-canvas");
+            activeViewer.appendChild(canvasElement);
+
+            initializeFabricCanvas(tabId);
+        }
     }
 }
+
 
     
    async function loadGalleryImages() {
@@ -696,27 +687,40 @@ function toggleToolbar(targetContent, button) {
     const canvasElement = document.getElementById(`canvas-${tabId}`);
     if (!canvasElement) return;
 
-    const fabricCanvas = new fabric.Canvas(canvasElement);
+    let fabricCanvas = canvasElement.fabricCanvas;
+
+    if (!fabricCanvas) {
+        fabricCanvas = new fabric.Canvas(canvasElement);
+        canvasElement.fabricCanvas = fabricCanvas;
+    }
+
+    // Definir o tamanho do canvas como o tamanho do viewer-container
+    const viewerContainer = document.getElementById("viewer-container");
+    const containerWidth = viewerContainer.clientWidth;
+    const containerHeight = viewerContainer.clientHeight;
+
+    fabricCanvas.setWidth(containerWidth);
+    fabricCanvas.setHeight(containerHeight);
+    canvasElement.width = containerWidth;
+    canvasElement.height = containerHeight;
 
     fabric.Image.fromURL(imageUrl, function (img) {
-        fabricCanvas.clear(); // Limpa o canvas antes de adicionar nova imagem
+        fabricCanvas.clear();
 
-        // Ajusta o canvas para o tamanho da imagem
-        fabricCanvas.setWidth(img.width);
-        fabricCanvas.setHeight(img.height);
+        // Ajustar escala mantendo a proporção
+        const scaleX = containerWidth / img.width;
+        const scaleY = containerHeight / img.height;
+        const scale = Math.min(scaleX, scaleY); // Usa o menor fator de escala para evitar cortes
 
-        // Garante que a imagem seja carregada sem perder qualidade
         img.set({
-            left: fabricCanvas.width / 2,
-            top: fabricCanvas.height / 2,
-            originX: 'center',
-            originY: 'center',
+            left: containerWidth / 2,
+            top: containerHeight / 2,
+            originX: "center",
+            originY: "center",
+            scaleX: scale,
+            scaleY: scale,
             selectable: true
         });
-
-        // Evita distorção da imagem mantendo a proporção correta
-        img.scaleToWidth(fabricCanvas.width);
-        img.scaleToHeight(fabricCanvas.height);
 
         fabricCanvas.add(img);
         fabricCanvas.renderAll();
@@ -725,22 +729,30 @@ function toggleToolbar(targetContent, button) {
 
 
 
-function adjustCanvasSize() {
-    const canvasElement = document.getElementById("imageCanvas");
+
+function adjustCanvasSize(tabId) {
+    const canvasElement = document.getElementById(`canvas-${tabId}`);
     if (!canvasElement) return;
 
     const parentElement = canvasElement.parentElement;
-
-    // Define o tamanho do canvas para ocupar todo o espaço disponível
+    
+    // Ajustar tamanho do canvas para ocupar toda a área do viewer-container
     canvasElement.width = parentElement.clientWidth;
     canvasElement.height = parentElement.clientHeight;
 
-    if (fabricCanvas) {
-        fabricCanvas.setWidth(canvasElement.width);
-        fabricCanvas.setHeight(canvasElement.height);
-        fabricCanvas.renderAll();
+    if (canvasElement.fabricCanvas) {
+        canvasElement.fabricCanvas.setWidth(parentElement.clientWidth);
+        canvasElement.fabricCanvas.setHeight(parentElement.clientHeight);
+        canvasElement.fabricCanvas.renderAll();
     }
 }
+
+// Redimensionar todos os canvases ao alterar tamanho da janela
+window.addEventListener("resize", () => {
+    document.querySelectorAll(".viewer-canvas").forEach((canvas) => {
+        adjustCanvasSize(canvas.id.replace("canvas-", ""));
+    });
+});
 
 // Redimensiona o canvas ao mudar o tamanho da janela
 window.addEventListener("resize", adjustCanvasSize);
@@ -937,36 +949,7 @@ function showFeedback(message, type = "success") {
 
     setTimeout(() => feedbackElement.remove(), 3000);
 }
-function adjustCanvasSize() {
-  const canvasContainer = document.querySelector(".canvas-container");
-  const canvasElement = document.getElementById("imageCanvas");
 
-  if (canvasContainer && canvasElement) {
-    // Obtem as dimensões do contêiner pai
-    const containerWidth = canvasContainer.offsetWidth;
-    const containerHeight = canvasContainer.offsetHeight;
-
-    // Ajusta o tamanho do canvas HTML
-    canvasElement.width = containerWidth;
-    canvasElement.height = containerHeight;
-
-    // Ajusta o tamanho do canvas no Fabric.js
-    if (fabricCanvas) {
-      fabricCanvas.setWidth(containerWidth);
-      fabricCanvas.setHeight(containerHeight);
-      fabricCanvas.renderAll();
-    }
-  }
-}
-
-// Chama a função ao carregar a página e ao redimensionar a janela
-window.addEventListener("resize", () => {
-    document.querySelectorAll(".viewer-canvas").forEach((canvas) => {
-        const tabId = canvas.id.replace("canvas-", "");
-        adjustCanvasSize(tabId);
-    });
-});
-document.addEventListener("DOMContentLoaded", adjustCanvasSize);
 
 function resizeCanvasToImage(canvas, image) {
     const ratio = image.width / image.height;

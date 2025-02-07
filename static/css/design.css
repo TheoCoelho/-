@@ -84,38 +84,36 @@ body {
 }
 
 .canvas-container {
+  width: 100%;
+  height: 100%;
   display: flex;
-  justify-content: center; /* Centraliza horizontalmente */
-  align-items: center; /* Centraliza verticalmente */
-  width: 90%; /* Mantém um bom espaçamento nas laterais */
-  height: 90%; /* Mantém um bom espaçamento no topo/baixo */
-  max-width: 800px; /* Define um limite para a largura */
-  max-height: 600px; /* Define um limite para a altura */
-  background-color: #fff; /* Opcional: fundo branco para melhor contraste */
-  border-radius: 10px; /* Opcional: cantos arredondados */
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); /* Sombras para destaque */
+  justify-content: center;
+  align-items: center;
 }
 
-
 .viewer-image {
-  width: 100% !important;
-  height: 100% !important;
-  object-fit: contain; /* Mantém as proporções */
+  width: auto !important;
+  height: auto !important;
+  max-width: none !important;
+  max-height: none !important;
   display: block;
   margin: auto;
 }
 .viewer-container {
-  display: flex;
-  justify-content: center; /* Centraliza horizontalmente */
-  align-items: center; /* Centraliza verticalmente */
-  background-color: #804545;
-  padding: 20px;
-  flex-grow: 1;
-  position: relative;
   width: 100%;
-  height: 100vh; /* Ajusta à altura total da tela */
+  height: calc(100vh - 50px); /* Ajuste para que o canvas ocupe toda a área */
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  position: relative;
+  background-color: #804545;
+  padding: 0;
   overflow: hidden;
 }
+
+
+
+
 .viewer-container.reduced {
   margin-left: 0px;
   /* Deslocamento proporcional à expansão */
@@ -424,10 +422,9 @@ body {
 }
 
 .viewer-canvas {
-  max-width: 100%; /* Garante que a imagem não ultrapasse os limites */
-  max-height: 100%;
-  object-fit: contain; /* Mantém a proporção */
-  border: 1px solid #ccc; /* Opcional: borda para separação */
+  width: 100%; /* Ocupa toda a área disponível */
+  height: 100%;
+  object-fit: contain; /* Mantém a proporção da imagem */
 }
 .viewer {
   display: flex;
