@@ -336,12 +336,21 @@ import json
 @app.route('/design')
 def design_route():
     selecao = session.get('design_atual', {})
+
+    # Debugging: Mostrar a seleção atual
+    print("Seleção Atual:", selecao)
+
     modelo = selecao.get('modelo', 'default').lower()
 
     with open('static/carrossel_opcoes.json') as f:
         data = json.load(f)
 
+    # Verifica se a imagem existe no JSON
     imagem = data['pecas'].get(modelo, {}).get('imagem', 'default.png')
+
+    # Debugging: Exibir qual imagem está sendo carregada
+    print("Imagem carregada:", imagem)
+
     return render_template('design.html', selecao=selecao, imagem=imagem)
 
 

@@ -93,9 +93,13 @@
       </div>
       <div id="model-viewer">
         <div id="piece" class="viewer">
-            <canvas id="canvas-piece" class="viewer-canvas"></canvas>
+            <img id="piece-image" src="{{ url_for('static', filename='models/' + imagem) }}" 
+                 alt="{{ selecao['modelo'] or 'Peça' }}" 
+                 class="viewer-image">
         </div>
-    </div>    </div>
+    </div>
+    
+</div>
     
     <div id="popup" class="popup hidden">
       <div class="popup-content">
