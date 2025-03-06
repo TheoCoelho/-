@@ -1,7 +1,7 @@
 import json
 import uuid
 from PIL import Image
-from flask import Flask, render_template, request, redirect, session, url_for, jsonify, g
+from flask import Flask, render_template, request, redirect, session, url_for, jsonify, g, send_from_directory
 import os
 from werkzeug.utils import secure_filename
 from db import conectar_bd, criar_tabela_usuarios, adicionar_coluna_profile_pic, criar_tabela_posts, criar_tabela_likes, criar_tabela_comentarios, criar_tabela_compartilhamentos, criar_tabela_interacoes, buscar_url_imagem_perfil,criar_tabela_designs
@@ -391,7 +391,9 @@ def gallery_data():
     images = os.listdir(app.config['UPLOAD_FOLDER'])
     images = [f'/{UPLOAD_FOLDER}/{img}' for img in images]
     return {"images": images}
-
+@app.route('/image-editor/<path:filename>')
+def serve_image_editor(filename):
+    return send_from_directory('image-editor', filename)
 
 if __name__ == "__main__":
     with app.app_context():

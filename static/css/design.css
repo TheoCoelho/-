@@ -101,7 +101,7 @@ body {
 }
 .viewer-container {
   width: 100%;
-  height: calc(100vh - 50px); /* Ajuste para que o canvas ocupe toda a área */
+  height: 100vh; /* Faz o container ocupar toda a altura da tela */
   display: flex;
   justify-content: center;
   align-items: center;
@@ -110,6 +110,7 @@ body {
   padding: 0;
   overflow: hidden;
 }
+
 
 
 
@@ -498,4 +499,26 @@ body {
   left: 100px; /* Ajuste para posição lateral */
   transform: translateY(-50%);
   z-index: 10; /* Para evitar que fique abaixo de outros elementos */
+}
+.image-editor {
+  width: 100%;
+  height: 100%;
+  border: none;
+  display: block; /* Faz o iframe ser visível e ocupar todo o espaço */
+}
+
+
+.viewer-container.active .image-editor {
+  display: block;
+}
+#model-viewer, #imageCanvas {
+  width: 100%;
+  height: 100%;
+  max-width: 100%;
+  max-height: 100%;
+  object-fit: contain; /* Mantém a proporção */
+}
+.canvas-container canvas {
+  width: 100%;
+  height: 100%;
 }

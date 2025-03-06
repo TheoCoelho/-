@@ -56,13 +56,6 @@
     
         <!-- Conteúdo da paleta -->
         <div class="palette-toolbar-content toolbar-content" style="display: none;" >
-          <div class="editor-tools">
-            <button id="rotate-image" class="editor-tool-button">Rotacionar</button>
-            <button id="add-text" class="editor-tool-button">Adicionar Texto</button>
-            <button id="apply-filter" class="editor-tool-button">Aplicar Filtro</button>
-            <button id="save-image" class="editor-tool-button">Salvar Imagem</button>
-            <button id="cancelEditButton" class="editor-tool-button">Cancelar Edição</button>
-          </div>
         </div>
 
         <button class="toolbar-button" data-target=".type-toolbar-content">
@@ -79,25 +72,25 @@
     </div>
     <!-- Contêiner do visualizador -->
     <div class="viewer-container" id="viewer-container">
-      <div class="tab-container">
-        <div id="tabs" class="tabs">
-          <div class="tab" data-tab="piece">
-            <span id="piece-tab-name">{{ selecao['modelo'] or 'Peça' }}</span>
+        <div class="tab-container">
+          <div id="tabs" class="tabs">
+            <div class="tab" data-tab="piece">
+              <span id="piece-tab-name">{{ selecao['modelo'] or 'Peça' }}</span>
+            </div>
           </div>
         </div>
-      </div>
-      <div class="palette-toolbar-content toolbar-content">
-        <div class="canvas-container">
-            <canvas id="imageCanvas" ></canvas>
+        <div class="palette-toolbar-content toolbar-content">
+          <canvas id="imageCanvas" width="800" height="600"></canvas>
         </div>
-      </div>
-      <div id="model-viewer">
-        <div id="piece" class="viewer">
-            <img id="piece-image" src="{{ url_for('static', filename='models/' + imagem) }}" 
-                 alt="{{ selecao['modelo'] or 'Peça' }}" 
-                 class="viewer-image">
+        <div id="model-viewer">
+          <div id="piece" class="viewer">
+            <img src="{{ url_for('static', filename='models/' + imagem) }}" alt="{{ selecao['modelo'] or 'Peça' }}" class="viewer-image">
+          </div>
         </div>
+        <!-- Aqui o editor de imagem será carregado -->
+        <iframe id="image-editor-frame" src="{{ url_for('serve_image_editor', filename='editor.html') }}" class="image-editor"></iframe>
     </div>
+      
     
 </div>
     
@@ -153,8 +146,6 @@
         DOMElements.canvasElement = document.getElementById("imageCanvas");
         DOMElements.galleryContainer = document.getElementById("upload-gallery");
         DOMElements.rotateButton = document.getElementById("rotate-image");
-        DOMElements.addTextButton = document.getElementById("add-text");
-        DOMElements.applyFilterButton = document.getElementById("apply-filter");
         DOMElements.buttons = document.querySelectorAll(".toolbar-button");
         DOMElements.editNameInput = document.getElementById("edit-name-toolbar");
         DOMElements.saveNameButton = document.getElementById("save-name-toolbar");
@@ -192,7 +183,6 @@
         // Carregar as imagens da galeria
         loadGalleryImages();
     
-        setupCanvasRotation();
     
     
         setupSaveCanvas();
@@ -554,24 +544,7 @@ function toggleToolbar(targetContent, button) {
         });
     }
     
-    function setupCanvasRotation() {
-    const { rotateButton } = DOMElements;
 
-    if (rotateButton) {
-        rotateButton.addEventListener("click", () => {
-            const activeObject = fabricCanvas.getActiveObject();
-            if (activeObject) {
-                activeObject.rotate((activeObject.angle || 0) + 45); // Incrementa 45 graus
-                activeObject.setCoords(); // Atualiza as coordenadas
-                fabricCanvas.renderAll(); // Re-renderiza o canvas
-            } else {
-                alert("Por favor, selecione uma imagem no canvas para rotacionar.");
-            }
-        });
-    } else {
-        console.warn("Botão 'Rotacionar' não encontrado.");
-    }
-}
 
     function setupSaveCanvas() {
         const { saveImageButton } = DOMElements;
@@ -911,37 +884,6 @@ function removeTab(tabId) {
             console.warn("Elementos de edição de nome não encontrados.");
         }
     }
-    async function saveEditedImage() {
-    if (!fabricCanvas) {
-        console.error("Canvas não inicializado.");
-        return;
-    }
-
-    const dataUrl = fabricCanvas.toDataURL({
-        format: "png",
-        quality: 1.0 // Mantém a melhor qualidade possível
-    });
-
-    const blob = await (await fetch(dataUrl)).blob();
-    const formData = new FormData();
-    formData.append("image", blob, "edited-image.png");
-
-    try {
-        const response = await fetch("/save-edited-image", {
-            method: "POST",
-            body: formData,
-        });
-
-        const result = await response.json();
-        if (result.success) {
-            alert("Imagem salva com sucesso!");
-        } else {
-            alert("Erro ao salvar a imagem.");
-        }
-    } catch (error) {
-        console.error("Erro ao salvar a imagem:", error);
-    }
-}
 
 
 
@@ -953,26 +895,26 @@ function showFeedback(message, type = "success") {
 
     setTimeout(() => feedbackElement.remove(), 3000);
 }
-
-
-function resizeCanvasToImage(canvas, image) {
-    const ratio = image.width / image.height;
-    const container = canvas.parentElement;
+document.addEventListener("DOMContentLoaded", () => {
+    const editorFrame = document.getElementById("image-editor-frame");
+    const modelViewer = document.getElementById("model-viewer");
     
-    // Ajuste baseado no container
-    canvas.width = container.offsetWidth;
-    canvas.height = container.offsetHeight;
-    
-    // Mantém a proporção
-    if (canvas.width / ratio < canvas.height) {
-        canvas.height = canvas.width / ratio;
-    } else {
-        canvas.width = canvas.height * ratio;
+    function openEditor() {
+        modelViewer.style.display = "none"; // Esconder o visualizador padrão
+        editorFrame.style.display = "block"; // Mostrar o editor de imagem
     }
-    
-    const ctx = canvas.getContext('2d');
-    ctx.drawImage(image, 0, 0, canvas.width, canvas.height);
-}
+
+    function closeEditor() {
+        editorFrame.style.display = "none"; // Ocultar o editor de imagem
+        modelViewer.style.display = "block"; // Mostrar novamente o visualizador padrão
+    }
+
+    // Exemplo: abrir o editor ao clicar na peça
+    document.getElementById("piece-tab-name").addEventListener("click", openEditor);
+});
+
+
+
       </script>
   {% endblock %}
 </body>
