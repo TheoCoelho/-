@@ -28,6 +28,33 @@ try {
   var imgEditor = new ImageEditor('#image-editor-container', buttons, []);
   console.log('initialize image editor');
 
+  window.addEventListener("message", function (event) {
+    if (!event.data || !event.data.action) return;
+
+    if (event.data.action === "loadImage" && event.data.url) {
+        if (typeof imgEditor !== "undefined" && imgEditor.canvas) {
+            const canvas = imgEditor.canvas; // Pega o canvas correto
+
+            fabric.Image.fromURL(event.data.url, function (img) {
+                img.set({
+                    left: canvas.width / 2,
+                    top: canvas.height / 2,
+                    originX: "center",
+                    originY: "center",
+                    selectable: true
+                });
+
+                canvas.add(img);
+                canvas.renderAll();
+            }, { crossOrigin: "anonymous" });
+        } else {
+            console.error("Canvas do editor não foi encontrado.");
+        }
+    }
+});
+
+
+
   // let status = imgEditor.getCanvasJSON();
   // imgEditor.setCanvasStatus(status);
 
@@ -54,7 +81,8 @@ try {
   }
 }
 document.addEventListener("DOMContentLoaded", function () {
-  if (typeof imgEditor !== "undefined") {
+  if (typeof window.imgEditor !== "undefined" && !document.querySelector("#toolbar")) {
       imgEditor.initializeToolbar();
+      initializeToolbarEvents(); // Garante que os eventos sejam ativados
   }
 });

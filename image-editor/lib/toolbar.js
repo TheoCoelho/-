@@ -76,8 +76,11 @@
     }
 
     try {
-      this.containerEl.append(`<div class="toolbar" id="toolbar"><div class="main-buttons"></div><div class="extended-buttons"></div></div>`);
-
+      if (!document.querySelector("#toolbar")) {
+        this.containerEl.append(`<div class="toolbar" id="toolbar"><div class="main-buttons"></div><div class="extended-buttons"></div></div>`);
+        initializeToolbarEvents(); // Adiciona os eventos corretamente após a criação da toolbar
+    }
+    
       // main buttons
       (() => {
         buttons.forEach(item => {
@@ -161,3 +164,73 @@
 
   window.ImageEditor.prototype.initializeToolbar = toolbar;
 })();
+function initializeToolbarEvents() {
+  console.log("Registrando eventos da toolbar...");
+
+  document.querySelectorAll("#toolbar .main-buttons button").forEach(button => {
+      button.addEventListener("click", function () {
+          let id = this.getAttribute("id");
+          document.querySelectorAll("#toolbar button").forEach(btn => btn.classList.remove("active"));
+          this.classList.add("active");
+
+          if (typeof window.imgEditor !== "undefined") {
+              window.imgEditor.setActiveTool(id);
+          }
+      });
+  });
+
+  document.querySelectorAll("#toolbar .extended-buttons button").forEach(button => {
+      button.addEventListener("click", function () {
+          let id = this.getAttribute("id");
+          if (typeof window.imgEditor !== "undefined") {
+              switch (id) {
+                  case "undo":
+                      window.imgEditor.undo();
+                      break;
+                  case "redo":
+                      window.imgEditor.redo();
+                      break;
+                  case "save":
+                      if (window.confirm("Salvar o canvas localmente?")) {
+                          saveInBrowser.save("canvasEditor", window.imgEditor.canvas.toJSON());
+                      }
+                      break;
+                  case "clear":
+                      if (window.confirm("Limpar todo o canvas?")) {
+                          window.imgEditor.canvas.clear();
+                          saveInBrowser.remove("canvasEditor");
+                      }
+                      break;
+                  case "download":
+                      showDownloadOptions();
+                      break;
+              }
+          }
+      });
+  });
+
+  function showDownloadOptions() {
+      document.body.insertAdjacentHTML("beforeend", `
+          <div class="custom-modal-container">
+              <div class="custom-modal-content">
+                  <div class="button-download" id="svg">Download como SVG</div>
+                  <div class="button-download" id="png">Download como PNG</div>
+                  <div class="button-download" id="jpg">Download como JPG</div>
+              </div>
+          </div>
+      `);
+
+      document.querySelector(".custom-modal-container").addEventListener("click", function () {
+          this.remove();
+      });
+
+      document.querySelectorAll(".custom-modal-container .button-download").forEach(button => {
+          button.addEventListener("click", function () {
+              let type = this.getAttribute("id");
+              if (type === "svg") downloadSVG(window.imgEditor.canvas.toSVG());
+              else if (type === "png") downloadImage(window.imgEditor.canvas.toDataURL());
+              else if (type === "jpg") downloadImage(window.imgEditor.canvas.toDataURL({ format: "jpeg" }), "jpg", "image/jpeg");
+          });
+      });
+  }
+}
