@@ -67,9 +67,6 @@
     </div>
 
     <div class="vertical-line"></div>
-    <div class="type-toolbar-content toolbar-content" style="display: none;">
-      <p>Conteúdo para o botão "bi-type"</p>
-    </div>
     <!-- Contêiner do visualizador -->
     <div class="viewer-container" id="viewer-container">
         <div class="tab-container">
@@ -135,7 +132,6 @@
     
     
 function captureDOMElements() {
-    DOMElements.canvasElement = document.getElementById("imageCanvas");
     DOMElements.galleryContainer = document.getElementById("upload-gallery");
     DOMElements.buttons = document.querySelectorAll(".toolbar-button");
     DOMElements.editNameInput = document.getElementById("edit-name-toolbar");
@@ -202,12 +198,18 @@ function openImageInEditor(imageUrl) {
         return;
     }
 
-    // Enviar mensagem para o editor carregado no iframe
+    // Envia a imagem para o editor dentro do iframe
     editorIframe.contentWindow.postMessage(
         { action: "loadImage", url: imageUrl },
         "*"
     );
 }
+
+window.addEventListener("message", (event) => {
+    if (event.data.action === "loadImage") {
+        carregarImagemNoEditor(event.data.url); // Implementação dentro do editor
+    }
+});
 
 
 
@@ -221,25 +223,16 @@ function addTab(imageUrl, imageName) {
     newTab.innerHTML = `<span>${imageName}</span> <span class="close-tab" data-tab="${tabId}">&times;</span>`;
     document.getElementById("tabs").appendChild(newTab);
 
-    const newViewer = document.createElement("div");
+    const newViewer = document.createElement("iframe");
 newViewer.id = tabId;
 newViewer.className = "viewer";
-newViewer.style.display = "none"; // Inicialmente oculto
+newViewer.src = "{{ url_for('serve_image_editor', filename='editor.html') }}";
+newViewer.style.display = "none";
 newViewer.style.width = "100%";
 newViewer.style.height = "100%";
-newViewer.style.position = "absolute"; // Mantém a sobreposição correta
-newViewer.style.top = "0";
-newViewer.style.left = "0";
-newViewer.style.zIndex = "5"; // Mantém a camada correta
 document.getElementById("viewer-container").appendChild(newViewer);
 
-// Criando o canvas dentro do viewer
-const canvasElement = document.createElement("canvas");
-canvasElement.id = `canvas-${tabId}`;
-canvasElement.className = "viewer-canvas";
-canvasElement.width = newViewer.clientWidth;
-canvasElement.height = newViewer.clientHeight;
-newViewer.appendChild(canvasElement);
+
 
 
     initializeCanvas(tabId);
@@ -622,9 +615,12 @@ function toggleToolbar(targetContent, button) {
         }
     }
     
-    function switchTab(tabId) {
+    function switchTab(tabId, imageUrl = null) {
     document.querySelectorAll(".tab").forEach((tab) => tab.classList.remove("active"));
-    document.querySelectorAll(".viewer").forEach((viewer) => viewer.style.display = "none");
+    document.querySelectorAll(".viewer").forEach((viewerElement) => {
+        viewerElement.style.display = "none";
+        viewerElement.style.position = "absolute"; 
+    });
 
     const activeTab = document.querySelector(`.tab[data-tab="${tabId}"]`);
     const activeViewer = document.getElementById(tabId);
@@ -633,11 +629,12 @@ function toggleToolbar(targetContent, button) {
         activeTab.classList.add("active");
         activeViewer.style.display = "flex";
 
-        if (!canvasInstances[tabId]) {
-            initializeCanvas(tabId);
+        if (imageUrl) {
+            openImageInEditor(imageUrl);
         }
     }
 }
+
 
 
 
@@ -821,12 +818,15 @@ window.addEventListener("resize", adjustCanvasSize);
         `;
         tabsContainer.appendChild(newTab);
 
-        const newViewer = document.createElement("div");
-        newViewer.id = tabId;
-        newViewer.className = "viewer";
-        newViewer.style.display = "none";
-        newViewer.innerHTML = `<canvas id="canvas-${tabId}" class="viewer-canvas"></canvas>`;
-        viewerContainer.appendChild(newViewer);
+        const newViewer = document.createElement("iframe");
+            newViewer.id = tabId;
+            newViewer.className = "viewer";
+            newViewer.src = "{{ url_for('serve_image_editor', filename='editor.html') }}";
+            newViewer.style.display = "none";
+            newViewer.style.width = "100%";
+            newViewer.style.height = "100%";
+            document.getElementById("viewer-container").appendChild(newViewer);
+
 
         newTab.querySelector(".close-tab").addEventListener("click", (event) => {
             event.stopPropagation();
@@ -840,31 +840,9 @@ window.addEventListener("resize", adjustCanvasSize);
 
     switchTab(tabId);
 
-    setTimeout(() => {
-        adjustCanvasSize(tabId);
-        loadImageOnCanvas(normalizedUrl, tabId);
-
-        // Adicionando a imagem no editor (Fabric.js)
-        let fabricCanvas = canvasInstances[tabId];
-        if (!fabricCanvas) {
-            fabricCanvas = initializeCanvas(tabId);
-        }
-
-        fabric.Image.fromURL(normalizedUrl, function(img) {
-            img.set({
-                left: fabricCanvas.width / 2,
-                top: fabricCanvas.height / 2,
-                originX: "center",
-                originY: "center",
-                selectable: true
-            });
-
-            fabricCanvas.add(img);
-            fabricCanvas.renderAll();
-        }, { crossOrigin: "anonymous" });
-
-    }, 50);
-}
+setTimeout(() => {
+    openImageInEditor(normalizedUrl);
+}, 50);
 
 
 
@@ -953,7 +931,7 @@ document.addEventListener("DOMContentLoaded", () => {
     document.getElementById("piece-tab-name").addEventListener("click", openEditor);
 });
 
-
+    }
 
       </script>
   {% endblock %}
