@@ -78,8 +78,9 @@
         </div>
 
         <!-- Aqui o editor de imagem será carregado -->
-        <iframe id="image-editor-frame" src="{{ url_for('serve_image_editor', filename='editor.html') }}" class="image-editor"></iframe>
-    </div>
+        <div id="viewers-container">
+            <iframe id="piece-editor-frame" class="viewer" src="{{ url_for('serve_image_editor', filename='editor.html') }}" style="display: block;"></iframe>
+        </div>    </div>
       
     
 </div>
@@ -191,25 +192,61 @@ function captureDOMElements() {
 
 
 
-function openImageInEditor(imageUrl) {
-    const editorIframe = document.getElementById("image-editor-frame");
-    if (!editorIframe) {
-        console.error("Editor não encontrado.");
+    function openImageInEditor(imageUrl) {
+    const tabsContainer = document.getElementById("tabs");
+    const viewerContainer = document.getElementById("viewers-container");
+
+    // Extrair nome da imagem para a aba
+    const imageName = imageUrl.split('/').pop().split('.')[0];
+
+    // Verificar se a aba já existe
+    let existingTab = Array.from(tabsContainer.children).find(tab => tab.dataset.url === imageUrl);
+
+    if (existingTab) {
+        switchTab(existingTab.dataset.tab); // Apenas alterna para a aba existente
         return;
     }
 
-    // Envia a imagem para o editor dentro do iframe
-    editorIframe.contentWindow.postMessage(
-        { action: "loadImage", url: imageUrl },
-        "*"
-    );
-}
+    // Criar um ID único para a nova aba
+    const tabId = `tab-${Date.now()}`;
 
-window.addEventListener("message", (event) => {
-    if (event.data.action === "loadImage") {
-        carregarImagemNoEditor(event.data.url); // Implementação dentro do editor
-    }
-});
+    // Criar a aba corretamente
+    const newTab = document.createElement("div");
+    newTab.className = "tab";
+    newTab.dataset.tab = tabId;
+    newTab.dataset.url = imageUrl;
+    newTab.innerHTML = `<span>${imageName}</span> <span class="close-tab" data-tab="${tabId}">&times;</span>`;
+
+    // Evento para alternar a aba
+    newTab.addEventListener("click", () => switchTab(tabId));
+
+    // Evento para fechar a aba
+    newTab.querySelector(".close-tab").addEventListener("click", (e) => {
+        e.stopPropagation();
+        removeTab(tabId);
+    });
+
+    tabsContainer.appendChild(newTab);
+
+    // Criar um novo editor para essa imagem
+    const imageViewer = document.createElement("iframe");
+    imageViewer.id = tabId;
+    imageViewer.className = "viewer";
+    imageViewer.src = "{{ url_for('serve_image_editor', filename='editor.html') }}";
+    imageViewer.style.width = "100%";
+    imageViewer.style.height = "100%";
+    imageViewer.style.display = "none";
+
+    // Carregar a imagem no editor
+    imageViewer.onload = function () {
+        imageViewer.contentWindow.postMessage({ action: "loadImage", url: imageUrl }, "*");
+    };
+
+    viewerContainer.appendChild(imageViewer);
+
+    // Alternar para a nova aba
+    switchTab(tabId);
+}
 
 
 
@@ -224,19 +261,17 @@ function addTab(imageUrl, imageName) {
     document.getElementById("tabs").appendChild(newTab);
 
     const newViewer = document.createElement("iframe");
-newViewer.id = tabId;
-newViewer.className = "viewer";
-newViewer.src = "{{ url_for('serve_image_editor', filename='editor.html') }}";
-newViewer.style.display = "none";
-newViewer.style.width = "100%";
-newViewer.style.height = "100%";
-document.getElementById("viewer-container").appendChild(newViewer);
-
-
-
-
-    initializeCanvas(tabId);
-    openImageInEditor(tabId, imageUrl);
+    newViewer.id = tabId;
+    newViewer.className = "viewer";
+    newViewer.src = "{{ url_for('serve_image_editor', filename='editor.html') }}";
+    newViewer.style.display = "none";
+    newViewer.style.width = "100%";
+    newViewer.style.height = "100%";
+    newViewer.onload = function () {
+        // Quando o iframe carregar, envie a imagem correta para ele
+        newViewer.contentWindow.postMessage({ action: "loadImage", url: imageUrl }, "*");
+    };
+    document.getElementById("viewer-container").appendChild(newViewer);
 
     newTab.querySelector(".close-tab").addEventListener("click", (e) => {
         e.stopPropagation();
@@ -246,36 +281,14 @@ document.getElementById("viewer-container").appendChild(newViewer);
     newTab.addEventListener("click", () => switchTab(tabId));
 }
 
-    const buttons = document.querySelectorAll(".toolbar-button");
-    console.log("Botões encontrados:", buttons);
+function setupToolbar() {
+    // Certifique-se de que os elementos do DOM foram capturados corretamente
+    if (!DOMElements.buttons || DOMElements.buttons.length === 0) {
+        console.warn("Nenhum botão da toolbar encontrado.");
+        return;
+    }
 
-    buttons.forEach((button) => {
-        console.log("Registrando evento para o botão:", button);
-
-        button.addEventListener("click", () => {
-            console.log("Botão clicado:", button);
-        });
-    });
-
-    buttons.forEach((button) => {
-        const targetContentSelector = button.dataset.target; // Obtém o seletor do conteúdo
-        const targetContent = document.querySelector(targetContentSelector); // Seleciona o conteúdo correspondente
-
-        if (!targetContent) {
-            console.warn(`Conteúdo não encontrado para o botão: ${button}`);
-            return;
-        }
-
-        // Adiciona evento de clique ao botão
-        button.addEventListener("click", () => {
-            toggleToolbar(targetContent, button);
-        });
-    });
-
-    function setupToolbar() {
- 
-
-    buttons.forEach((button) => {
+    DOMElements.buttons.forEach((button) => {
         const targetContentSelector = button.dataset.target;
         const targetContent = document.querySelector(targetContentSelector);
 
@@ -288,16 +301,9 @@ document.getElementById("viewer-container").appendChild(newViewer);
             toggleToolbar(targetContent, button);
         });
     });
-    console.log("Botões da toolbar configurados:");
-buttons.forEach((button) => {
-    console.log(button);
-});
+
+    console.log("Botões da toolbar configurados:", DOMElements.buttons);
 }
-
-
-document.addEventListener("DOMContentLoaded", () => {
-    setupToolbar();
-});
 
     
 function toggleToolbar(targetContent, button) {
@@ -615,25 +621,53 @@ function toggleToolbar(targetContent, button) {
         }
     }
     
-    function switchTab(tabId, imageUrl = null) {
-    document.querySelectorAll(".tab").forEach((tab) => tab.classList.remove("active"));
-    document.querySelectorAll(".viewer").forEach((viewerElement) => {
-        viewerElement.style.display = "none";
-        viewerElement.style.position = "absolute"; 
-    });
+    function switchTab(tabId) {
+    // Desativar todas as abas e esconder todos os editores
+    document.querySelectorAll(".tab").forEach(tab => tab.classList.remove("active"));
+    document.querySelectorAll(".viewer").forEach(viewer => viewer.style.display = "none");
 
+    // Ativar a aba selecionada
     const activeTab = document.querySelector(`.tab[data-tab="${tabId}"]`);
     const activeViewer = document.getElementById(tabId);
 
     if (activeTab && activeViewer) {
         activeTab.classList.add("active");
         activeViewer.style.display = "flex";
+    }
 
-        if (imageUrl) {
-            openImageInEditor(imageUrl);
-        }
+    // Se a aba ativa for uma imagem, esconder a aba da peça
+    if (tabId !== "piece") {
+        document.querySelector(".tab[data-tab='piece']").style.display = "none";
+    } else {
+        document.querySelector(".tab[data-tab='piece']").style.display = "flex";
     }
 }
+function switchTab(tabId) {
+    // Ocultar todas as abas e viewers
+    document.querySelectorAll(".tab").forEach(tab => tab.classList.remove("active"));
+    document.querySelectorAll(".viewer").forEach(viewer => viewer.style.display = "none");
+
+    // Ativar a aba correta
+    const activeTab = document.querySelector(`.tab[data-tab="${tabId}"]`);
+    const activeViewer = document.getElementById(tabId);
+
+    if (activeTab && activeViewer) {
+        activeTab.classList.add("active");
+        activeViewer.style.display = "block";
+    }
+
+    // Tratar visibilidade do editor da peça de roupa
+    const pieceEditor = document.getElementById("piece-editor-frame");
+    if (tabId === "piece") {
+        pieceEditor.style.display = "block";
+    } else {
+        pieceEditor.style.display = "none";
+    }
+}
+
+
+
+
 
 
 
@@ -795,7 +829,7 @@ window.addEventListener("resize", adjustCanvasSize);
         return;
     }
 
-    const { tabsContainer, viewerContainer } = DOMElements;
+    const { tabsContainer } = DOMElements;
     const normalizedUrl = new URL(imageUrl, window.location.origin).href;
     let existingTab = Array.from(tabsContainer.children).find(
         (tab) => tab.dataset.url === normalizedUrl
@@ -805,62 +839,29 @@ window.addEventListener("resize", adjustCanvasSize);
 
     if (!existingTab) {
         tabId = `tab-${Date.now()}`;
-
         const imageName = normalizedUrl.split('/').pop().split('.')[0];
 
-        const newTab = document.createElement("div");
-        newTab.className = "tab";
-        newTab.dataset.tab = tabId;
-        newTab.dataset.url = normalizedUrl;
-        newTab.innerHTML = `
-            <span>${imageName}</span>
-            <span class="close-tab" data-tab="${tabId}">&times;</span>
-        `;
-        tabsContainer.appendChild(newTab);
-
-        const newViewer = document.createElement("iframe");
-            newViewer.id = tabId;
-            newViewer.className = "viewer";
-            newViewer.src = "{{ url_for('serve_image_editor', filename='editor.html') }}";
-            newViewer.style.display = "none";
-            newViewer.style.width = "100%";
-            newViewer.style.height = "100%";
-            document.getElementById("viewer-container").appendChild(newViewer);
-
-
-        newTab.querySelector(".close-tab").addEventListener("click", (event) => {
-            event.stopPropagation();
-            removeTab(tabId);
-        });
-
-        newTab.addEventListener("click", () => switchTab(tabId));
+        addTab(normalizedUrl, imageName); // Chama addTab corrigido
+        tabId = `tab-${Date.now()}`;
     } else {
         tabId = existingTab.dataset.tab;
     }
 
     switchTab(tabId);
-
-setTimeout(() => {
-    openImageInEditor(normalizedUrl);
-}, 50);
-
-
-
+}
 function removeTab(tabId) {
-    const { tabsContainer, viewerContainer } = DOMElements;
-
-    // Remove a aba e o viewer correspondentes
-    const tab = tabsContainer.querySelector(`.tab[data-tab="${tabId}"]`);
-    const viewer = viewerContainer.querySelector(`#${tabId}`);
+    const tab = document.querySelector(`.tab[data-tab="${tabId}"]`);
+    const viewer = document.getElementById(tabId);
 
     if (tab) tab.remove();
     if (viewer) viewer.remove();
 
-    // Alterna para a aba principal se nenhuma outra estiver ativa
-    if (!tabsContainer.querySelector(".tab.active")) {
+    // Restaurar a aba da peça se não houver outras abas abertas
+    if (document.querySelectorAll(".tab").length === 1) {
         switchTab("piece");
     }
 }
+
 
     function initializeEditName() {
         const { editNameButton, nameDisplay, editInputContainer, saveNameButton, editNameInput } = DOMElements;
@@ -931,7 +932,7 @@ document.addEventListener("DOMContentLoaded", () => {
     document.getElementById("piece-tab-name").addEventListener("click", openEditor);
 });
 
-    }
+    
 
       </script>
   {% endblock %}

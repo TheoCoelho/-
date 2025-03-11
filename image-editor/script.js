@@ -34,7 +34,6 @@ try {
     if (event.data.action === "loadImage" && event.data.url) {
         if (typeof imgEditor !== "undefined" && imgEditor.canvas) {
             const canvas = imgEditor.canvas; // Pega o canvas correto
-
             fabric.Image.fromURL(event.data.url, function (img) {
                 img.set({
                     left: canvas.width / 2,
@@ -44,6 +43,7 @@ try {
                     selectable: true
                 });
 
+                canvas.clear(); // Limpa o canvas antes de adicionar a nova imagem
                 canvas.add(img);
                 canvas.renderAll();
             }, { crossOrigin: "anonymous" });
@@ -52,6 +52,8 @@ try {
         }
     }
 });
+
+
 
 
 
