@@ -529,3 +529,20 @@ body {
   width: 100%;
   height: 100%;
 }
+#piece-editor-frame {
+  width: 100%;
+  height: 100%;
+  border: none;
+  display: block;
+  position: absolute;
+  top: 0;
+  left: 0;
+}
+
+
+
+#viewers-container {
+  width: 100%;
+  height: 100%;
+  position: relative;
+}

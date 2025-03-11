@@ -80,7 +80,8 @@
         <!-- Aqui o editor de imagem será carregado -->
         <div id="viewers-container">
             <iframe id="piece-editor-frame" class="viewer" src="{{ url_for('serve_image_editor', filename='editor.html') }}" style="display: block;"></iframe>
-        </div>    </div>
+        </div>
+    </div>
       
     
 </div>
@@ -622,27 +623,6 @@ function toggleToolbar(targetContent, button) {
     }
     
     function switchTab(tabId) {
-    // Desativar todas as abas e esconder todos os editores
-    document.querySelectorAll(".tab").forEach(tab => tab.classList.remove("active"));
-    document.querySelectorAll(".viewer").forEach(viewer => viewer.style.display = "none");
-
-    // Ativar a aba selecionada
-    const activeTab = document.querySelector(`.tab[data-tab="${tabId}"]`);
-    const activeViewer = document.getElementById(tabId);
-
-    if (activeTab && activeViewer) {
-        activeTab.classList.add("active");
-        activeViewer.style.display = "flex";
-    }
-
-    // Se a aba ativa for uma imagem, esconder a aba da peça
-    if (tabId !== "piece") {
-        document.querySelector(".tab[data-tab='piece']").style.display = "none";
-    } else {
-        document.querySelector(".tab[data-tab='piece']").style.display = "flex";
-    }
-}
-function switchTab(tabId) {
     // Ocultar todas as abas e viewers
     document.querySelectorAll(".tab").forEach(tab => tab.classList.remove("active"));
     document.querySelectorAll(".viewer").forEach(viewer => viewer.style.display = "none");
@@ -650,18 +630,21 @@ function switchTab(tabId) {
     // Ativar a aba correta
     const activeTab = document.querySelector(`.tab[data-tab="${tabId}"]`);
     const activeViewer = document.getElementById(tabId);
+    const viewersContainer = document.getElementById("viewers-container");
+    const pieceEditor = document.getElementById("piece-editor-frame");
 
     if (activeTab && activeViewer) {
         activeTab.classList.add("active");
         activeViewer.style.display = "block";
     }
 
-    // Tratar visibilidade do editor da peça de roupa
-    const pieceEditor = document.getElementById("piece-editor-frame");
+    // Mostrar o viewers-container apenas na aba da peça
     if (tabId === "piece") {
-        pieceEditor.style.display = "block";
+        viewersContainer.style.display = "flex"; // Garante que ele seja exibido corretamente
+        pieceEditor.style.display = "block"; // Exibe o editor da peça
     } else {
-        pieceEditor.style.display = "none";
+        viewersContainer.style.display = "none"; // Oculta quando outra aba é ativada
+        pieceEditor.style.display = "none"; // Oculta o editor da peça
     }
 }
 
