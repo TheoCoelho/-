@@ -316,7 +316,7 @@ function toggleToolbar(targetContent, button) {
     const toolbar = document.querySelector(".toolbar");
     const isCurrentlyVisible = targetContent.classList.contains("active");
 
-    // Fecha todos os conteúdos e desativa todos os botões
+    // Fecha todos os conteúdos sem afetar os botões
     document.querySelectorAll(".toolbar-content").forEach((content) => {
         content.style.display = "none";
         content.classList.remove("active");
@@ -326,14 +326,16 @@ function toggleToolbar(targetContent, button) {
         btn.classList.remove("active");
     });
 
-    // Alternar a visibilidade do conteúdo atual
+    // Alternar visibilidade apenas do conteúdo selecionado
     if (!isCurrentlyVisible) {
         targetContent.style.display = "flex";
         targetContent.classList.add("active");
         button.classList.add("active");
         toolbar.classList.add("expanded");
+
+        // Ajusta a posição do conteúdo para não empurrar os botões
+        targetContent.style.top = `${button.offsetTop}px`;
     } else {
-        // Retratar se o conteúdo já estava visível
         toolbar.classList.remove("expanded");
     }
 }
@@ -623,11 +625,9 @@ function toggleToolbar(targetContent, button) {
     }
     
     function switchTab(tabId) {
-    // Ocultar todas as abas e viewers
     document.querySelectorAll(".tab").forEach(tab => tab.classList.remove("active"));
     document.querySelectorAll(".viewer").forEach(viewer => viewer.style.display = "none");
 
-    // Ativar a aba correta
     const activeTab = document.querySelector(`.tab[data-tab="${tabId}"]`);
     const activeViewer = document.getElementById(tabId);
     const viewersContainer = document.getElementById("viewers-container");
@@ -638,13 +638,12 @@ function toggleToolbar(targetContent, button) {
         activeViewer.style.display = "block";
     }
 
-    // Mostrar o viewers-container apenas na aba da peça
     if (tabId === "piece") {
-        viewersContainer.style.display = "flex"; // Garante que ele seja exibido corretamente
-        pieceEditor.style.display = "block"; // Exibe o editor da peça
+        viewersContainer.style.display = "flex";
+        pieceEditor.style.display = "block";
     } else {
-        viewersContainer.style.display = "none"; // Oculta quando outra aba é ativada
-        pieceEditor.style.display = "none"; // Oculta o editor da peça
+        viewersContainer.style.display = "none";
+        pieceEditor.style.display = "none";
     }
 }
 
@@ -653,9 +652,33 @@ function toggleToolbar(targetContent, button) {
 
 
 
+const editorFrame = document.getElementById("piece-editor-frame");
 
+editorFrame.onload = function() {
+    console.log("Editor carregado, enviando imagem...");
+    const urlParams = new URLSearchParams(window.location.search);
+    const parte = urlParams.get("parte");
+    const modelo = urlParams.get("modelo");
 
-    
+    if (parte && modelo) {
+        fetch('/static/carrossel_opcoes.json')
+            .then(response => response.json())
+            .then(data => {
+                const piece = data.pecas[modelo.toLowerCase()];
+                if (piece && piece.imagem) {
+                    const imagePath = `/static/models/${piece.imagem}`;
+                    console.log("Enviando imagem:", imagePath);
+                    editorFrame.contentWindow.postMessage({ action: "loadImage", url: imagePath }, "*");
+                } else {
+                    console.error("Imagem da peça não encontrada.");
+                }
+            })
+            .catch(error => console.error("Erro ao carregar JSON:", error));
+    } else {
+        console.warn("Nenhuma peça/modelo selecionado.");
+    }
+};
+
    async function loadGalleryImages() {
     const galleryContainer = document.getElementById("upload-gallery");
 
@@ -902,9 +925,38 @@ document.addEventListener("DOMContentLoaded", () => {
     const modelViewer = document.getElementById("model-viewer");
     
     function openEditor() {
-        modelViewer.style.display = "none"; // Esconder o visualizador padrão
-        editorFrame.style.display = "block"; // Mostrar o editor de imagem
+    const editorFrame = document.getElementById("piece-editor-frame");
+    const modelViewer = document.getElementById("model-viewer");
+
+    if (!editorFrame || !modelViewer) {
+    return;
+}
+
+
+    modelViewer.style.display = "none"; // Esconde o visualizador padrão
+    editorFrame.style.display = "block"; // Mostra o editor de imagem
+}
+document.addEventListener("DOMContentLoaded", function() {
+    const pieceTabName = document.getElementById("piece-tab-name");
+    if (pieceTabName) {
+        pieceTabName.addEventListener("click", openEditor);
+    } else {
+        console.error("Elemento 'piece-tab-name' não encontrado.");
     }
+});
+if (typeof imgEditor !== "undefined" && imgEditor.canvas) {
+    const canvas = imgEditor.canvas;
+    canvas.setBackgroundColor("white", canvas.renderAll.bind(canvas));
+} else {
+    console.warn("Canvas ainda não inicializado. Tentando novamente em 500ms...");
+    setTimeout(() => {
+        if (typeof imgEditor !== "undefined" && imgEditor.canvas) {
+            imgEditor.canvas.setBackgroundColor("white", imgEditor.canvas.renderAll.bind(imgEditor.canvas));
+        } else {
+            console.error();
+        }
+    }, 500);
+}
 
     function closeEditor() {
         editorFrame.style.display = "none"; // Ocultar o editor de imagem

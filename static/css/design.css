@@ -2,7 +2,7 @@ html,
 body {
   margin: 0;
   padding: 0;
-  overflow: visible;
+  overflow: hidden;
   height: 100%;
 }
 
@@ -32,32 +32,37 @@ body {
 .toolbar {
   display: flex;
   flex-direction: column;
-  justify-content: space-around;
-  align-items: flex-start;
-  background-color: orange;
-  padding: 20px;
+  justify-content: space-between;
+  align-items: center;
+  background-color: rgba(0, 0, 0, 0);
+  padding: 20px 10px;
   width: 70px;
   height: 80%;
-  box-shadow: inset 0 0 50px rgba(255, 255, 255, 0.05);
+  box-shadow: inset 0 0 0px 1px rgb(255, 255, 255);
   z-index: 2;
-  transition: width 0.5s ease-in-out;
+  transition: width 0.3s ease-in-out; /* Transição mais curta */
   position: relative;
   overflow: hidden;
-  flex-shrink: 0; /* Impede que a toolbar reduza ao expandir */
+  flex-shrink: 0;
 }
 
 .toolbar.expanded {
   width: 400px;
+  align-items: flex-start;
 }
 
+/* Mantém os botões fixos */
 .toolbar-button {
   background: none;
   border: none;
   color: #fff;
-  font-size: 3rem;
+  font-size: 2.5rem;
   cursor: pointer;
   transition: color 0.3s ease-in-out;
+  margin: 10px 0;
+  position: relative;
 }
+
 .toolbar-button:hover {
   color: #ff6347;
   transform: scale(1.1); /* Aumenta levemente o botão ao passar o mouse */
@@ -67,7 +72,7 @@ body {
 
 
 .upload-button.selected {
-  color: #ff6347;
+  color: #ffffff;
 }
 
 .upload-toolbar-content {
@@ -100,16 +105,19 @@ body {
   margin: auto;
 }
 .viewer-container {
+  height: 79%; /* Agora desconta a altura da tab-container */
   display: flex;
-  justify-content: center; /* Centraliza o conteúdo */
-  align-items: center; /* Mantém centralizado verticalmente */
-  background-color: #804545;
-  height: calc(100vh - 50px); /* Define altura total da viewport menos espaço para abas */
+  justify-content: center;
+  align-items: center;
+  background-color: #ffffff00;
   flex-grow: 1;
+  box-shadow: inset 0px 0px 0px 2px rgb(30 30 30);
+
   position: relative;
   overflow: hidden;
-  padding: 0;
+  padding-top: 50px; /* Empurrar todo o conteúdo para baixo */
 }
+
 
 
 
@@ -155,7 +163,7 @@ body {
   align-items: center;
   justify-content: center;
   width: 120px; /* Largura fixa para cada item */
-  background-color: #ffb400; /* Cor de fundo para destacar */
+  background-color: #ffffff3a; /* Cor de fundo para destacar */
   padding: 10px;
   border-radius: 5px;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
@@ -351,9 +359,13 @@ body {
 /* Transições e animações */
 
 .toolbar-content {
+  width: 100%;
   display: none;
   opacity: 0;
   transition: opacity 0.3s ease-in-out;
+  position: absolute;
+  left: 80px; /* Move o conteúdo sem empurrar os botões */
+  top: 10px;
 }
 .toolbar-content.active {
   display: flex;
@@ -365,15 +377,18 @@ body {
   opacity: 1; /* Torna visível */
 }
 .toolbar-button.active {
-  background-color: #ffb400;
+  background-color: #00000000;
   color: #fff;
 }
 .toolbar.expanded .toolbar-content {
   display: flex;
   opacity: 1;
-  transition: opacity 0.3s ease;
+  flex-direction: column;
+  align-items: flex-start;
+  position: absolute;
+  left: 100px; /* Ajuste fino para encaixar melhor */
+  top: 50px; /* Mantém distância entre os botões e o conteúdo */
 }
-
 
 .toolbar-content.flex {
   opacity: 1;
@@ -383,7 +398,7 @@ body {
 
 /* Estilo do botão ativo */
 .toolbar-button.active {
-  color: #ff6347; /* Destaque para o botão ativo */
+  color: #ff2600; /* Destaque para o botão ativo */
 }
 
 .tab .close-tab {
@@ -398,9 +413,10 @@ body {
   position: absolute;
   top: 0;
   left: 0;
-  width: 100%;
-  height: 50px; /* Definindo altura fixa */
+  width: -webkit-fill-available;
+  height: 30px; /* Definindo altura fixa */
   background-color: rgba(0, 0, 0, 0.5); /* Fundo semi-transparente */
+  box-shadow: inset 0 0 0px 1px rgb(255, 255, 255);
   z-index: 10;
   display: flex;
   align-items: center;
@@ -416,7 +432,7 @@ body {
 }
 
 .tab {
-  padding: 10px 20px;
+  padding: 5px 10px;
   background-color: transparent;
   border: 1px solid #ccc;
   cursor: pointer;
@@ -529,13 +545,13 @@ body {
   width: 100%;
   height: 100%;
 }
-#piece-editor-frame {
+.viewer iframe {
   width: 100%;
-  height: 100%;
+  height: calc(100% - 50px); /* Reduzindo altura para compensar a tab-container */
   border: none;
   display: block;
   position: absolute;
-  top: 0;
+  top: 50px; /* Aplicando margem superior em todas as abas */
   left: 0;
 }
 

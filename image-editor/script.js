@@ -33,7 +33,14 @@ try {
 
     if (event.data.action === "loadImage" && event.data.url) {
         if (typeof imgEditor !== "undefined" && imgEditor.canvas) {
-            const canvas = imgEditor.canvas; // Pega o canvas correto
+            const canvas = imgEditor.canvas;
+
+            // Verifica se já existe uma imagem no canvas antes de limpar
+            if (canvas.getObjects().length > 0) {
+                console.log("Imagem já carregada. Não sobrescrevendo.");
+                return;
+            }
+
             fabric.Image.fromURL(event.data.url, function (img) {
                 img.set({
                     left: canvas.width / 2,
@@ -43,7 +50,6 @@ try {
                     selectable: true
                 });
 
-                canvas.clear(); // Limpa o canvas antes de adicionar a nova imagem
                 canvas.add(img);
                 canvas.renderAll();
             }, { crossOrigin: "anonymous" });
@@ -52,7 +58,6 @@ try {
         }
     }
 });
-
 
 
 

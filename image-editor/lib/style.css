@@ -15,8 +15,8 @@ body {
 
 .toolbar {
   line-height: 0;
-  background-color: #f2f2f2;
-  box-shadow: 0 0 3px 0 rgba(50, 50, 50, .25);
+  background-color: #00ff7b00;
+  box-shadow: 0 0 3px 0 rgb(255, 255, 255);
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -25,8 +25,7 @@ body {
 .toolbar button {
   width: 64px;
   height: 54px;
-  opacity: .55;
-  clear: both;
+  background: #fffefe24;
   border: 0;
   border-radius: unset;
   outline: none;
@@ -34,9 +33,8 @@ body {
 
 .toolbar button.active,
 .toolbar button:hover {
-  opacity: 1;
-  border-left: 1px solid #ccc;
-  border-right: 1px solid #ccc;
+  border-left: 1px solid #cccccc00;
+  border-right: 1px solid #cccccc00;
   box-shadow: inset 5px 0 10px 0 rgba(50, 50, 50, .1);
 }
 
@@ -55,11 +53,11 @@ body {
 .floating-zoom-level-container {
   position: absolute;
   z-index: 10000;
-  background: white;
+  background: rgba(255, 255, 255, 0.063);
   padding: 10px 20px;
   bottom: 0;
   right: 0;
-  border: 1px solid #ccc;
+  border: 1px solid hsla(0, 0%, 100%, 0);
 }
 
 .canvas-holder {
@@ -70,31 +68,35 @@ body {
   display: flex;
   align-items: center;
   justify-content: center;
-  background: #eaeaea;
+  background: #fffefe24;
+  box-shadow: inset 1 rgb(255, 255, 255);
+
 }
 
 .canvas-container {
   background-image: url("data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAHUlEQVQ4jWNgYGAQIYAJglEDhoUBg9+FowbQ2gAARjwKARjtnN8AAAAASUVORK5CYII=");
   background-size: 30px 30px;
-  border: 1px solid #ccc;
+  border: 1px solid #f3000000;
   margin: auto;
 }
 
 .toolpanel {
-  background-color: #f9f9f9;
+  background-color: #ffffff7f;
   width: 300px;
   top: 0;
   left: 0;
   height: 100%;
-  border: 1px solid #ddd;
+  border: 1px solid #9e3f3f00;
   transition: all .4s;
   box-sizing: border-box;
   text-align: left;
-  font-size: 13px;
-  color: #777;
+  font-size: 15px;
+  color: #000000;
   display: none;
   position: absolute;
   z-index: 9999;
+  overflow-y: auto;
+  overflow-x: hidden;
 }
 
 .toolpanel.closed {
@@ -121,7 +123,7 @@ body {
   padding-bottom: 10px;
   width: 100%;
   border-bottom: 1px solid #ddd;
-  color: #333;
+  color: #000000;
   text-transform: uppercase;
 }
 
@@ -131,12 +133,11 @@ body {
   right: -42px;
   width: 40px;
   height: 80px;
-  background: #f9f9f9;
-  border: 1px solid #ddd;
+  background: #ffffff;
+  border: 1px solid #b70b0b;
   border-top-right-radius: 3px;
   border-bottom-right-radius: 3px;
   cursor: pointer;
-
   background-image: url('/lib/caret-left.svg');
   background-size: 10px;
   background-repeat: no-repeat;
@@ -369,5 +370,5 @@ body {
   text-align: center;
   touch-action: none;
   cursor: default;
-  color: #888;
+  color: #000000;
 }

@@ -234,3 +234,32 @@ function initializeToolbarEvents() {
       });
   }
 }
+document.addEventListener("DOMContentLoaded", function () {
+  const toolPanel = document.querySelector(".toolpanel");
+  
+  if (!toolPanel) {
+      console.error("Toolpanel não encontrada.");
+      return;
+  }
+
+  // Criar botão de fechar se não existir
+  let closeButton = toolPanel.querySelector(".hide-show-handler");
+  if (!closeButton) {
+      closeButton = document.createElement("div");
+      closeButton.classList.add("hide-show-handler");
+      closeButton.style.backgroundImage = "url('/lib/caret-left.svg')"; // Ícone de fechar
+      
+      toolPanel.appendChild(closeButton); // Adiciona o botão na toolpanel
+  }
+
+  // Adicionar evento de clique para fechar/abrir a toolpanel
+  closeButton.addEventListener("click", function () {
+      if (toolPanel.classList.contains("closed")) {
+          toolPanel.classList.remove("closed");
+          closeButton.style.backgroundImage = "url('/lib/caret-left.svg')"; // Ícone para abrir
+      } else {
+          toolPanel.classList.add("closed");
+          closeButton.style.backgroundImage = "url('/lib/caret-right.svg')"; // Ícone para fechar
+      }
+  });
+});
