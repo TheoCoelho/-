@@ -79,7 +79,12 @@
 
         <!-- Aqui o editor de imagem será carregado -->
         <div id="viewers-container">
-            <iframe id="piece-editor-frame" class="viewer" src="{{ url_for('serve_image_editor', filename='editor.html') }}" style="display: block;"></iframe>
+            <iframe id="piece-editor-frame" class="viewer"
+            src="{{ url_for('serve_image_editor', filename='editor.html') }}?silhueta={{ silhueta | urlencode }}"
+            style="display: block;">
+        </iframe>
+        
+        
         </div>
     </div>
       
@@ -192,36 +197,40 @@ function captureDOMElements() {
 
 
 
-
     function openImageInEditor(imageUrl) {
+    if (!imageUrl) {
+        console.error("URL da imagem não fornecida.");
+        return;
+    }
+
     const tabsContainer = document.getElementById("tabs");
     const viewerContainer = document.getElementById("viewers-container");
 
-    // Extrair nome da imagem para a aba
+    // Extrair nome da imagem
     const imageName = imageUrl.split('/').pop().split('.')[0];
 
     // Verificar se a aba já existe
     let existingTab = Array.from(tabsContainer.children).find(tab => tab.dataset.url === imageUrl);
 
     if (existingTab) {
-        switchTab(existingTab.dataset.tab); // Apenas alterna para a aba existente
+        console.log("Aba já existe, alternando para:", existingTab.dataset.tab);
+        switchTab(existingTab.dataset.tab);
         return;
     }
 
     // Criar um ID único para a nova aba
     const tabId = `tab-${Date.now()}`;
 
-    // Criar a aba corretamente
+    // Criar a aba
     const newTab = document.createElement("div");
     newTab.className = "tab";
     newTab.dataset.tab = tabId;
     newTab.dataset.url = imageUrl;
     newTab.innerHTML = `<span>${imageName}</span> <span class="close-tab" data-tab="${tabId}">&times;</span>`;
 
-    // Evento para alternar a aba
     newTab.addEventListener("click", () => switchTab(tabId));
 
-    // Evento para fechar a aba
+    // Fechar aba
     newTab.querySelector(".close-tab").addEventListener("click", (e) => {
         e.stopPropagation();
         removeTab(tabId);
@@ -229,7 +238,7 @@ function captureDOMElements() {
 
     tabsContainer.appendChild(newTab);
 
-    // Criar um novo editor para essa imagem
+    // Criar o iframe para exibir a imagem
     const imageViewer = document.createElement("iframe");
     imageViewer.id = tabId;
     imageViewer.className = "viewer";
@@ -238,9 +247,11 @@ function captureDOMElements() {
     imageViewer.style.height = "100%";
     imageViewer.style.display = "none";
 
-    // Carregar a imagem no editor
     imageViewer.onload = function () {
-        imageViewer.contentWindow.postMessage({ action: "loadImage", url: imageUrl }, "*");
+        setTimeout(() => {
+            console.log("Enviando imagem da galeria para o editor:", imageUrl);
+            imageViewer.contentWindow.postMessage({ action: "loadGalleryImage", url: imageUrl }, "*");
+        }, 500);
     };
 
     viewerContainer.appendChild(imageViewer);
@@ -249,6 +260,21 @@ function captureDOMElements() {
     switchTab(tabId);
 }
 
+
+
+
+
+document.addEventListener("DOMContentLoaded", function () {
+    setTimeout(() => {
+        const editorFrame = document.getElementById("piece-editor-frame");
+        
+        if (editorFrame) {
+            console.log("URL do iframe:", editorFrame.src);
+        } else {
+            console.error("O elemento 'piece-editor-frame' NÃO foi encontrado no DOM.");
+        }
+    }, 2000); // Aguarda 2 segundos para garantir que o iframe carregou
+});
 
 
 function addTab(imageUrl, imageName) {
@@ -623,7 +649,6 @@ function toggleToolbar(targetContent, button) {
             console.warn("Contêiner de abas não encontrado.");
         }
     }
-    
     function switchTab(tabId) {
     document.querySelectorAll(".tab").forEach(tab => tab.classList.remove("active"));
     document.querySelectorAll(".viewer").forEach(viewer => viewer.style.display = "none");
@@ -633,63 +658,85 @@ function toggleToolbar(targetContent, button) {
     const viewersContainer = document.getElementById("viewers-container");
     const pieceEditor = document.getElementById("piece-editor-frame");
 
-    if (activeTab && activeViewer) {
+    if (activeTab) {
         activeTab.classList.add("active");
-        activeViewer.style.display = "block";
     }
 
+    if (activeViewer) {
+        activeViewer.style.display = "block";
+        viewersContainer.style.display = "block";  // Garantir que o container do editor também esteja visível
+    }
+
+    // Se for a aba da peça original, garantir que o editor principal seja visível
     if (tabId === "piece") {
-        viewersContainer.style.display = "flex";
         pieceEditor.style.display = "block";
+        viewersContainer.style.display = "block";
     } else {
-        viewersContainer.style.display = "none";
         pieceEditor.style.display = "none";
     }
+
+    console.log(`Alternando para a aba: ${tabId}`);
 }
 
 
 
+document.addEventListener("DOMContentLoaded", function () {
+    const editorFrame = document.getElementById("piece-editor-frame");
+    if (editorFrame) {
+        console.log("URL do iframe:", editorFrame.src);
+    } else {
+        console.error("O elemento piece-editor-frame não foi encontrado no DOM.");
+    }
+});
 
 
 
 const editorFrame = document.getElementById("piece-editor-frame");
+editorFrame.onload = function () {
+    console.log("Editor carregado, verificando silhueta...");
 
-editorFrame.onload = function() {
-    console.log("Editor carregado, enviando imagem...");
-    const urlParams = new URLSearchParams(window.location.search);
-    const parte = urlParams.get("parte");
-    const modelo = urlParams.get("modelo");
+    setTimeout(() => {  
+        const urlParams = new URLSearchParams(editorFrame.src.split("?")[1]);
+        const silhuetaUrl = urlParams.get("silhueta");
 
-    if (parte && modelo) {
-        fetch('/static/carrossel_opcoes.json')
-            .then(response => response.json())
-            .then(data => {
-                const piece = data.pecas[modelo.toLowerCase()];
-                if (piece && piece.imagem) {
-                    const imagePath = `/static/models/${piece.imagem}`;
-                    console.log("Enviando imagem:", imagePath);
-                    editorFrame.contentWindow.postMessage({ action: "loadImage", url: imagePath }, "*");
-                } else {
-                    console.error("Imagem da peça não encontrada.");
-                }
-            })
-            .catch(error => console.error("Erro ao carregar JSON:", error));
-    } else {
-        console.warn("Nenhuma peça/modelo selecionado.");
-    }
+        if (silhuetaUrl && silhuetaUrl !== "null") {
+            console.log("Enviando silhueta:", silhuetaUrl);
+            editorFrame.contentWindow.postMessage({ action: "loadSilhouette", url: silhuetaUrl }, "*");
+        } else {
+            console.warn("Nenhuma silhueta válida encontrada.");
+        }
+    }, 1000);
 };
 
-   async function loadGalleryImages() {
+async function loadGalleryImages() {
     const galleryContainer = document.getElementById("upload-gallery");
 
     try {
         const response = await fetch("/upload-img-data/design");
         const data = await response.json();
 
+        console.log("Dados da galeria recebidos:", data); // Debug para ver se os dados são recebidos corretamente
+
         if (data.images && data.images.length > 0) {
-            galleryContainer.innerHTML = data.images
-                .map(({ url, name }) => createGalleryItem(url, name))
-                .join("");
+            galleryContainer.innerHTML = ""; // Garante que a galeria é limpa antes de carregar
+            data.images.forEach(({ url, name }) => {
+                const galleryItem = document.createElement("div");
+                galleryItem.classList.add("gallery-item");
+
+                const img = document.createElement("img");
+                img.src = url;
+                img.alt = name;
+                img.dataset.url = url; // Garante que a URL seja armazenada corretamente
+                img.addEventListener("click", () => openImageInEditor(url));
+
+                const caption = document.createElement("span");
+                caption.classList.add("gallery-item-caption");
+                caption.textContent = name;
+
+                galleryItem.appendChild(img);
+                galleryItem.appendChild(caption);
+                galleryContainer.appendChild(galleryItem);
+            });
         } else {
             galleryContainer.innerHTML = "<p>Nenhuma imagem encontrada.</p>";
         }
@@ -699,6 +746,7 @@ editorFrame.onload = function() {
 }
 
 
+
 function setupGalleryClick() {
     const galleryContainer = document.getElementById("upload-gallery");
 
@@ -706,7 +754,8 @@ function setupGalleryClick() {
         galleryContainer.addEventListener("click", (event) => {
             const img = event.target.closest("img");
             if (img) {
-                const imageUrl = img.src;
+                const imageUrl = img.dataset.url;
+                console.log("Imagem da galeria clicada:", imageUrl);
                 openImageInEditor(imageUrl); // Envia a imagem para o editor
             }
         });
@@ -714,6 +763,7 @@ function setupGalleryClick() {
         console.warn("Contêiner da galeria não encontrado.");
     }
 }
+
 
     function loadImageOnCanvas(imageUrl, tabId) {
     const canvasElement = document.getElementById(`canvas-${tabId}`);
@@ -965,6 +1015,20 @@ if (typeof imgEditor !== "undefined" && imgEditor.canvas) {
 
     // Exemplo: abrir o editor ao clicar na peça
     document.getElementById("piece-tab-name").addEventListener("click", openEditor);
+
+    document.addEventListener("DOMContentLoaded", function () {
+    setTimeout(() => {
+        const editorFrame = document.getElementById("piece-editor-frame");
+        
+        if (editorFrame) {
+            console.log("Forçando atualização do iframe...");
+            editorFrame.src = editorFrame.src; // Força o reload
+        } else {
+            console.error("Iframe não encontrado!");
+        }
+    }, 1000);
+});
+
 });
 
     

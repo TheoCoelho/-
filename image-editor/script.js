@@ -10,12 +10,15 @@ try {
     'textbox',
     'upload',
     'background',
+    'silhouetteColor',
+    'silhouetteScale',
     'undo',
     'redo',
     'save',
     'download',
     'clear'
-  ];
+];
+
 
   // define custom shapes
   // if this value is undefined or its length is 0, default shapes will be used
@@ -31,34 +34,52 @@ try {
   window.addEventListener("message", function (event) {
     if (!event.data || !event.data.action) return;
 
-    if (event.data.action === "loadImage" && event.data.url) {
-        if (typeof imgEditor !== "undefined" && imgEditor.canvas) {
-            const canvas = imgEditor.canvas;
+    console.log("Mensagem recebida no editor:", event.data);
 
-            // Verifica se já existe uma imagem no canvas antes de limpar
-            if (canvas.getObjects().length > 0) {
-                console.log("Imagem já carregada. Não sobrescrevendo.");
-                return;
-            }
+    if (event.data.action === "loadSilhouette" && event.data.url) {
+        console.log("Carregando silhueta:", event.data.url);
+        carregarSilhueta(event.data.url);
+    }
 
-            fabric.Image.fromURL(event.data.url, function (img) {
-                img.set({
-                    left: canvas.width / 2,
-                    top: canvas.height / 2,
-                    originX: "center",
-                    originY: "center",
-                    selectable: true
-                });
-
-                canvas.add(img);
-                canvas.renderAll();
-            }, { crossOrigin: "anonymous" });
-        } else {
-            console.error("Canvas do editor não foi encontrado.");
-        }
+    if (event.data.action === "loadGalleryImage" && event.data.url) {
+        console.log("Carregando imagem da galeria:", event.data.url);
+        carregarImagem(event.data.url);
     }
 });
 
+
+function carregarImagem(url) {
+    const canvas = imgEditor.canvas;
+    fabric.Image.fromURL(url, function (img) {
+        img.set({
+            left: canvas.width / 2,
+            top: canvas.height / 2,
+            originX: "center",
+            originY: "center",
+            selectable: true
+        });
+        canvas.add(img);
+        canvas.renderAll();
+    }, { crossOrigin: "anonymous" });
+}
+
+function carregarSilhueta(url) {
+    const canvas = imgEditor.canvas;
+    fabric.loadSVGFromURL(url, function(objects, options) {
+        const silhouette = fabric.util.groupSVGElements(objects, options);
+        silhouette.set({
+            left: canvas.width / 2,
+            top: canvas.height / 2,
+            originX: "center",
+            originY: "center",
+            selectable: false
+        });
+
+        canvas.add(silhouette);
+        canvas.sendToBack(silhouette);
+        canvas.renderAll();
+    });
+}
 
 
 

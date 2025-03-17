@@ -1,8 +1,9 @@
 {
   "pecas": {
-    "bermuda": {
-      "imagem": "bermuda.avif"
-    },
+        "bermuda": {
+          "imagem": "bermuda.avif",
+          "silhueta": "bermuda.svg"
+        },
     "blusa": {
       "imagem": "blusa.png"
     },

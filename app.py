@@ -335,24 +335,36 @@ import json
 
 @app.route('/design')
 def design_route():
-    selecao = session.get('design_atual', {})
+    # Pega os parâmetros da URL ou da sessão
+    modelo = request.args.get('modelo', session.get('design_atual', {}).get('modelo', 'default')).lower()
 
-    # Debugging: Mostrar a seleção atual
-    print("Seleção Atual:", selecao)
+    print(f"Modelo recebido: {modelo}")
 
-    modelo = selecao.get('modelo', 'default').lower()
-
+    # Ler os dados do JSON
     with open('static/carrossel_opcoes.json') as f:
         data = json.load(f)
 
-    # Verifica se a imagem existe no JSON
-    imagem = data['pecas'].get(modelo, {}).get('imagem', 'default.png')
+    # Verifica se o modelo existe no JSON
+    if modelo in data['pecas']:
+        imagem = data['pecas'][modelo].get('imagem', 'default.png')
+        silhueta = data['pecas'][modelo].get('silhueta', 'default_silhueta.svg')
+    else:
+        print(f"Modelo {modelo} não encontrado no JSON. Usando padrão.")
+        imagem = 'default.png'
+        silhueta = 'default_silhueta.svg'
 
-    # Debugging: Exibir qual imagem está sendo carregada
-    print("Imagem carregada:", imagem)
+    caminho_silhueta = os.path.join('static/models', silhueta)
 
-    return render_template('design.html', selecao=selecao, imagem=imagem)
+    # Verifica se a silhueta existe
+    if os.path.exists(caminho_silhueta):
+        silhueta = url_for('static', filename=f'models/{silhueta}')
+    else:
+        print(f"Silhueta {silhueta} não encontrada, usando padrão.")
+        silhueta = url_for('static', filename='models/default_silhueta.svg')
 
+    print(f"Silhueta final enviada para o template: {silhueta}")
+
+    return render_template('design.html', selecao={'modelo': modelo}, imagem=imagem, silhueta=silhueta)
 
 @app.route('/confirmar-selecao', methods=['POST'])
 def confirmar_selecao():
@@ -394,6 +406,14 @@ def gallery_data():
 @app.route('/image-editor/<path:filename>')
 def serve_image_editor(filename):
     return send_from_directory('image-editor', filename)
+
+import os
+
+@app.route('/list-models')
+def list_models():
+    files = os.listdir('static/models')
+    return jsonify(files)
+
 
 if __name__ == "__main__":
     with app.app_context():
