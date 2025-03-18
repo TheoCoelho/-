@@ -38,8 +38,10 @@ try {
 
     if (event.data.action === "loadSilhouette" && event.data.url) {
         console.log("Carregando silhueta:", event.data.url);
-        carregarSilhueta(event.data.url);
-    }
+        setTimeout(() => {
+          carregarSilhueta(event.data.url);
+      }, 500);  // Aguarda 500ms para garantir que o canvas está pronto
+          }
 
     if (event.data.action === "loadGalleryImage" && event.data.url) {
         console.log("Carregando imagem da galeria:", event.data.url);
@@ -64,22 +66,66 @@ function carregarImagem(url) {
 }
 
 function carregarSilhueta(url) {
-    const canvas = imgEditor.canvas;
-    fabric.loadSVGFromURL(url, function(objects, options) {
-        const silhouette = fabric.util.groupSVGElements(objects, options);
-        silhouette.set({
-            left: canvas.width / 2,
-            top: canvas.height / 2,
-            originX: "center",
-            originY: "center",
-            selectable: false
-        });
+  const canvas = imgEditor.canvas;
+  fabric.loadSVGFromURL(url, function(objects, options) {
+      const silhouette = fabric.util.groupSVGElements(objects, options);
+      silhouette.set({
+          left: canvas.width / 2,
+          top: canvas.height / 2,
+          originX: "center",
+          originY: "center",
+          selectable: false,
+          fill: "black", // Mantém a peça preta
+          opacity: 1 // Garante que a silhueta seja visível
+      });
 
-        canvas.add(silhouette);
-        canvas.sendToBack(silhouette);
-        canvas.renderAll();
-    });
+      aplicarEfeitoDestaque(silhouette); // Aplica o efeito de destaque na tab da peça
+  });
 }
+
+function aplicarEfeitoDestaque(silhouette) {
+  const canvas = imgEditor.canvas;
+
+  // Criar uma camada fosca que cubra toda a tela
+  const overlay = new fabric.Rect({
+      left: 0,
+      top: 0,
+      width: canvas.width,
+      height: canvas.height,
+      fill: "rgba(0, 0, 0, 0.5)", // Fundo escurecido
+      selectable: false,
+      evented: false
+  });
+
+  // Criar um recorte na forma da silhueta (deixando a parte interna clara)
+  silhouette.globalCompositeOperation = "destination-out"; 
+
+  // Adicionar primeiro o fundo fosco
+  canvas.add(overlay);
+  
+  // Adicionar a silhueta como recorte
+  canvas.add(silhouette);
+  
+  canvas.sendToBack(overlay); // Garantir que o fundo fique atrás da silhueta
+  canvas.renderAll();
+}
+
+
+// Chamar a função após carregar a silhueta
+window.addEventListener("message", function (event) {
+  if (!event.data || !event.data.action) return;
+
+  console.log("Mensagem recebida no editor:", event.data);
+
+  if (event.data.action === "loadSilhouette" && event.data.url) {
+      console.log("Carregando silhueta:", event.data.url);
+      setTimeout(() => {
+        carregarSilhueta(event.data.url);
+    }, 500);  // Aguarda 500ms para garantir que o canvas está pronto
+      }
+});
+aplicarEfeitoDestaque();
+
 
 
 
