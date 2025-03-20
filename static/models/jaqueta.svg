@@ -1,0 +1,25 @@
+<svg width="500" height="600" viewBox="0 0 500 600" xmlns="http://www.w3.org/2000/svg">
+    <!-- Fundo transparente -->
+    <rect width="100%" height="100%" fill="none"/>
+
+    <!-- Gola da Jaqueta -->
+    <path d="M150 50 Q250 0 350 50 Q360 100 330 130 Q250 80 170 130 Q140 100 150 50 Z" fill="black"/>
+
+    <!-- Corpo Principal da Jaqueta -->
+    <path d="M100 130 Q250 60 400 130 L440 500 Q430 580 250 590 Q70 580 60 500 Z" fill="black"/>
+
+    <!-- Mangas da Jaqueta -->
+    <path d="M40 200 Q60 130 100 130 L130 400 Q110 500 70 530 Q40 500 40 400 Z" fill="black"/>
+    <path d="M460 200 Q440 130 400 130 L370 400 Q390 500 430 530 Q460 500 460 400 Z" fill="black"/>
+
+    <!-- Linha central (onde a jaqueta abre) -->
+    <rect x="245" y="130" width="10" height="470" fill="gray"/>
+
+    <!-- Zíper (pontilhado no meio da jaqueta) -->
+    <line x1="250" y1="130" x2="250" y2="550" stroke="gray" stroke-dasharray="10, 10" stroke-width="3"/>
+
+    <!-- Barra inferior e punhos ajustados -->
+    <rect x="50" y="520" width="80" height="40" fill="gray"/>
+    <rect x="370" y="520" width="80" height="40" fill="gray"/>
+    <rect x="120" y="550" width="260" height="30" fill="gray"/>
+</svg>

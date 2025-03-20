@@ -1,11 +1,12 @@
 {
   "pecas": {
-        "bermuda": {
-          "imagem": "bermuda.avif",
-          "silhueta": "bermuda.svg"
-        },
+    "bermuda": {
+      "imagem": "bermuda.avif",
+      "silhueta": "bermuda.svg"
+    },
     "blusa": {
-      "imagem": "blusa.png"
+      "imagem": "blusa.png",
+      "silhueta": "blusa.svg"
     },
     "boina": {
       "imagem": "boina.png"
@@ -14,19 +15,31 @@
       "imagem": "bone.png"
     },
     "calca": {
-      "imagem": "calca.png"
+      "imagem": "calca.png",
+      "silhueta": "calca.svg"
     },
     "camisa": {
-      "imagem": "camisa.png"
+      "imagem": "camisa.png",
+      "silhueta": "camisa.svg"
     },
     "camiseta": {
-      "imagem": "camiseta.png"
+      "imagem": "camiseta.png",
+      "silhueta": "camiseta.svg"
     },
     "chapeu": {
       "imagem": "chapeu.png"
     },
+    "jaqueta": {
+      "imagem": "jaqueta.png",
+      "silhueta": "jaqueta.svg"
+    },
+    "regata": {
+      "imagem": "regata.png",
+      "silhueta": "regata.svg"
+    },
     "short": {
-      "imagem": "short.avif"
+      "imagem": "short.avif",
+      "silhueta": "short.svg"
     },
     "default": {
       "imagem": "default.png"
