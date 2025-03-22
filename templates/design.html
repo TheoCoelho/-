@@ -10,6 +10,190 @@
   <link rel="stylesheet" href="{{ url_for('static', filename='css/base.css') }}">
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css">
   <script src="https://cdnjs.cloudflare.com/ajax/libs/fabric.js/451/fabric.min.js" integrity="sha512-qeu8RcLnpzoRnEotT3r1CxB17JtHrBqlfSTOm4MQzb7efBdkcL03t343gyRmI6OTUW6iI+hShiysszISQ/IahA==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+  <style>
+    .side-panel {
+        position: fixed;
+        top: 0;
+        right: -300px;
+        width: 300px;
+        height: 100vh;
+        background-color: #fff;
+        box-shadow: -2px 0 5px rgba(0,0,0,0.1);
+        transition: right 0.3s ease;
+        z-index: 1000;
+    }
+
+    .side-panel.active {
+        right: 0;
+    }
+
+    .side-panel-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 15px;
+        border-bottom: 1px solid #eee;
+    }
+
+    .side-panel-header h3 {
+        margin: 0;
+        font-size: 18px;
+        color: #333;
+    }
+
+    .close-panel {
+        background: none;
+        border: none;
+        font-size: 24px;
+        cursor: pointer;
+        color: #666;
+        padding: 0 5px;
+    }
+
+    .close-panel:hover {
+        color: #333;
+    }
+
+    .side-panel-content {
+        padding: 20px;
+    }
+
+    .form-group {
+        margin-bottom: 15px;
+    }
+
+    .form-group label {
+        display: block;
+        margin-bottom: 5px;
+        color: #666;
+        font-size: 14px;
+    }
+
+    .form-control {
+        width: 100%;
+        padding: 8px;
+        border: 1px solid #ddd;
+        border-radius: 4px;
+        font-size: 14px;
+    }
+
+    .form-control:focus {
+        outline: none;
+        border-color: #4CAF50;
+    }
+
+    .edit-toolbar-content {
+        background: rgba(0, 0, 0, 0.8);
+        padding: 15px;
+        border-radius: 8px;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+        width: 250px;
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        color: white;
+        display: flex;
+        flex-direction: column;
+        align-items: stretch;
+        position: absolute;
+        top: 0;
+        left: 80px;
+        max-height: calc(100vh - 30px);
+        overflow-y: auto;
+    }
+
+    .edit-toolbar-content h3 {
+        text-align: left;
+        margin: 0 0 15px 0;
+        padding-bottom: 10px;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+        color: white;
+        font-size: 16px;
+        font-weight: 500;
+        width: 100%;
+    }
+
+    .edit-toolbar-content .form-group {
+        margin-bottom: 15px;
+        width: 100%;
+    }
+
+    .edit-toolbar-content label {
+        display: block;
+        margin-bottom: 8px;
+        color: rgba(255, 255, 255, 0.9);
+        font-size: 14px;
+        font-weight: 500;
+    }
+
+    .edit-toolbar-content .form-control {
+        width: 100%;
+        padding: 8px 12px;
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        border-radius: 6px;
+        font-size: 14px;
+        color: white;
+        background-color: rgba(255, 255, 255, 0.1);
+        transition: all 0.15s ease-in-out;
+    }
+
+    .edit-toolbar-content .form-control:focus {
+        outline: none;
+        border-color: rgba(255, 255, 255, 0.5);
+        background-color: rgba(255, 255, 255, 0.15);
+        box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.1);
+    }
+
+    .edit-toolbar-content .form-control:hover {
+        border-color: rgba(255, 255, 255, 0.3);
+        background-color: rgba(255, 255, 255, 0.12);
+    }
+
+    .edit-toolbar-content .form-control option {
+        background-color: #333;
+        color: white;
+    }
+
+    /* Ajuste para o posicionamento do conteúdo expandido */
+    .toolbar {
+        position: relative;
+    }
+
+    .toolbar-content, .edit-toolbar-content, .upload-toolbar-content, .palette-toolbar-content, .type-toolbar-content {
+        position: absolute;
+        top: 0;
+        left: 80px;
+        z-index: 1000;
+        display: none;
+        width: 310px;
+    
+    }
+
+    .toolbar-content.active, .edit-toolbar-content.active, .upload-toolbar-content.active, .palette-toolbar-content.active, .type-toolbar-content.active {
+        display: flex;
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    /* Estilos para o nome da peça e botão de edição */
+    #piece-tab-name {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        color: white;
+        font-size: 16px;
+        font-weight: 500;
+        width: 100%;
+    }
+
+    #piece-tab-name i {
+        font-size: 14px;
+        opacity: 0.7;
+        margin-left: auto;
+    }
+
+    #piece-tab-name:hover i {
+        opacity: 1;
+    }
+  </style>
 </head>
 
 <body class="design-page">
@@ -25,16 +209,30 @@
       <button class="toolbar-button edit-button" data-target=".edit-toolbar-content">
         <i class="bi bi-tools"></i>
       </button>
-      <div class="edit-toolbar-content toolbar-content" style="display: none;" >
-        <div class="edit-container">
-          <span id="name-display">{{ selecao['modelo'] or '(nome da peça)' }}</span>
-          <button id="edit-name-button" class="icon-button">
-            <i class="bi bi-pencil"></i>
-          </button>
+      <div class="edit-toolbar-content toolbar-content" style="display: none;">
+        <h3>
+            <span id="piece-tab-name">
+                {{ selecao['modelo'] or 'Peça' }}
+                <i class="bi bi-pencil"></i>
+            </span>
+        </h3>
+        <div class="form-group">
+            <label for="tecido">Tecido:</label>
+            <select id="tecido" class="form-control">
+                <option value="">Selecione um tecido</option>
+            </select>
         </div>
-        <div id="edit-input-container" style="display: none;">
-          <input type="text" id="edit-name-toolbar" value="{{ selecao['modelo'] or '' }}" class="edit-input">
-          <button id="save-name-toolbar" class="save-button">Salvar</button>
+        <div class="form-group">
+            <label for="tamanho">Tamanho:</label>
+            <select id="tamanho" class="form-control">
+                <option value="">Selecione um tamanho</option>
+            </select>
+        </div>
+        <div class="form-group">
+            <label for="cor">Cor:</label>
+            <select id="cor" class="form-control">
+                <option value="">Selecione uma cor</option>
+            </select>
         </div>
       </div>
       <!-- Botão de upload -->
@@ -72,7 +270,10 @@
         <div class="tab-container">
           <div id="tabs" class="tabs">
             <div class="tab" data-tab="piece">
-              <span id="piece-tab-name">{{ selecao['modelo'] or 'Peça' }}</span>
+              <span id="piece-tab-name">
+                {{ selecao['modelo'] or 'Peça' }}
+                <i class="bi bi-pencil"></i>
+              </span>
             </div>
           </div>
         </div>
@@ -106,6 +307,39 @@
 
     </div>
 
+  </div>
+
+  <div class="side-panel" id="peca-panel">
+    <div class="side-panel-header">
+        <h3>Configurações da Peça</h3>
+        <button class="close-panel">&times;</button>
+    </div>
+    <div class="side-panel-content">
+        <div class="form-group">
+            <label for="subtipo">Subtipo:</label>
+            <select id="subtipo" class="form-control">
+                <option value="">Selecione um subtipo</option>
+            </select>
+        </div>
+        <div class="form-group">
+            <label for="tecido">Tecido:</label>
+            <select id="tecido" class="form-control">
+                <option value="">Selecione um tecido</option>
+            </select>
+        </div>
+        <div class="form-group">
+            <label for="tamanho">Tamanho:</label>
+            <select id="tamanho" class="form-control">
+                <option value="">Selecione um tamanho</option>
+            </select>
+        </div>
+        <div class="form-group">
+            <label for="cor">Cor:</label>
+            <select id="cor" class="form-control">
+                <option value="">Selecione uma cor</option>
+            </select>
+        </div>
+    </div>
   </div>
 
   <script>
@@ -308,7 +542,65 @@ function addTab(imageUrl, imageName) {
     newTab.addEventListener("click", () => switchTab(tabId));
 }
 
-function setupToolbar() {
+// Função para carregar os dados do JSON
+async function carregarDadosPecas() {
+    try {
+        const response = await fetch('/static/carrossel_opcoes.json');
+        const data = await response.json();
+        return data.pecas;
+    } catch (error) {
+        console.error('Erro ao carregar dados:', error);
+        return null;
+    }
+}
+
+// Função para atualizar os campos do formulário
+function atualizarCamposFormulario(peca, subtipo) {
+    const pecas = window.pecasData;
+    if (!pecas || !pecas[peca] || !pecas[peca].variacoes[subtipo]) return;
+
+    const variacao = pecas[peca].variacoes[subtipo];
+    
+    // Atualizar select de tecidos
+    const tecidoSelect = document.getElementById('tecido');
+    tecidoSelect.innerHTML = '<option value="">Selecione um tecido</option>';
+    variacao.tecidos.forEach(tecido => {
+        tecidoSelect.innerHTML += `<option value="${tecido}">${tecido}</option>`;
+    });
+
+    // Atualizar select de tamanhos
+    const tamanhoSelect = document.getElementById('tamanho');
+    tamanhoSelect.innerHTML = '<option value="">Selecione um tamanho</option>';
+    variacao.tamanhos.forEach(tamanho => {
+        tamanhoSelect.innerHTML += `<option value="${tamanho}">${tamanho}</option>`;
+    });
+
+    // Atualizar select de cores
+    const corSelect = document.getElementById('cor');
+    corSelect.innerHTML = '<option value="">Selecione uma cor</option>';
+    variacao.cores.forEach(cor => {
+        corSelect.innerHTML += `<option value="${cor}">${cor}</option>`;
+    });
+}
+
+// Função para atualizar os subtipos disponíveis
+function atualizarSubtipos(peca) {
+    const pecas = window.pecasData;
+    if (!pecas || !pecas[peca]) return;
+
+    const subtipoSelect = document.getElementById('subtipo');
+    subtipoSelect.innerHTML = '<option value="">Selecione um subtipo</option>';
+    
+    Object.keys(pecas[peca].variacoes).forEach(subtipo => {
+        subtipoSelect.innerHTML += `<option value="${subtipo}">${subtipo}</option>`;
+    });
+}
+
+// Modificar a função setupToolbar para incluir o carregamento dos dados
+async function setupToolbar() {
+    // Carregar dados do JSON
+    window.pecasData = await carregarDadosPecas();
+
     // Certifique-se de que os elementos do DOM foram capturados corretamente
     if (!DOMElements.buttons || DOMElements.buttons.length === 0) {
         console.warn("Nenhum botão da toolbar encontrado.");
@@ -326,7 +618,22 @@ function setupToolbar() {
 
         button.addEventListener("click", () => {
             toggleToolbar(targetContent, button);
+            
+            // Se for o primeiro botão (edit-button), atualizar os subtipos
+            if (button.classList.contains('edit-button')) {
+                const pecaSelecionada = 'camiseta'; // Exemplo - você deve obter isso do canvas
+                atualizarSubtipos(pecaSelecionada);
+            }
         });
+    });
+
+    // Event listener para mudança de subtipo
+    document.getElementById('subtipo').addEventListener('change', function() {
+        const pecaSelecionada = 'camiseta'; // Exemplo - você deve obter isso do canvas
+        const subtipoSelecionado = this.value;
+        if (subtipoSelecionado) {
+            atualizarCamposFormulario(pecaSelecionada, subtipoSelecionado);
+        }
     });
 
     console.log("Botões da toolbar configurados:", DOMElements.buttons);
@@ -359,10 +666,13 @@ function toggleToolbar(targetContent, button) {
         button.classList.add("active");
         toolbar.classList.add("expanded");
 
-        // Ajusta a posição do conteúdo para não empurrar os botões
-        targetContent.style.top = `${button.offsetTop}px`;
+        // Ajusta a posição do conteúdo para o topo
+        targetContent.style.top = "0";
+        targetContent.style.left = "80px";
     } else {
         toolbar.classList.remove("expanded");
+        targetContent.style.display = "none";
+        targetContent.classList.remove("active");
     }
 }
 
@@ -1035,6 +1345,78 @@ if (typeof imgEditor !== "undefined" && imgEditor.canvas) {
 
       </script>
   {% endblock %}
+  <script>
+    // Função para carregar os dados do JSON
+    async function carregarDadosPecas() {
+        try {
+            const response = await fetch('/static/carrossel_opcoes.json');
+            const data = await response.json();
+            return data.pecas;
+        } catch (error) {
+            console.error('Erro ao carregar dados:', error);
+            return null;
+        }
+    }
+
+    // Função para atualizar os campos do formulário
+    function atualizarCamposFormulario(peca, subtipo) {
+        const pecas = window.pecasData;
+        if (!pecas || !pecas[peca] || !pecas[peca].variacoes[subtipo]) return;
+
+        const variacao = pecas[peca].variacoes[subtipo];
+        
+        // Atualizar select de tecidos
+        const tecidoSelect = document.getElementById('tecido');
+        tecidoSelect.innerHTML = '<option value="">Selecione um tecido</option>';
+        variacao.tecidos.forEach(tecido => {
+            tecidoSelect.innerHTML += `<option value="${tecido}">${tecido}</option>`;
+        });
+
+        // Atualizar select de tamanhos
+        const tamanhoSelect = document.getElementById('tamanho');
+        tamanhoSelect.innerHTML = '<option value="">Selecione um tamanho</option>';
+        variacao.tamanhos.forEach(tamanho => {
+            tamanhoSelect.innerHTML += `<option value="${tamanho}">${tamanho}</option>`;
+        });
+
+        // Atualizar select de cores
+        const corSelect = document.getElementById('cor');
+        corSelect.innerHTML = '<option value="">Selecione uma cor</option>';
+        variacao.cores.forEach(cor => {
+            corSelect.innerHTML += `<option value="${cor}">${cor}</option>`;
+        });
+    }
+
+    // Função para atualizar os subtipos disponíveis
+    function atualizarSubtipos(peca) {
+        const pecas = window.pecasData;
+        if (!pecas || !pecas[peca]) return;
+
+        const subtipoSelect = document.getElementById('subtipo');
+        subtipoSelect.innerHTML = '<option value="">Selecione um subtipo</option>';
+        
+        Object.keys(pecas[peca].variacoes).forEach(subtipo => {
+            subtipoSelect.innerHTML += `<option value="${subtipo}">${subtipo}</option>`;
+        });
+    }
+
+    // Event Listeners
+    document.addEventListener('DOMContentLoaded', async function() {
+        // Carregar dados do JSON
+        window.pecasData = await carregarDadosPecas();
+
+        // Botão para abrir o painel
+        const primeiroBotaoToolbar = document.querySelector('.toolbar button:first-child');
+        const editContent = document.querySelector('.edit-toolbar-content');
+
+        primeiroBotaoToolbar.addEventListener('click', function() {
+            // Aqui você deve passar a peça e subtipo selecionados
+            const pecaSelecionada = 'camiseta'; // Exemplo - você deve obter isso do canvas
+            const subtipoSelecionado = 'manga curta'; // Exemplo - você deve obter isso da página de criação
+            atualizarCamposFormulario(pecaSelecionada, subtipoSelecionado);
+        });
+    });
+  </script>
 </body>
 
 </html>

@@ -33,14 +33,14 @@ body {
   display: flex;
   flex-direction: column;
   justify-content: space-between;
-  align-items: center;
+  align-items: flex-start;
   background-color: rgba(0, 0, 0, 0);
   padding: 20px 10px;
   width: 70px;
   height: 80%;
   box-shadow: inset 0 0 0px 1px rgb(255, 255, 255);
   z-index: 2;
-  transition: width 0.3s ease-in-out; /* Transição mais curta */
+  transition: width 0.3s ease-in-out;
   position: relative;
   overflow: hidden;
   flex-shrink: 0;
@@ -48,7 +48,6 @@ body {
 
 .toolbar.expanded {
   width: 400px;
-  align-items: flex-start;
 }
 
 /* Mantém os botões fixos */
@@ -61,15 +60,19 @@ body {
   transition: color 0.3s ease-in-out;
   margin: 10px 0;
   position: relative;
+  z-index: 3;
+  transform: translateX(0);
+  transition: color 0.3s ease-in-out;
+  width: 70px;
+  display: flex;
+  justify-content: flex-start;
+  padding-left: 10px;
 }
 
 .toolbar-button:hover {
   color: #ff6347;
   transform: scale(1.1); /* Aumenta levemente o botão ao passar o mouse */
-
 }
-
-
 
 .upload-button.selected {
   color: #ffffff;
@@ -112,16 +115,10 @@ body {
   background-color: #ffffff00;
   flex-grow: 1;
   box-shadow: inset 0px 0px 0px 2px rgb(30 30 30);
-
   position: relative;
   overflow: hidden;
   padding-top: 50px; /* Empurrar todo o conteúdo para baixo */
 }
-
-
-
-
-
 
 .viewer-container.reduced {
   margin-left: 0px;
@@ -142,12 +139,9 @@ body {
   color: #fff;
 }
 
-
 .icon-button:hover {
   color: #ff6347;
 }
-
-
 
 .gallery {
   display: flex;
@@ -183,8 +177,6 @@ body {
   word-break: break-word; /* Evita que o texto ultrapasse os limites */
   text-align: center;
 }
-
-
 
 /* Botão estilizado */
 .custom-file-upload {
@@ -348,7 +340,6 @@ body {
   transition: opacity 0.3s ease-in-out;
 }
 
-
 .toolbar.expanded .edit-toolbar-content,
 .toolbar.expanded .upload-toolbar-content {
   display: flex;
@@ -364,12 +355,15 @@ body {
   opacity: 0;
   transition: opacity 0.3s ease-in-out;
   position: absolute;
-  left: 80px; /* Move o conteúdo sem empurrar os botões */
+  left: 80px;
   top: 10px;
+  z-index: 2;
+  pointer-events: none;
 }
 .toolbar-content.active {
   display: flex;
   opacity: 1;
+  pointer-events: auto;
 }
 
 .toolbar-content.visible {
@@ -386,15 +380,15 @@ body {
   flex-direction: column;
   align-items: flex-start;
   position: absolute;
-  left: 100px; /* Ajuste fino para encaixar melhor */
-  top: 50px; /* Mantém distância entre os botões e o conteúdo */
+  left: 100px;
+  top: 50px;
+  z-index: 2;
 }
 
 .toolbar-content.flex {
   opacity: 1;
   display: flex; /* Visível quando expandido */
 }
-
 
 /* Estilo do botão ativo */
 .toolbar-button.active {
@@ -422,7 +416,6 @@ body {
   align-items: center;
   padding: 10px;
 }
-
 
 .tabs {
   display: flex;
@@ -554,8 +547,6 @@ body {
   top: 50px; /* Aplicando margem superior em todas as abas */
   left: 0;
 }
-
-
 
 #viewers-container {
   width: 100%;

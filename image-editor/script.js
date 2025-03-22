@@ -41,14 +41,13 @@ try {
         setTimeout(() => {
           carregarSilhueta(event.data.url);
       }, 500);  // Aguarda 500ms para garantir que o canvas está pronto
-          }
+    }
 
     if (event.data.action === "loadGalleryImage" && event.data.url) {
         console.log("Carregando imagem da galeria:", event.data.url);
         carregarImagem(event.data.url);
     }
 });
-
 
 function carregarImagem(url) {
     const canvas = imgEditor.canvas;
@@ -67,6 +66,13 @@ function carregarImagem(url) {
 
 function carregarSilhueta(url) {
   const canvas = imgEditor.canvas;
+  
+  // Limpa o canvas antes de carregar a nova silhueta
+  canvas.clear();
+  
+  // Desabilitar a seleção de objetos no canvas
+  canvas.selection = false;
+  
   fabric.loadSVGFromURL(url, function(objects, options) {
       const silhouette = fabric.util.groupSVGElements(objects, options);
       silhouette.set({
@@ -75,62 +81,85 @@ function carregarSilhueta(url) {
           originX: "center",
           originY: "center",
           selectable: false,
-          fill: "black", // Mantém a peça preta
-          opacity: 1 // Garante que a silhueta seja visível
+          evented: false,
+          fill: "black",
+          opacity: 1,
+          lockMovementX: true,
+          lockMovementY: true,
+          lockRotation: true,
+          lockScalingX: true,
+          lockScalingY: true,
+          hasControls: false,
+          hasBorders: false,
+          hasRotatingPoint: false,
+          excludeFromExport: false,
+          zIndex: 2
       });
 
-      aplicarEfeitoDestaque(silhouette); // Aplica o efeito de destaque na tab da peça
+      // Criar uma camada fosca que cubra toda a tela
+      const overlay = new fabric.Rect({
+          left: 0,
+          top: 0,
+          width: canvas.width,
+          height: canvas.height,
+          fill: "rgba(0, 0, 0, 0.5)",
+          selectable: false,
+          evented: false,
+          lockMovementX: true,
+          lockMovementY: true,
+          lockRotation: true,
+          lockScalingX: true,
+          lockScalingY: true,
+          hasControls: false,
+          hasBorders: false,
+          hasRotatingPoint: false,
+          excludeFromExport: false,
+          zIndex: 1,
+          hoverCursor: 'default'
+      });
+
+      // Adicionar primeiro o fundo fosco
+      canvas.add(overlay);
+      
+      // Adicionar a silhueta por cima
+      canvas.add(silhouette);
+      
+      // Configurar a silhueta para criar o recorte
+      silhouette.globalCompositeOperation = "destination-out";
+      
+      // Garantir que a silhueta fique sempre visível
+      canvas.bringToFront(silhouette);
+      
+      // Desabilitar eventos do mouse no canvas
+      canvas.on('mouse:down', function(e) {
+          e.stopPropagation();
+      });
+      
+      canvas.on('mouse:move', function(e) {
+          e.stopPropagation();
+      });
+      
+      canvas.on('mouse:up', function(e) {
+          e.stopPropagation();
+      });
+      
+      // Desabilitar a seleção de objetos
+      canvas.on('selection:created', function(e) {
+          e.target.set('selectable', false);
+          canvas.discardActiveObject();
+      });
+      
+      canvas.on('selection:updated', function(e) {
+          e.target.set('selectable', false);
+          canvas.discardActiveObject();
+      });
+      
+      canvas.renderAll();
   });
 }
 
-function aplicarEfeitoDestaque(silhouette) {
-  const canvas = imgEditor.canvas;
-
-  // Criar uma camada fosca que cubra toda a tela
-  const overlay = new fabric.Rect({
-      left: 0,
-      top: 0,
-      width: canvas.width,
-      height: canvas.height,
-      fill: "rgba(0, 0, 0, 0.5)", // Fundo escurecido
-      selectable: false,
-      evented: false
-  });
-
-  // Criar um recorte na forma da silhueta (deixando a parte interna clara)
-  silhouette.globalCompositeOperation = "destination-out"; 
-
-  // Adicionar primeiro o fundo fosco
-  canvas.add(overlay);
-  
-  // Adicionar a silhueta como recorte
-  canvas.add(silhouette);
-  
-  canvas.sendToBack(overlay); // Garantir que o fundo fique atrás da silhueta
-  canvas.renderAll();
-}
-
-
-// Chamar a função após carregar a silhueta
-window.addEventListener("message", function (event) {
-  if (!event.data || !event.data.action) return;
-
-  console.log("Mensagem recebida no editor:", event.data);
-
-  if (event.data.action === "loadSilhouette" && event.data.url) {
-      console.log("Carregando silhueta:", event.data.url);
-      setTimeout(() => {
-        carregarSilhueta(event.data.url);
-    }, 500);  // Aguarda 500ms para garantir que o canvas está pronto
-      }
-});
-aplicarEfeitoDestaque();
-
-
-
-
-  // let status = imgEditor.getCanvasJSON();
-  // imgEditor.setCanvasStatus(status);
+// let status = imgEditor.getCanvasJSON();
+// imgEditor.setCanvasStatus(status);
 
 } catch (_) {
   const browserWarning = document.createElement('div')

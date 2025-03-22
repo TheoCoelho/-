@@ -2,44 +2,221 @@
   "pecas": {
     "bermuda": {
       "imagem": "bermuda.avif",
-      "silhueta": "bermuda.svg"
+      "silhueta": "bermuda.svg",
+      "variacoes": {
+        "jeans": {
+          "tecidos": ["Jeans"],
+          "tamanhos": ["36", "38", "40", "42"],
+          "cores": ["Azul Claro", "Azul Escuro"]
+        },
+        "sarja": {
+          "tecidos": ["Sarja"],
+          "tamanhos": ["36", "38", "40", "42"],
+          "cores": ["Bege", "Preto"]
+        },
+        "esportiva": {
+          "tecidos": ["Poliéster", "Dry-Fit"],
+          "tamanhos": ["P", "M", "G"],
+          "cores": ["Preto", "Vermelho", "Azul"]
+        }
+      }
     },
     "blusa": {
       "imagem": "blusa.png",
-      "silhueta": "blusa.svg"
+      "silhueta": "blusa.svg",
+      "variacoes": {
+        "moletom": {
+          "tecidos": ["Algodão", "Moletom"],
+          "tamanhos": ["P", "M", "G", "GG"],
+          "cores": ["Cinza", "Preto", "Rosa"]
+        },
+        "leve": {
+          "tecidos": ["Viscose", "Algodão Leve"],
+          "tamanhos": ["P", "M", "G"],
+          "cores": ["Branco", "Bege"]
+        },
+        "cardigan": {
+          "tecidos": ["Lã", "Algodão"],
+          "tamanhos": ["P", "M", "G"],
+          "cores": ["Cinza", "Marrom", "Vinho"]
+        }
+      }
     },
     "boina": {
-      "imagem": "boina.png"
+      "imagem": "boina.png",
+      "variacoes": {
+        "clássica": {
+          "tecidos": ["Lã"],
+          "tamanhos": ["Único"],
+          "cores": ["Preto", "Cinza", "Marrom"]
+        },
+        "moderna": {
+          "tecidos": ["Algodão", "Poliéster"],
+          "tamanhos": ["Único"],
+          "cores": ["Azul", "Preto", "Vermelha"]
+        }
+      }
     },
     "bone": {
-      "imagem": "bone.png"
+      "imagem": "bone.png",
+      "variacoes": {
+        "com aba reta": {
+          "tecidos": ["Poliéster", "Nylon"],
+          "tamanhos": ["Único"],
+          "cores": ["Preto", "Branco"]
+        },
+        "curvada": {
+          "tecidos": ["Algodão", "Poliéster"],
+          "tamanhos": ["Único"],
+          "cores": ["Azul", "Preto", "Vermelho"]
+        },
+        "trucker": {
+          "tecidos": ["Tela", "Algodão"],
+          "tamanhos": ["Único"],
+          "cores": ["Preto e Branco", "Cinza"]
+        }
+      }
     },
     "calca": {
       "imagem": "calca.png",
-      "silhueta": "calca.svg"
+      "silhueta": "calca.svg",
+      "variacoes": {
+        "social": {
+          "tecidos": ["Lã Fria", "Poliéster"],
+          "tamanhos": ["38", "40", "42", "44"],
+          "cores": ["Preto", "Cinza"]
+        },
+        "jeans": {
+          "tecidos": ["Jeans"],
+          "tamanhos": ["36", "38", "40", "42"],
+          "cores": ["Azul Claro", "Azul Escuro"]
+        },
+        "cargo": {
+          "tecidos": ["Sarja", "Algodão"],
+          "tamanhos": ["38", "40", "42"],
+          "cores": ["Verde Militar", "Bege", "Cinza"]
+        }
+      }
     },
     "camisa": {
       "imagem": "camisa.png",
-      "silhueta": "camisa.svg"
+      "silhueta": "camisa.svg",
+      "variacoes": {
+        "social": {
+          "tecidos": ["Algodão", "Linho"],
+          "tamanhos": ["P", "M", "G", "GG"],
+          "cores": ["Branco", "Azul Claro"]
+        },
+        "casual": {
+          "tecidos": ["Algodão", "Viscose"],
+          "tamanhos": ["P", "M", "G", "GG"],
+          "cores": ["Estampada", "Listrada"]
+        },
+        "xadrez": {
+          "tecidos": ["Algodão"],
+          "tamanhos": ["P", "M", "G", "GG"],
+          "cores": ["Vermelha", "Azul", "Preta"]
+        }
+      }
     },
     "camiseta": {
       "imagem": "camiseta.png",
-      "silhueta": "camiseta.svg"
+      "silhueta": "camiseta.svg",
+      "variacoes": {
+        "manga curta": {
+          "tecidos": ["Algodão", "Dry-Fit"],
+          "tamanhos": ["P", "M", "G", "GG"],
+          "cores": ["Branca", "Preta", "Cinza"]
+        },
+        "manga longa": {
+          "tecidos": ["Algodão", "Moletom Leve"],
+          "tamanhos": ["P", "M", "G", "GG"],
+          "cores": ["Branca", "Preta"]
+        },
+        "regata": {
+          "tecidos": ["Dry-Fit", "Algodão"],
+          "tamanhos": ["P", "M", "G", "GG"],
+          "cores": ["Branca", "Preta", "Azul"]
+        }
+      }
     },
     "chapeu": {
-      "imagem": "chapeu.png"
+      "imagem": "chapeu.png",
+      "variacoes": {
+        "panamá": {
+          "tecidos": ["Palha"],
+          "tamanhos": ["Único"],
+          "cores": ["Bege", "Branco"]
+        },
+        "floppy": {
+          "tecidos": ["Feltro"],
+          "tamanhos": ["Único"],
+          "cores": ["Preto", "Vermelho"]
+        },
+        "bucket": {
+          "tecidos": ["Algodão", "Nylon"],
+          "tamanhos": ["Único"],
+          "cores": ["Preto", "Estampado"]
+        }
+      }
     },
     "jaqueta": {
       "imagem": "jaqueta.png",
-      "silhueta": "jaqueta.svg"
+      "silhueta": "jaqueta.svg",
+      "variacoes": {
+        "couro": {
+          "tecidos": ["Couro sintético", "Couro ecológico"],
+          "tamanhos": ["P", "M", "G"],
+          "cores": ["Preta", "Marrom"]
+        },
+        "jeans": {
+          "tecidos": ["Jeans"],
+          "tamanhos": ["P", "M", "G", "GG"],
+          "cores": ["Jeans Azul", "Jeans Claro"]
+        },
+        "puffer": {
+          "tecidos": ["Nylon", "Poliéster"],
+          "tamanhos": ["M", "G", "GG"],
+          "cores": ["Preta", "Vermelha", "Verde"]
+        }
+      }
     },
     "regata": {
       "imagem": "regata.png",
-      "silhueta": "regata.svg"
+      "silhueta": "regata.svg",
+      "variacoes": {
+        "básica": {
+          "tecidos": ["Algodão"],
+          "tamanhos": ["P", "M", "G", "GG"],
+          "cores": ["Preto", "Branco", "Cinza"]
+        },
+        "esportiva": {
+          "tecidos": ["Dry-Fit"],
+          "tamanhos": ["P", "M", "G"],
+          "cores": ["Vermelho", "Azul", "Preto"]
+        }
+      }
     },
     "short": {
       "imagem": "short.avif",
-      "silhueta": "short.svg"
+      "silhueta": "short.svg",
+      "variacoes": {
+        "esportivo": {
+          "tecidos": ["Poliéster", "Dry-Fit"],
+          "tamanhos": ["P", "M", "G"],
+          "cores": ["Preto", "Azul", "Vermelho"]
+        },
+        "casual": {
+          "tecidos": ["Algodão"],
+          "tamanhos": ["36", "38", "40"],
+          "cores": ["Bege", "Cinza"]
+        },
+        "jeans": {
+          "tecidos": ["Jeans"],
+          "tamanhos": ["36", "38", "40"],
+          "cores": ["Jeans Claro", "Jeans Escuro"]
+        }
+      }
     },
     "default": {
       "imagem": "default.png"
